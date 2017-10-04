@@ -1,0 +1,72 @@
+package model
+
+import model.html.{Html, Node}
+
+/**
+  * Author: Sean
+  * Date: 4/10/2017
+  * Time: 10:53 PM
+  * 代表一则笔记
+  */
+case class Piece(title: String, fileName: Option[String]) extends Html {
+  var lines: List[String] = List()
+  var keywords: List[String] = List()
+
+  private def renderHit(text: String, token: String): String = {
+    text.replaceAll(token, "<strong class=\"text-danger\">" + token + "</strong>")
+  }
+
+  def search(tokens: List[String]) = {
+    var contain = false
+    for (line <- lines) {
+      contain = contain || tokens.exists(token => {
+        line.contains(token)
+      })
+    }
+
+    if (contain) {
+      renderHtml(tokens)
+    } else {
+      ""
+    }
+  }
+
+  def addLine(line: String) = {
+    lines = lines ++ List(line)
+  }
+
+  def addKeyword(keyword: String) = {
+    keywords = keywords ++ List(keyword)
+  }
+
+  def isNotEmpty: Boolean = title.trim.length > 0
+
+  override def toHtml: String = {
+    renderHtml(List())
+  }
+
+  private def renderHtml(tokens: List[String]): String = {
+    val html = new StringBuilder
+
+    var myTitle = title
+    tokens.foreach(token => {
+      myTitle = renderHit(myTitle, token)
+    })
+
+    html.append(Node("h2", myTitle))
+
+    fileName match {
+      case Some(name) => html.append(Node("h4", name))
+      case _ =>
+    }
+
+    lines.foreach(line => {
+      var tmpLine = line
+      tokens.foreach(token => {
+        tmpLine = renderHit(tmpLine, token)
+      })
+      html.append(Node("p", tmpLine))
+    })
+    html.toString
+  }
+}
