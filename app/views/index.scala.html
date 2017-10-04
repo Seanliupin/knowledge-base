@@ -1,3 +1,32 @@
-@(subTitle: String)
-<h1>Welcome to Play! @subTitle</h1>
+@(userForm: String)
+@main("this is title") {
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Knowledge -base</a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li>
+                        <form class="navbar-form navbar-right" action="/search">
+                            <input type="text" name="content" class="form-control" placeholder="Search...">
+                        </form>
+                    </li>>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
+    <div class="container">
+
+        <div class="starter-template">
+            <h1>Bootstrap starter template</h1>
+            <p class="lead">Use this document as a way to quickly start any new project.<br>
+                All you get is this text and a mostly barebones HTML document.</p>
+        </div>
+
+    </div>
+        <!-- /.container -->
+}
