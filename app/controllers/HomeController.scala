@@ -4,6 +4,7 @@ import javax.inject._
 
 import play.api.db._
 import play.api.mvc._
+import resource._
 
 /**
   * This controller creates an `Action` to handle HTTP requests to the
@@ -12,13 +13,23 @@ import play.api.mvc._
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents, db: Database) extends AbstractController(cc) {
 
+  val dir = "/Users/seanliu/Note/"
+
   def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index(""))
+    Ok(views.html.index("", ""))
   }
 
   def search(query: String) = Action { request: Request[AnyContent] =>
-//    Ok("query = " + query)
-    Ok(views.html.index(query))
+    val s = new StringBuilder
+    val fileName = dir + "daily/dailyLog-2017-9-10.md"
+
+    for (source <- managed(scala.io.Source.fromFile(fileName))) {
+      for (line <- source.getLines) {
+        s.append("=> <br/>" + line)
+      }
+    }
+
+    Ok(views.html.index(query, s.toString()))
   }
 
   def test = TODO
