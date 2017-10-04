@@ -23,9 +23,26 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
     val s = new StringBuilder
     val fileName = dir + "daily/dailyLog-2017-9-10.md"
 
+    val tokens = query.trim.split("[\\s]+")
+
+    def renderHit(text: String, token: String): String = {
+      text.replaceAll(token, "<strong class=\"text-danger\">" + token + "</strong>")
+    }
+
     for (source <- managed(scala.io.Source.fromFile(fileName))) {
       for (line <- source.getLines) {
-        s.append("=> <br/>" + line)
+        val contain = tokens.exists(token => {
+          line.contains(token)
+        })
+
+        if (contain) {
+          var renderedLine = line
+          tokens.foreach(token => {
+            renderedLine = renderHit(renderedLine, token)
+          })
+          s.append(renderedLine)
+          s.append("<br/> <br/>")
+        }
       }
     }
 
