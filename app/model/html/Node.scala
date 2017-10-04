@@ -7,14 +7,36 @@ package model.html
   */
 case class Node(tag: String, value: String) {
   var names: List[String] = List()
+  private var title = ""
 
   def className(name: String): Node = {
     names = name :: names
     this
   }
 
+  def title(title: String): Node = {
+    this.title = title
+    this
+  }
+
+  def href(ref: String): Node = {
+    //todo
+    this
+  }
+
   override def toString(): String = {
-    val re = names.mkString(", ")
-    s"<$tag $re>$value</$tag>"
+    var className = ""
+    if (names.size > 0) {
+      className = names.mkString(", ")
+      className = "class =" + "\"" + className + "\""
+    }
+
+    var myTitle = ""
+    if (title.trim.size > 0) {
+      myTitle = "title= " + "\"" + title + "\""
+    }
+
+
+    s"<$tag $className $myTitle>$value</$tag>"
   }
 }

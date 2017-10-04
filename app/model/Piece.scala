@@ -47,25 +47,13 @@ case class Piece(title: String, fileName: Option[String]) extends Html {
 
   private def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
-
-    var myTitle = title
-    tokens.foreach(token => {
-      myTitle = renderHit(myTitle, token)
-    })
-
-    html.append(Node("h2", myTitle))
-
-    fileName match {
-      case Some(name) => html.append(Node("h4", name))
-      case _ =>
-    }
-
+    html.append(Node("a", title).className("piece-title").title(fileName.getOrElse("")))
     lines.foreach(line => {
       var tmpLine = line
       tokens.foreach(token => {
         tmpLine = renderHit(tmpLine, token)
       })
-      html.append(Node("p", tmpLine))
+      html.append(Node("p", tmpLine).className("piece-content"))
     })
     html.toString
   }

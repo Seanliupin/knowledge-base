@@ -16,3 +16,18 @@ body {
 .theme-showcase .navbar .container {
     width: auto;
 }
+
+.piece-content {
+    font-size: 22px;
+}
+
+.piece-title {
+    font-size: 30px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+    color: inherit;
+    display: block;
+}
