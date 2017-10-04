@@ -15,10 +15,10 @@ case class Note(fileName: String) extends Html {
     text.replaceAll(token, "<strong class=\"text-danger\">" + token + "</strong>")
   }
 
-  def search(tokens: List[String]) = {
+  def searchContent(tokens: List[String]) = {
     val s = new StringBuilder
     getPiece.foreach(piece => {
-      s.append(piece.search(tokens))
+      s.append(piece.searchContent(tokens))
     })
 
     s.toString()

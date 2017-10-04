@@ -18,7 +18,9 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
 
   def search(query: String) = Action { request: Request[AnyContent] =>
     val tokens = query.trim.split("[\\s]+").map(_.trim).filter(_.length > 0).toList
-    Ok(views.html.index(query, NoteService.search(tokens)))
+    Ok(views.html.index(query, NoteService.searchContent(tokens)))
+
+
   }
 
   def test = TODO

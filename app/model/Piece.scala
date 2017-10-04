@@ -16,11 +16,25 @@ case class Piece(title: String, fileName: Option[String]) extends Html {
     text.replaceAll(token, "<strong class=\"text-danger\">" + token + "</strong>")
   }
 
-  def search(tokens: List[String]) = {
+  def searchContent(tokens: List[String]) = {
+    val body = lines.mkString
+
+    val contain = tokens.forall(token => {
+      body.contains(token)
+    })
+
+    if (contain) {
+      renderHtml(tokens)
+    } else {
+      ""
+    }
+  }
+
+  def searchKeywords(tokens: List[String]) = {
     var contain = false
-    for (line <- lines) {
+    for (keyword <- keywords) {
       contain = contain || tokens.exists(token => {
-        line.contains(token)
+        keyword.contains(token)
       })
     }
 
@@ -47,7 +61,13 @@ case class Piece(title: String, fileName: Option[String]) extends Html {
 
   private def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
+    //title 是可以直接看到的，fileName是鼠标悬停的时候显示
     html.append(Node("a", title).className("piece-title").title(fileName.getOrElse("")))
+
+    if (keywords.size > 0) {
+      html.append(Node("div", keywords.mkString(", ")).className("piece-keyword"))
+    }
+
     lines.foreach(line => {
       var tmpLine = line
       tokens.foreach(token => {
