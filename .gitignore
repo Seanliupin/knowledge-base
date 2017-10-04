@@ -7,3 +7,4 @@ target
 /.settings
 /RUNNING_PID
 .g8
+/db
