@@ -1,4 +1,4 @@
-@(userForm: String)
+@(query: String)
 @main("this is title") {
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
@@ -11,7 +11,7 @@
                     <li><a href="#about">About</a></li>
                     <li>
                         <form class="navbar-form navbar-right" action="/search">
-                            <input type="text" name="content" class="form-control" placeholder="Search...">
+                            <input type="text" name="query" class="form-control" value="@query" placeholder="Search...">
                         </form>
                     </li>>
                 </ul>
