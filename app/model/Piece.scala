@@ -1,6 +1,6 @@
 package model
 
-import model.html.{Html, Node}
+import model.html.Node
 
 /**
   * Author: Sean
@@ -8,13 +8,9 @@ import model.html.{Html, Node}
   * Time: 10:53 PM
   * 代表一则笔记
   */
-case class Piece(title: String, fileName: Option[String]) extends Html {
+case class Piece(title: String, fileName: Option[String]) extends Searchable {
   var lines: List[String] = List()
   var keywords: List[String] = List()
-
-  private def renderHit(text: String, token: String): String = {
-    text.replaceAll(token, "<strong class=\"text-danger\">" + token + "</strong>")
-  }
 
   def searchContent(tokens: List[String]) = {
     val body = lines.mkString

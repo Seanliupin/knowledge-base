@@ -1,6 +1,6 @@
 package model
 
-import model.html.{Html, Tag}
+import model.html.Category
 import resource.managed
 
 /**
@@ -9,11 +9,7 @@ import resource.managed
   * Time: 10:48 PM
   * 这个类表示一篇笔记
   */
-case class Note(fileName: String) extends Html {
-
-  private def renderHit(text: String, token: String): String = {
-    text.replaceAll(token, "<strong class=\"text-danger\">" + token + "</strong>")
-  }
+case class Note(fileName: String) extends Searchable {
 
   def searchContent(tokens: List[String]) = {
     val s = new StringBuilder
@@ -31,14 +27,14 @@ case class Note(fileName: String) extends Html {
     for (source <- managed(scala.io.Source.fromFile(fileName))) {
       for (line <- source.getLines) {
 
-        if (line.startsWith(Tag.title)) {
+        if (line.startsWith(Category.title)) {
           if (piece.isNotEmpty) {
             pieces = pieces ++ List(piece)
           }
-          piece = Piece(line.replace(Tag.title, ""), Option(fileName))
+          piece = Piece(line.replace(Category.title, ""), Option(fileName))
         } else if (piece.isNotEmpty) {
-          if (line.startsWith(Tag.key)) {
-            piece.addKeyword(line.replace(Tag.key, ""))
+          if (line.startsWith(Category.keys)) {
+            piece.addKeyword(line.replace(Category.keys, ""))
           } else {
             piece.addLine(line)
           }
