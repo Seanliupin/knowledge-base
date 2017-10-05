@@ -31,27 +31,27 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
   def searchContent(tokens: List[String]): List[Hit] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
-    tokens.filter(token => title.contains(token))
+    tokens.filter(token => title.toLowerCase.contains(token))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreTitle)
       })
 
-    val totalLines = lines.mkString
+    val totalLines = lines.mkString.toLowerCase
     tokens.filter(token => totalLines.contains(token))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreBody)
       })
 
-    val totalComments = comments.mkString
+    val totalComments = comments.mkString.toLowerCase
     tokens.filter(token => totalComments.contains(token))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreComment)
       })
 
-    val totalKeywords = keywords.mkString
+    val totalKeywords = keywords.mkString.toLowerCase
     tokens.filter(token => totalKeywords.contains(token))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
@@ -72,7 +72,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
 
 
   def searchComment(tokens: List[String]): List[Hit] = {
-    val body = comments.mkString
+    val body = comments.mkString.toLowerCase
 
     val contain = tokens.forall(token => {
       body.contains(token)
@@ -86,7 +86,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
   }
 
   def searchBody(tokens: List[String]): List[Hit] = {
-    val body = lines.mkString
+    val body = lines.mkString.toLowerCase
 
     val contain = tokens.forall(token => {
       body.contains(token)
@@ -100,12 +100,11 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
   }
 
   def searchKeywords(tokens: List[String]): List[Hit] = {
-    var contain = false
-    for (keyword <- keywords) {
-      contain = contain || tokens.exists(token => {
-        keyword.trim.contains(token.trim)
-      })
-    }
+    val body = keywords.mkString.toLowerCase
+
+    val contain = tokens.forall(token => {
+      body.contains(token)
+    })
 
     if (contain) {
       List(Hit(renderHtml(tokens), Score.scoreTag))
@@ -158,6 +157,6 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
       html.append(Node("p", text).className("piece-comment"))
     })
 
-    html.toString
+    Node("div", html.toString).className("piece-container").toString()
   }
 }

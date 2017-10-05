@@ -3,9 +3,14 @@ body {
     padding-bottom: 30px;
 }
 
+.piece-container{
+    margin-bottom: 20px;
+}
+
 .piece-content, .piece-comment {
-    font-size: 22px;
-    margin-bottom: 10px;
+    font-size: 20px;
+    line-height: 1.75;
+    margin-bottom: 1.2em;
 }
 
 .piece-comment {
@@ -20,13 +25,14 @@ body {
 
 .piece-title {
     font-size: 30px;
-    margin-top: 20px;
-    margin-bottom: 10px;
     font-family: inherit;
     font-weight: 500;
     line-height: 1.1;
     color: inherit;
     display: block;
+    padding-bottom: 9px;
+    margin: 20px 0 10px;
+    border-bottom: 1px solid #eee;
 }
 
 .piece-keyword {
