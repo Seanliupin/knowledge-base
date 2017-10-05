@@ -12,7 +12,8 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
   protected var lines: List[String] = List()
   protected var keywords: List[String] = List()
   protected var comments: List[String] = List()
-  protected var urls: List[Url] = List()
+  protected var webs: List[Web] = List()
+  protected var books: List[Book] = List()
 
   def addLine(line: String) = {
     lines = lines ++ List(line)
@@ -24,6 +25,14 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
 
   def addComment(comment: String) = {
     comments = comments ++ List(comment)
+  }
+
+  def addWeb(web: Web): Unit = {
+    webs = webs ++ List(web)
+  }
+
+  def addBook(book: Book): Unit = {
+    books = books ++ List(book)
   }
 
   def isNotEmpty: Boolean = title.trim.length > 0

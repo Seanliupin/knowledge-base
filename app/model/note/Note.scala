@@ -35,7 +35,13 @@ case class Note(fileName: String) extends Searchable {
           } else if (line.startsWith(Category.comment)) {
             piece.addComment(line.replace(Category.comment, ""))
           } else {
-            piece.addLine(line)
+            line match {
+              case Extractor.WebExtractor(title, url, comment) =>
+                piece.addWeb(Web(title, url, comment))
+              case Extractor.BookExtractor(title, url, comment) =>
+                piece.addBook(Book(title, url, comment))
+              case _ => piece.addLine(line)
+            }
           }
         }
       }
