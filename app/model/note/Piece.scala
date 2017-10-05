@@ -28,7 +28,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
 
   def isNotEmpty: Boolean = title.trim.length > 0
 
-  def searchContent(tokens: List[String]) = {
+  def searchContent(tokens: List[String]): List[Hit] = {
     val body = lines.mkString
 
     val contain = tokens.forall(token => {
@@ -36,14 +36,14 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     })
 
     if (contain) {
-      renderHtml(tokens)
+      List(Hit(renderHtml(tokens), 10))
     } else {
-      ""
+      List(Hit("", 0))
     }
   }
 
 
-  def searchComment(tokens: List[String]) = {
+  def searchComment(tokens: List[String]): List[Hit] = {
     val body = comments.mkString
 
     val contain = tokens.forall(token => {
@@ -51,13 +51,13 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     })
 
     if (contain) {
-      renderHtml(tokens)
+      List(Hit(renderHtml(tokens), 10))
     } else {
-      ""
+      List(Hit("", 0))
     }
   }
 
-  def searchKeywords(tokens: List[String]) = {
+  def searchKeywords(tokens: List[String]): List[Hit] = {
     var contain = false
     for (keyword <- keywords) {
       contain = contain || tokens.exists(token => {
@@ -66,13 +66,13 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     }
 
     if (contain) {
-      renderHtml(tokens)
+      List(Hit(renderHtml(tokens), 10))
     } else {
-      ""
+      List(Hit("", 0))
     }
   }
 
-  override def search(tokens: List[String], context: Option[String]): String = {
+  override def search(tokens: List[String], context: Option[String]): List[Hit] = {
     context match {
       case Some("keyword") => searchKeywords(tokens)
       case Some("comment") => searchComment(tokens)

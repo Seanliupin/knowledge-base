@@ -12,5 +12,5 @@ abstract class Searchable extends Html {
     text.replaceAll(token, "<strong class=\"text-danger\">" + token + "</strong>")
   }
 
-  def search(tokens: List[String], context: Option[String]): String
+  def search(tokens: List[String], context: Option[String]): List[Hit]
 }

@@ -53,12 +53,9 @@ case class Note(fileName: String) extends Searchable {
     html.toString
   }
 
-  override def search(tokens: List[String], context: Option[String]): String = {
-    val s = new StringBuilder
-    getPiece.foreach(piece => {
-      s.append(piece.search(tokens, context))
-    })
-
-    s.toString()
+  override def search(tokens: List[String], context: Option[String]): List[Hit] = {
+    getPiece.flatMap(piece => {
+      piece.search(tokens, context)
+    }).filter(_.score > 0)
   }
 }
