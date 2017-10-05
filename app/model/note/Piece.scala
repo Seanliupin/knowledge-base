@@ -8,12 +8,42 @@ import model.html.Node
   * Time: 10:53 PM
   * 代表一则笔记
   */
-case class Piece(title: String, fileName: Option[String]) extends Searchable {
-  var lines: List[String] = List()
-  var keywords: List[String] = List()
+abstract class Piece(title: String, fileName: Option[String]) extends Searchable {
+  protected var lines: List[String] = List()
+  protected var keywords: List[String] = List()
+  protected var comments: List[String] = List()
+
+  def addLine(line: String) = {
+    lines = lines ++ List(line)
+  }
+
+  def addKeyword(keyword: String) = {
+    keywords = keywords ++ List(keyword)
+  }
+
+  def addComment(comment: String) = {
+    comments = comments ++ List(comment)
+  }
+
+  def isNotEmpty: Boolean = title.trim.length > 0
 
   def searchContent(tokens: List[String]) = {
     val body = lines.mkString
+
+    val contain = tokens.forall(token => {
+      body.contains(token)
+    })
+
+    if (contain) {
+      renderHtml(tokens)
+    } else {
+      ""
+    }
+  }
+
+
+  def searchComment(tokens: List[String]) = {
+    val body = comments.mkString
 
     val contain = tokens.forall(token => {
       body.contains(token)
@@ -41,18 +71,12 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     }
   }
 
-  def addLine(line: String) = {
-    lines = lines ++ List(line)
-  }
-
-  def addKeyword(keyword: String) = {
-    keywords = keywords ++ List(keyword)
-  }
-
-  def isNotEmpty: Boolean = title.trim.length > 0
-
   override def toHtml: String = {
     renderHtml(List())
+  }
+
+  def pieceType: String = {
+    ""
   }
 
   private def renderHtml(tokens: List[String]): String = {

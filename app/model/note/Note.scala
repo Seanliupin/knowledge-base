@@ -22,7 +22,7 @@ case class Note(fileName: String) extends Searchable {
 
   def getPiece: List[Piece] = {
     var pieces: List[Piece] = List()
-    var piece = Piece("", None)
+    var piece = Text("", None)
 
     for (source <- managed(scala.io.Source.fromFile(fileName))) {
       for (line <- source.getLines) {
@@ -31,7 +31,7 @@ case class Note(fileName: String) extends Searchable {
           if (piece.isNotEmpty) {
             pieces = pieces ++ List(piece)
           }
-          piece = Piece(line.replace(Category.title, ""), Option(fileName))
+          piece = Text(line.replace(Category.title, ""), Option(fileName))
         } else if (piece.isNotEmpty) {
           if (line.startsWith(Category.keys)) {
             piece.addKeyword(line.replace(Category.keys, ""))
