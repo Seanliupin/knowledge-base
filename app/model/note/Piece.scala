@@ -18,8 +18,8 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     lines = lines ++ List(line)
   }
 
-  def addKeyword(keyword: String) = {
-    keywords = keywords ++ List(keyword)
+  def addKeywords(newKeywords: List[String]) = {
+    keywords = keywords ++ newKeywords
   }
 
   def addComment(comment: String) = {
@@ -74,12 +74,9 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
 
   override def search(tokens: List[String], context: Option[String]): String = {
     context match {
-      case None => searchContent(tokens)
-      case Some(con) => con match {
-        case "keyword" => searchKeywords(tokens)
-        case "comment" => searchComment(tokens)
-        case _ => searchContent(tokens)
-      }
+      case Some("keyword") => searchKeywords(tokens)
+      case Some("comment") => searchComment(tokens)
+      case _ => searchContent(tokens)
     }
   }
 
@@ -97,7 +94,9 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     html.append(Node("a", title).className("piece-title").title(fileName.getOrElse("")))
 
     if (keywords.size > 0) {
-      html.append(Node("div", keywords.mkString(", ")).className("piece-keyword"))
+      html.append(Node("div", keywords.map(keyword => {
+        Node("code", keyword).className("piece-keyword").toString()
+      }).mkString(" ")))
     }
 
     lines.foreach(line => {

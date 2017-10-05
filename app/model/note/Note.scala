@@ -1,5 +1,6 @@
 package model.note
 
+import helper.StringUtil
 import model.html.Category
 import resource.managed
 
@@ -12,7 +13,7 @@ import resource.managed
 case class Note(fileName: String) extends Searchable {
 
   /**
-    * parse piece of infomation
+    * parse piece of information
     **/
   def getPiece: List[Piece] = {
     var pieces: List[Piece] = List()
@@ -28,9 +29,9 @@ case class Note(fileName: String) extends Searchable {
           piece = Piece(line.replace(Category.title, ""), Option(fileName))
         } else if (piece.isNotEmpty) {
           if (line.startsWith(Category.keys)) {
-            piece.addKeyword(line.replace(Category.keys, ""))
+            piece.addKeywords(line.replace(Category.keys, "").split(StringUtil.whiteSpaceSegmenter).toList)
           } else if (line.startsWith(Category.tags)) {
-            piece.addKeyword(line.replace(Category.tags, ""))
+            piece.addKeywords(line.replace(Category.tags, "").split(StringUtil.whiteSpaceSegmenter).toList)
           } else if (line.startsWith(Category.comment)) {
             piece.addComment(line.replace(Category.comment, ""))
           } else {

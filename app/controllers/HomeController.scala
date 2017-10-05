@@ -2,6 +2,7 @@ package controllers
 
 import javax.inject._
 
+import helper.StringUtil
 import play.api.db._
 import play.api.mvc._
 import service.NoteService
@@ -16,11 +17,11 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
     Ok(views.html.index("", ""))
   }
 
-  def search(query: String) = Action { request: Request[AnyContent] =>
-    val tokens = query.trim.split("[\\s]+").map(_.trim).filter(_.length > 0).toList
-    Ok(views.html.index(query, NoteService.searchContent(tokens)))
+  def search(query: String, context: String) = Action { request: Request[AnyContent] =>
+    println("context = " + context)
 
-
+    val tokens = query.trim.split(StringUtil.whiteSpaceSegmenter).map(_.trim).filter(_.length > 0).toList
+    Ok(views.html.index(query, NoteService.search(tokens, Option(context))))
   }
 
   def test = TODO

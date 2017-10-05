@@ -9,14 +9,12 @@ import model.note.NoteBook
   */
 object NoteService {
 
-  def searchContent(tokens: List[String]): String = {
+  def search(tokens: List[String], context: Option[String]): String = {
     val all = new StringBuilder
     NoteBook.notes.foreach(note => {
-      val re = note.search(tokens, None)
+      val re = note.search(tokens, context)
       all.append(re)
     })
     all.toString()
   }
-
-
 }
