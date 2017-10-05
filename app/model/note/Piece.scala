@@ -9,21 +9,21 @@ import model.html.Node
   * 代表一则笔记
   */
 case class Piece(title: String, fileName: Option[String]) extends Searchable {
-  protected var lines: List[String] = List()
-  protected var keywords: List[String] = List()
-  protected var comments: List[String] = List()
+  protected var lines: List[Line] = List()
+  protected var keywords: List[Line] = List()
+  protected var comments: List[Line] = List()
   protected var webs: List[Web] = List()
   protected var books: List[Book] = List()
 
-  def addLine(line: String) = {
+  def addLine(line: Line) = {
     lines = lines ++ List(line)
   }
 
-  def addKeywords(newKeywords: List[String]) = {
+  def addKeywords(newKeywords: List[Line]) = {
     keywords = keywords ++ newKeywords
   }
 
-  def addComment(comment: String) = {
+  def addComment(comment: Line) = {
     comments = comments ++ List(comment)
   }
 
@@ -161,7 +161,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
 
     if (keywords.size > 0) {
       html.append(Node("div", keywords.map(keyword => {
-        Node("code", keyword).className("piece-keyword").toString()
+        Node("code", keyword.toString).className("piece-keyword").toString()
       }).mkString(" ")).className("piece-keyword-container"))
     }
 
@@ -174,7 +174,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     })
 
     lines.foreach(line => {
-      var text = line
+      var text = line.toString
       tokens.foreach(token => {
         text = renderHit(text, token)
       })
@@ -182,7 +182,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     })
 
     comments.foreach(comment => {
-      var text = comment
+      var text = comment.toString
       tokens.foreach(token => {
         text = renderHit(text, token)
       })

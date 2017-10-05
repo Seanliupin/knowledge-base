@@ -20,6 +20,12 @@ case class Line(line: String) extends Hitable {
   override def hit(token: String): Boolean = {
     line.toLowerCase.contains(token)
   }
+
+  override def toString: String = line
+}
+
+object Line {
+  implicit def stringToLine(line: String) = Line(line)
 }
 
 

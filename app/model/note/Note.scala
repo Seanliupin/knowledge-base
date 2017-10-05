@@ -29,9 +29,9 @@ case class Note(fileName: String) extends Searchable {
           piece = Piece(line.replace(Category.title, ""), Option(fileName))
         } else if (piece.isNotEmpty) {
           if (line.startsWith(Category.keys)) {
-            piece.addKeywords(line.replace(Category.keys, "").split(StringUtil.whiteSpaceSegmenter).toList)
+            piece.addKeywords(line.replace(Category.keys, "").split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
           } else if (line.startsWith(Category.tags)) {
-            piece.addKeywords(line.replace(Category.tags, "").split(StringUtil.whiteSpaceSegmenter).toList)
+            piece.addKeywords(line.replace(Category.tags, "").split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
           } else if (line.startsWith(Category.comment)) {
             piece.addComment(line.replace(Category.comment, ""))
           } else {
