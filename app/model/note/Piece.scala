@@ -79,7 +79,21 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     })
 
     if (contain) {
-      List(Hit(renderHtml(tokens), 10))
+      List(Hit(renderHtml(tokens), Score.scoreComment))
+    } else {
+      List(Hit("", 0))
+    }
+  }
+
+  def searchBody(tokens: List[String]): List[Hit] = {
+    val body = lines.mkString
+
+    val contain = tokens.forall(token => {
+      body.contains(token)
+    })
+
+    if (contain) {
+      List(Hit(renderHtml(tokens), Score.scoreBody))
     } else {
       List(Hit("", 0))
     }
@@ -94,7 +108,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     }
 
     if (contain) {
-      List(Hit(renderHtml(tokens), 10))
+      List(Hit(renderHtml(tokens), Score.scoreTag))
     } else {
       List(Hit("", 0))
     }
@@ -104,6 +118,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     context match {
       case Some("keyword") => searchKeywords(tokens)
       case Some("comment") => searchComment(tokens)
+      case Some("body") => searchBody(tokens)
       case _ => searchContent(tokens)
     }
   }

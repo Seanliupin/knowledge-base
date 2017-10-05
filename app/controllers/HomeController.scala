@@ -3,6 +3,7 @@ package controllers
 import javax.inject._
 
 import helper.StringUtil
+import model.note.ContextOption
 import play.api.db._
 import play.api.mvc._
 import service.NoteService
@@ -13,13 +14,21 @@ import service.NoteService
   */
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents, db: Database) extends AbstractController(cc) {
+
+  private val contextList: List[ContextOption] = List(
+    ContextOption("all", false),
+    ContextOption("body", false),
+    ContextOption("keyword", false),
+    ContextOption("comment", false)
+  )
+
   def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index("", ""))
+    Ok(views.html.index("", contextList.map(c => ContextOption(c.value, c.value == "all")), ""))
   }
 
-  def search(query: String, context: String) = Action { request: Request[AnyContent] =>
+  def search(query: String, context: String) = Action { implicit request: Request[AnyContent] =>
     val tokens = query.trim.split(StringUtil.whiteSpaceSegmenter).map(_.trim).filter(_.length > 0).toList
-    Ok(views.html.index(query, NoteService.search(tokens, Option(context))))
+    Ok(views.html.index(query, contextList.map(c => ContextOption(c.value, c.value == context)), NoteService.search(tokens, Option(context))))
   }
 
   def test = TODO

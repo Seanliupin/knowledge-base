@@ -1,4 +1,4 @@
-@(query: String, result: String)
+@(query: String, contextList: List[model.note.ContextOption], result: String)
 
 @main(query) {
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -14,15 +14,10 @@
                     <li>
                         <form id="searchform" class="navbar-form navbar-right" action="/search">
                             <select name="context" class="form-control" form="searchform">
-                                <option value="body:content" selected>body:content</option>
-                                <option value="body:title">body:title</option>
-                                <option value="code">code</option>
-                                <option value="keyword">keyword</option>
-                                <option value="comment">comment</option>
-                                <option value="url:title">url:title</option>
-                                <option value="url:link">url:link</option>
+                            @for(c <- contextList) {
+                                <option value="@c.value" @c.selected>@c.value</option>
+                            }
                             </select>
-
                             <input type="text" name="query" class="form-control" value="@query" placeholder="Search...">
                         </form>
                     </li>
@@ -32,6 +27,7 @@
             </div>
         </div>
     </nav>
+
 
     <div class="container">
 
