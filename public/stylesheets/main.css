@@ -3,7 +3,7 @@ body {
     padding-bottom: 30px;
 }
 
-.piece-container{
+.piece-container {
     margin-bottom: 20px;
 }
 
@@ -21,6 +21,10 @@ body {
     background-color: #f7f7f9;
     border: 1px solid #e1e1e8;
     border-radius: 4px;
+}
+
+.piece-web, piece-book {
+
 }
 
 .piece-title {

@@ -11,4 +11,5 @@ object Score {
   var scoreComment = 20
   var scoreTag = 30
   var scoreWeb = 20
+  var scoreBook = 20
 }

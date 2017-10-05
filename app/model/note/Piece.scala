@@ -65,7 +65,18 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreTag)
+      })
 
+    tokens.filter(token => webs.exists(_.hit(token)))
+      .foreach(token => {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + Score.scoreWeb)
+      })
+
+    tokens.filter(token => books.exists(_.hit(token)))
+      .foreach(token => {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + Score.scoreBook)
       })
 
 
@@ -149,6 +160,14 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
         Node("code", keyword).className("piece-keyword").toString()
       }).mkString(" ")).className("piece-keyword-container"))
     }
+
+    webs.foreach(web => {
+      html.append(Node("a", web.title).href(web.href).className("piece-web"))
+    })
+
+    books.foreach(book => {
+      html.append(Node("a", book.title).href(book.href).className("piece-book"))
+    })
 
     lines.foreach(line => {
       var text = line

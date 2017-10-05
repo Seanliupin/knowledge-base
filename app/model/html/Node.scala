@@ -8,6 +8,7 @@ package model.html
 case class Node(tag: String, value: String) {
   var names: List[String] = List()
   private var title = ""
+  private var href = ""
 
   def className(name: String): Node = {
     names = name :: names
@@ -19,8 +20,8 @@ case class Node(tag: String, value: String) {
     this
   }
 
-  def href(ref: String): Node = {
-    //todo
+  def href(href: String): Node = {
+    this.href = href
     this
   }
 
@@ -36,7 +37,12 @@ case class Node(tag: String, value: String) {
       myTitle = "title= " + "\"" + title + "\""
     }
 
+    var myHref = ""
+    if (href.trim.size > 0) {
+      myHref = "href= " + "\"" + href + "\""
+    }
 
-    s"<$tag $className $myTitle>$value</$tag>"
+
+    s"<$tag $className $myTitle $myHref>$value</$tag>"
   }
 }

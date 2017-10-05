@@ -6,11 +6,15 @@ package model.note
   * Time: 10:33 AM
   */
 
-abstract class Link(title: String, link: String, comment: String)
+abstract class Link(title: String, href: String, comment: String) {
+  def hit(token: String): Boolean = {
+    title.toLowerCase.contains(token) || href.toLowerCase.contains(token) || comment.toLowerCase.contains(token)
+  }
+}
 
-case class Web(title: String, link: String, comment: String) extends Link(title, link, comment)
+case class Web(title: String, href: String, comment: String) extends Link(title, href, comment)
 
-case class Book(title: String, link: String, comment: String) extends Link(title, link, comment)
+case class Book(title: String, href: String, comment: String) extends Link(title, href, comment)
 
 object Extractor {
   val BookExtractor = """book:\s+\[(.*?)\]\((.*?)\)(.*)""" r
