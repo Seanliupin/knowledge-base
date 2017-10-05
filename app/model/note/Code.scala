@@ -5,6 +5,4 @@ package model.note
   * Date: 5/10/2017
   * Time: 10:20 AM
   */
-case class Code(title: String, fileName: Option[String]) extends Piece(title, fileName) {
-
-}
+case class Code(language: String, codes: List[String])

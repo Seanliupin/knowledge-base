@@ -8,10 +8,11 @@ import model.html.Node
   * Time: 10:53 PM
   * 代表一则笔记
   */
-abstract class Piece(title: String, fileName: Option[String]) extends Searchable {
+case class Piece(title: String, fileName: Option[String]) extends Searchable {
   protected var lines: List[String] = List()
   protected var keywords: List[String] = List()
   protected var comments: List[String] = List()
+  protected var urls: List[Url] = List()
 
   def addLine(line: String) = {
     lines = lines ++ List(line)
@@ -71,6 +72,17 @@ abstract class Piece(title: String, fileName: Option[String]) extends Searchable
     }
   }
 
+  override def search(tokens: List[String], context: Option[String]): String = {
+    context match {
+      case None => searchContent(tokens)
+      case Some(con) => con match {
+        case "keyword" => searchKeywords(tokens)
+        case "comment" => searchComment(tokens)
+        case _ => searchContent(tokens)
+      }
+    }
+  }
+
   override def toHtml: String = {
     renderHtml(List())
   }
@@ -79,7 +91,7 @@ abstract class Piece(title: String, fileName: Option[String]) extends Searchable
     ""
   }
 
-  private def renderHtml(tokens: List[String]): String = {
+  protected def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
     //title 是可以直接看到的，fileName是鼠标悬停的时候显示
     html.append(Node("a", title).className("piece-title").title(fileName.getOrElse("")))

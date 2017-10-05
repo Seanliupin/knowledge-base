@@ -9,4 +9,5 @@ object Category {
   def title = "## "
   def keys = "keys: "
   def tags = "tags: "
+  def comment = "comment: "
 }

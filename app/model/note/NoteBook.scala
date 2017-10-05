@@ -11,7 +11,13 @@ import java.io.File
 object NoteBook {
   private val root = "/Users/seanliu/Note/"
 
-  def files: List[File] = {
+  def notes: List[Note] = {
+    files.map(file => {
+      Note(file.getAbsolutePath)
+    })
+  }
+
+  private def files: List[File] = {
     @scala.annotation.tailrec
     def sc(acc: List[File], files: List[File]): List[File] = {
       files match {
@@ -34,9 +40,5 @@ object NoteBook {
     sc(List(), List(new File(root)))
   }
 
-  def notes: List[Note] = {
-    files.map(file => {
-      Note(file.getAbsolutePath)
-    })
-  }
+
 }
