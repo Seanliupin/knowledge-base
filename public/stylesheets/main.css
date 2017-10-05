@@ -23,8 +23,17 @@ body {
     border-radius: 4px;
 }
 
-.piece-web, piece-book {
+.piece-web, .piece-book {
+    display: block;
+    margin: 5px 0 5px;
+}
 
+.piece-web:before {
+    content: "Web: ";
+}
+
+.piece-book:before {
+    content: "Book: ";
 }
 
 .piece-title {

@@ -90,59 +90,35 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     }
   }
 
+  def searchH(tokens: List[String], items: List[Hitable], scoreValue: Int): List[Hit] = {
+    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
-  def searchComment(tokens: List[String]): List[Hit] = {
-    val body = comments.mkString.toLowerCase
+    tokens.filter(token => items.exists(_.hit(token)))
+      .foreach(token => {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + scoreValue)
+      })
 
-    val contain = tokens.forall(token => {
-      body.contains(token)
-    })
+    val contain = scores.toList.forall(_._2 > 0)
+    val totalScore = scores.toList.map(_._2).sum
 
     if (contain) {
-      List(Hit(renderHtml(tokens), Score.scoreComment))
+      List(Hit(renderHtml(tokens), totalScore))
     } else {
       List(Hit("", 0))
     }
-  }
 
-  def searchBody(tokens: List[String]): List[Hit] = {
-    val body = lines.mkString.toLowerCase
-
-    val contain = tokens.forall(token => {
-      body.contains(token)
-    })
-
-    if (contain) {
-      List(Hit(renderHtml(tokens), Score.scoreBody))
-    } else {
-      List(Hit("", 0))
-    }
-  }
-
-  def searchKeywords(tokens: List[String]): List[Hit] = {
-    val body = keywords.mkString.toLowerCase
-
-    val contain = tokens.forall(token => {
-      body.contains(token)
-    })
-
-    if (contain) {
-      List(Hit(renderHtml(tokens), Score.scoreTag))
-    } else {
-      List(Hit("", 0))
-    }
-  }
-
-  def searchH(tokens: List[String]): List[Hit] = {
-    List()
   }
 
   override def search(tokens: List[String], context: Option[String]): List[Hit] = {
     context match {
-      case Some("keyword") => searchKeywords(tokens)
-      case Some("comment") => searchComment(tokens)
-      case Some("body") => searchBody(tokens)
-      case _ => searchContent(tokens)
+      case Some("keyword") => searchH(tokens, keywords, Score.scoreTag)
+      case Some("comment") => searchH(tokens, comments, Score.scoreComment)
+      case Some("web") => searchH(tokens, webs, Score.scoreWeb)
+      case Some("book") => searchH(tokens, books, Score.scoreBook)
+      case Some("body") => searchH(tokens, lines, Score.scoreBody)
+      case Some("all") => searchContent(tokens)
+      case _ => List()
     }
   }
 
