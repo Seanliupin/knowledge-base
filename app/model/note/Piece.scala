@@ -133,6 +133,10 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     }
   }
 
+  def searchH(tokens: List[String]): List[Hit] = {
+    List()
+  }
+
   override def search(tokens: List[String], context: Option[String]): List[Hit] = {
     context match {
       case Some("keyword") => searchKeywords(tokens)
