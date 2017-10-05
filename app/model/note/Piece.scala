@@ -61,7 +61,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     var contain = false
     for (keyword <- keywords) {
       contain = contain || tokens.exists(token => {
-        keyword.contains(token)
+        keyword.trim.contains(token.trim)
       })
     }
 
@@ -96,16 +96,25 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     if (keywords.size > 0) {
       html.append(Node("div", keywords.map(keyword => {
         Node("code", keyword).className("piece-keyword").toString()
-      }).mkString(" ")))
+      }).mkString(" ")).className("piece-keyword-container"))
     }
 
     lines.foreach(line => {
-      var tmpLine = line
+      var text = line
       tokens.foreach(token => {
-        tmpLine = renderHit(tmpLine, token)
+        text = renderHit(text, token)
       })
-      html.append(Node("p", tmpLine).className("piece-content"))
+      html.append(Node("p", text).className("piece-content"))
     })
+
+    comments.foreach(comment => {
+      var text = comment
+      tokens.foreach(token => {
+        text = renderHit(text, token)
+      })
+      html.append(Node("p", text).className("piece-comment"))
+    })
+
     html.toString
   }
 }

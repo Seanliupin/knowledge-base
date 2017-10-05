@@ -3,22 +3,19 @@ body {
     padding-bottom: 30px;
 }
 
-.theme-dropdown .dropdown-menu {
-    position: static;
-    display: block;
-    margin-bottom: 20px;
-}
-
-.theme-showcase > p > .btn {
-    margin: 5px 0;
-}
-
-.theme-showcase .navbar .container {
-    width: auto;
-}
-
-.piece-content {
+.piece-content, .piece-comment {
     font-size: 22px;
+    margin-bottom: 10px;
+}
+
+.piece-comment {
+    font-size: 17px;
+    color: #999;
+    padding: 9px 14px;
+    margin-bottom: 14px;
+    background-color: #f7f7f9;
+    border: 1px solid #e1e1e8;
+    border-radius: 4px;
 }
 
 .piece-title {
@@ -40,4 +37,9 @@ body {
     color: #c7254e;
     background-color: #f9f2f4;
     border-radius: 4px;
+}
+
+.piece-keyword-container {
+    margin-top: 15px;
+    margin-bottom: 15px;
 }

@@ -8,6 +8,7 @@ package model.html
 object Category {
   def title = "## "
   def keys = "keys: "
+  def web = "web: "
   def tags = "tags: "
   def comment = "comment: "
 }
