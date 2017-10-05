@@ -1,4 +1,4 @@
-package model
+package model.note
 
 import model.html.Node
 

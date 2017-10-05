@@ -1,6 +1,6 @@
 package service
 
-import model.NoteBook
+import model.note.NoteBook
 
 /**
   * Author: Sean
