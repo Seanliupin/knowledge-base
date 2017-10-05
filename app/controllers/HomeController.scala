@@ -18,8 +18,6 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
   }
 
   def search(query: String, context: String) = Action { request: Request[AnyContent] =>
-    println("context = " + context)
-
     val tokens = query.trim.split(StringUtil.whiteSpaceSegmenter).map(_.trim).filter(_.length > 0).toList
     Ok(views.html.index(query, NoteService.search(tokens, Option(context))))
   }

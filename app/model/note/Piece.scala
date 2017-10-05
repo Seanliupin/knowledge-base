@@ -29,14 +29,42 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
   def isNotEmpty: Boolean = title.trim.length > 0
 
   def searchContent(tokens: List[String]): List[Hit] = {
-    val body = lines.mkString
+    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
-    val contain = tokens.forall(token => {
-      body.contains(token)
-    })
+    tokens.filter(token => title.contains(token))
+      .foreach(token => {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + Score.scoreTitle)
+      })
+
+    val totalLines = lines.mkString
+    tokens.filter(token => totalLines.contains(token))
+      .foreach(token => {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + Score.scoreBody)
+      })
+
+    val totalComments = comments.mkString
+    tokens.filter(token => totalComments.contains(token))
+      .foreach(token => {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + Score.scoreComment)
+      })
+
+    val totalKeywords = keywords.mkString
+    tokens.filter(token => totalKeywords.contains(token))
+      .foreach(token => {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + Score.scoreTag)
+
+      })
+
+
+    val contain = scores.toList.forall(_._2 > 0)
+    val totalScore = scores.toList.map(_._2).sum
 
     if (contain) {
-      List(Hit(renderHtml(tokens), 10))
+      List(Hit(renderHtml(tokens), totalScore))
     } else {
       List(Hit("", 0))
     }

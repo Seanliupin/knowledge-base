@@ -41,6 +41,10 @@ case class Note(fileName: String) extends Searchable {
       }
     }
 
+    if (piece.isNotEmpty) {
+      pieces = pieces ++ List(piece)
+    }
+
     pieces
   }
 

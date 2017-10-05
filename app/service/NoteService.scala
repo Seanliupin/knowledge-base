@@ -12,9 +12,11 @@ object NoteService {
   def search(tokens: List[String], context: Option[String]): String = {
     val all = new StringBuilder
 
-    NoteBook.notes.flatMap(note => {
-      note.search(tokens, context)
-    }).sortBy(_.score).foreach(hit => all.append(hit.hit + " score = " + hit.score))
+    NoteBook.notes
+      .flatMap(note => note.search(tokens, context))
+      .sortWith((x, y) => x.score > y.score)
+      //.foreach(hit => all.append(hit.hit + " score = " + hit.score))
+      .foreach(hit => all.append(hit.hit))
     all.toString()
   }
 }
