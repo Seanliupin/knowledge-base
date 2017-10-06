@@ -10,15 +10,10 @@ import model.html.Node
   */
 case class Piece(title: Option[Title], fileName: Option[String]) extends KnowledgeBase with Render {
   protected var lines: List[Paragraph] = List()
-  protected var keywords: List[KeyWord] = List()
   private var time: Option[Time] = None
 
   def addLine(line: Paragraph) = {
     lines = lines ++ List(line)
-  }
-
-  def addKeyword(newKeyword: KeyWord) = {
-    keywords = newKeyword +: keywords
   }
 
   def setTime(time: Time) = {
@@ -48,12 +43,6 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
           scores = scores.updated(token, score + Score.getScore(x._1))
         })
     })
-
-    tokens.filter(token => keywords.exists(_.hit(token)))
-      .foreach(token => {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + Score.scoreTag)
-      })
 
     val contain = scores.toList.forall(_._2 > 0)
     val totalScore = scores.toList.map(_._2).sum
@@ -86,14 +75,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
   }
 
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
-    context match {
-      case Some("keyword") => search(tokens, keywords, Score.scoreTag)
-      case Some("comment") => search(tokens, lines.filter(line => line.paragraphType == 'Comment), Score.scoreComment)
-      case Some("web") => search(tokens, lines.filter(line => line.paragraphType == 'Web), Score.scoreComment)
-      case Some("book") => search(tokens, lines.filter(line => line.paragraphType == 'Book), Score.scoreComment)
-      case Some("code") => search(tokens, lines.filter(line => line.paragraphType == 'Code), Score.scoreBody)
-      case Some("body") => search(tokens, lines.filter(line => line.paragraphType == 'Line), Score.scoreBody)
-      case Some("all") => searchContent(tokens)
+    Score.keyWordToSymbol(context) match {
+      case Some('All) => searchContent(tokens)
+      case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym), Score.getScore(sym))
       case _ => List()
     }
   }
@@ -109,13 +93,15 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       case None => return "This is not a valid piece"
     }
 
+    val keywords = lines.filter(_.paragraphType == 'KeyWord)
+    val other = lines.filter(_.paragraphType != 'KeyWord)
+
     if (keywords.size > 0) {
-      html.append(Node("div", keywords.map(keyword => {
-        Node("code", keyword.toString).className("piece-keyword").toString()
-      }).mkString(" ")).className("piece-keyword-container"))
+      html.append(Node("div", keywords.map(_.toHtml(List())).mkString("  "))
+        .className("piece-keyword-container"))
     }
 
-    lines.foreach(line => {
+    other.foreach(line => {
       html.append(line.toHtml(tokens))
     })
 

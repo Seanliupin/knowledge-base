@@ -13,6 +13,7 @@ object Score {
   var scoreWeb = 20
   var scoreBook = 20
 
+
   def getScore(symbol: Symbol): Int = {
     symbol match {
       case 'Title => 30
@@ -26,5 +27,22 @@ object Score {
       case 'Time => 0
       case _ => 0
     }
+  }
+
+  def keyWordToSymbol(keyword: Option[String]): Option[Symbol] = {
+    keyword match {
+      case Some("title") => Some('Title)
+      case Some("keyword") => Some('KeyWord)
+      case Some("comment") => Some('Comment)
+      case Some("subtitle") => Some('SubTitle)
+      case Some("web") => Some('Web)
+      case Some("book") => Some('Book)
+      case Some("code") => Some('Code)
+      case Some("body") => Some('Line)
+      case Some("time") => Some('Time)
+      case Some("all") => Some('All)
+      case _ => None
+    }
+
   }
 }
