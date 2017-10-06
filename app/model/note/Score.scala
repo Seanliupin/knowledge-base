@@ -12,4 +12,19 @@ object Score {
   var scoreTag = 30
   var scoreWeb = 20
   var scoreBook = 20
+
+  def getScore(symbol: Symbol): Int = {
+    symbol match {
+      case 'Title => 30
+      case 'KeyWord => 30
+      case 'Comment => 20
+      case 'SubTitle => 25
+      case 'Web => 20
+      case 'Book => 20
+      case 'Code => 10
+      case 'Line => 10
+      case 'Time => 0
+      case _ => 0
+    }
+  }
 }

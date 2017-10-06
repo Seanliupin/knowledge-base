@@ -38,13 +38,13 @@ trait Render {
 }
 
 
-abstract class Link(title: String, href: String, comment: String) extends Hit with Render {
+abstract class Link(title: String, href: String, comment: String) extends Paragraph(title) {
+  protected def linkClassName: String = "piece-url"
+
   override def hit(token: String): Boolean = {
     val lowerToken = token.toLowerCase
     List(title, href, comment).exists(item => item.toLowerCase.contains(lowerToken))
   }
-
-  protected def linkClassName: String = "piece-url"
 
   override def toHtml(tokens: List[String]): String = {
     val url = Node("a", renderHits(title, tokens)).href(href).className(linkClassName)
@@ -61,10 +61,14 @@ abstract class Link(title: String, href: String, comment: String) extends Hit wi
 
 case class Web(title: String, href: String, comment: String) extends Link(title, href, comment) {
   override protected def linkClassName: String = "piece-web"
+
+  override def paragraphType: Symbol = 'Web
 }
 
 case class Book(title: String, href: String, comment: String) extends Link(title, href, comment) {
   override protected def linkClassName: String = "piece-book"
+
+  override def paragraphType: Symbol = 'Book
 }
 
 
@@ -77,7 +81,7 @@ abstract class Paragraph(line: String) extends Hit with Render {
 
   override def toString: String = line
 
-  def paragraphType: Symbol = 'Paragraph
+  def paragraphType: Symbol
 
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-content")
 }
@@ -88,6 +92,8 @@ case class Title(line: String) extends Paragraph(line) {
   }
 
   def toHtml(tokens: List[String], fileName: String): String = Node("a", line).className("piece-title").title(fileName)
+
+  override def paragraphType: Symbol = 'Title
 }
 
 object Title {
@@ -96,10 +102,14 @@ object Title {
 
 case class SubTitle(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-h3")
+
+  override def paragraphType: Symbol = 'SubTitle
 }
 
 
-case class KeyWord(line: String) extends Paragraph(line)
+case class KeyWord(line: String) extends Paragraph(line) {
+  override def paragraphType: Symbol = 'KeyWord
+}
 
 object KeyWord {
   implicit def stringToKeyWord(line: String) = KeyWord(line)
@@ -107,13 +117,18 @@ object KeyWord {
 
 case class Time(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node("text", line).className("piece-time")
+
+  override def paragraphType: Symbol = 'Time
+
 }
 
 object Time {
   implicit def stringToTime(line: String) = Time(line)
 }
 
-case class Line(line: String) extends Paragraph(line)
+case class Line(line: String) extends Paragraph(line) {
+  override def paragraphType: Symbol = 'Line
+}
 
 
 case class Comment(line: String) extends Paragraph(line) {
@@ -151,7 +166,7 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
   override def toHtml(tokens: List[String]): String = {
     val base = new StringBuilder
     codes.foreach(code => {
-      base.append(Node("div", code).className("code-line"))
+      base.append(Node("div", renderHits(code, tokens)).className("code-line"))
     })
 
     Node("figure", "").className("highlight")

@@ -11,9 +11,6 @@ import model.html.Node
 case class Piece(title: Option[Title], fileName: Option[String]) extends KnowledgeBase with Render {
   protected var lines: List[Paragraph] = List()
   protected var keywords: List[KeyWord] = List()
-  protected var comments: List[Comment] = List()
-  protected var webs: List[Web] = List()
-  protected var books: List[Book] = List()
   private var time: Option[Time] = None
 
   def addLine(line: Paragraph) = {
@@ -24,20 +21,8 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     keywords = newKeyword +: keywords
   }
 
-  def addComment(comment: Comment) = {
-    comments = comments ++ List(comment)
-  }
-
   def setTime(time: Time) = {
     this.time = Some(time)
-  }
-
-  def addWeb(web: Web): Unit = {
-    webs = webs ++ List(web)
-  }
-
-  def addBook(book: Book): Unit = {
-    books = books ++ List(book)
   }
 
   def isValid: Boolean = title != None
@@ -56,38 +41,19 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       case _ =>
     }
 
-    tokens.filter(token => lines.exists(_.hit(token)))
-      .foreach(token => {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + Score.scoreBody)
-      })
-
-
-    tokens.filter(token => comments.exists(_.hit(token)))
-      .foreach(token => {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + Score.scoreComment)
-      })
-
+    lines.groupBy(_.paragraphType).foreach(x => {
+      tokens.filter(token => x._2.exists(_.hit(token)))
+        .foreach(token => {
+          val score = scores.getOrElse(token, 0)
+          scores = scores.updated(token, score + Score.getScore(x._1))
+        })
+    })
 
     tokens.filter(token => keywords.exists(_.hit(token)))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreTag)
       })
-
-    tokens.filter(token => webs.exists(_.hit(token)))
-      .foreach(token => {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + Score.scoreWeb)
-      })
-
-    tokens.filter(token => books.exists(_.hit(token)))
-      .foreach(token => {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + Score.scoreBook)
-      })
-
 
     val contain = scores.toList.forall(_._2 > 0)
     val totalScore = scores.toList.map(_._2).sum
@@ -122,11 +88,11 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
     context match {
       case Some("keyword") => search(tokens, keywords, Score.scoreTag)
-      case Some("comment") => search(tokens, comments, Score.scoreComment)
-      case Some("web") => search(tokens, webs, Score.scoreWeb)
-      case Some("book") => search(tokens, books, Score.scoreBook)
-      case Some("body") => search(tokens, lines, Score.scoreBody)
+      case Some("comment") => search(tokens, lines.filter(line => line.paragraphType == 'Comment), Score.scoreComment)
+      case Some("web") => search(tokens, lines.filter(line => line.paragraphType == 'Web), Score.scoreComment)
+      case Some("book") => search(tokens, lines.filter(line => line.paragraphType == 'Book), Score.scoreComment)
       case Some("code") => search(tokens, lines.filter(line => line.paragraphType == 'Code), Score.scoreBody)
+      case Some("body") => search(tokens, lines.filter(line => line.paragraphType == 'Line), Score.scoreBody)
       case Some("all") => searchContent(tokens)
       case _ => List()
     }
@@ -149,21 +115,10 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       }).mkString(" ")).className("piece-keyword-container"))
     }
 
-    webs.foreach(web => {
-      html.append(web.toHtml(tokens))
-    })
-
-    books.foreach(book => {
-      html.append(book.toHtml(tokens))
-    })
-
     lines.foreach(line => {
       html.append(line.toHtml(tokens))
     })
 
-    comments.foreach(line => {
-      html.append(line.toHtml(tokens))
-    })
 
     Node("div", html.toString).className("piece-container").toString()
   }
