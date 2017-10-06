@@ -9,11 +9,7 @@ import model.html.Node
   * Time: 10:33 AM
   */
 trait Hit {
-  //todo: 其实hit函数可以返回一个Int，
-  // 以代表其命中的分数。如果是完整的命中，
-  // 则得分更高，如果token只是嵌入在单词中，则得分更低
-  // 在不同的段落中，命中的得分也不一样。
-  def hit(token: String): Boolean
+  def hit(token: String): Int
 }
 
 trait Render {
@@ -45,9 +41,8 @@ trait Render {
 abstract class Link(title: String, href: String, comment: String) extends Paragraph(title) {
   protected def linkClassName: String = "piece-url"
 
-  override def hit(token: String): Boolean = {
-    val lowerToken = token.toLowerCase
-    List(title, href, comment).exists(item => item.toLowerCase.contains(lowerToken))
+  override def hit(token: String): Int = {
+    List(title, href, comment).map(item => hitScore(item, token)).sum
   }
 
   override def toHtml(tokens: List[String]): String = {
@@ -75,11 +70,34 @@ case class Book(title: String, href: String, comment: String) extends Link(title
   override def paragraphType: Symbol = 'Book
 }
 
-
 abstract class Paragraph(line: String) extends Hit with Render {
-  override def hit(token: String): Boolean = {
-    line.toLowerCase.contains(token.toLowerCase)
+  override def hit(token: String): Int = {
+    hitScore(line, token)
   }
+
+  /**
+    * 计算命中分数，全字符命中得分最高
+    **/
+  final protected def hitScore(text: String, token: String): Int = {
+    if (text.contains(token)) {
+      return hitInWord
+    }
+    if (text.toLowerCase.contains(token.toLowerCase)) {
+      return hitInWordIgnoreCase
+    }
+
+    return 0
+  }
+
+  final protected def hitWord: Int = weight * 5
+
+  final protected def hitWordIgnoreCase: Int = weight * 3
+
+  final protected def hitInWord: Int = weight * 2
+
+  final protected def hitInWordIgnoreCase: Int = weight
+
+  protected def weight: Int = Score.getScore(paragraphType)
 
   override def toPlain: String = line
 
@@ -102,16 +120,11 @@ case class Title(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'Title
 }
 
-object Title {
-  implicit def stringTitle(line: String) = Title(line)
-}
-
 case class SubTitle(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-h3")
 
   override def paragraphType: Symbol = 'SubTitle
 }
-
 
 case class KeyWord(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'KeyWord
@@ -124,10 +137,6 @@ case class Time(line: String) extends Paragraph(line) {
 
   override def paragraphType: Symbol = 'Time
 
-}
-
-object Time {
-  implicit def stringToTime(line: String) = Time(line)
 }
 
 case class Line(line: String) extends Paragraph(line) {
@@ -156,11 +165,8 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
     codes = codes ++ List(code)
   }
 
-  override def hit(token: String): Boolean = {
-    val lowerToken = token.toLowerCase
-    codes.exists(code => {
-      code.toLowerCase.contains(lowerToken)
-    })
+  override def hit(token: String): Int = {
+    codes.map(hitScore(_, token)).sum
   }
 
   def isValidCode: Boolean = language != None
@@ -187,6 +193,14 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
 
 }
 
+object Time {
+  implicit def stringToTime(line: String) = Time(line)
+}
+
+object Title {
+  implicit def stringTitle(line: String) = Title(line)
+}
+
 object Extractor {
   val titleExtractor = """##\s+(.*)""" r
   val subTitleExtractor = """###\s+(.*)""" r
@@ -194,7 +208,7 @@ object Extractor {
   val tagsExtractor = """tags:\s+(.*)""" r
   val WebExtractor = """web:\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
   val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
-  val WebItemExtractor = """\s*[*]\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
+  val WebItemExtractor = """\s*[*]?\s*\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
   val timeExtractor = """time:\s+(.*)""" r
   val commentExtractor = """comment:\s+(.*)""" r
   val tipExtractor = """>(.*)""" r

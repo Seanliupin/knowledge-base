@@ -27,21 +27,25 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
 
     title match {
       case Some(realTitle) => {
-        tokens.filter(token => realTitle.hit(token))
-          .foreach(token => {
+        tokens.foreach(token => {
+          val hitScore = realTitle.hit(token)
+          if (hitScore > 0) {
             val score = scores.getOrElse(token, 0)
-            scores = scores.updated(token, score + Score.getScore('Title))
-          })
+            scores = scores.updated(token, score + hitScore)
+          }
+        })
       }
       case _ =>
     }
 
-    lines.groupBy(_.paragraphType).foreach(x => {
-      tokens.filter(token => x._2.exists(_.hit(token)))
-        .foreach(token => {
-          val score = scores.getOrElse(token, 0)
-          scores = scores.updated(token, score + Score.getScore(x._1))
-        })
+    lines.groupBy(_.paragraphType).foreach(y => {
+      val zipItem = tokens zip y._2
+      zipItem.map(x => (x._1, x._2.hit(x._1))) //x._1 is token, x._2 is Hit
+        .filter(_._2 > 0) // filter out hitScore == 0
+        .foreach(x => {
+        val score = scores.getOrElse(x._1, 0)
+        scores = scores.updated(x._1, score + x._2)
+      })
     })
 
     val contain = scores.toList.forall(_._2 > 0)
@@ -54,14 +58,16 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     }
   }
 
-  private def search(tokens: List[String], items: List[Hit], scoreValue: Int): List[HitScore] = {
+  private def search(tokens: List[String], items: List[Hit]): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
-    tokens.filter(token => items.exists(_.hit(token)))
-      .foreach(token => {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + scoreValue)
-      })
+    val zipItem = tokens zip items
+    zipItem.map(x => (x._1, x._2.hit(x._1))) //x._1 is token, x._2 is Hit
+      .filter(_._2 > 0) // filter out hitScore == 0
+      .foreach(x => {
+      val score = scores.getOrElse(x._1, 0)
+      scores = scores.updated(x._1, score + x._2)
+    })
 
     val contain = scores.toList.forall(_._2 > 0)
     val totalScore = scores.toList.map(_._2).sum
@@ -77,35 +83,35 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     Score.keyWordToSymbol(context) match {
       case Some('All) => searchContent(tokens)
       case Some('Url) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), Score.getScore('Comment))
+        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book))
       }
       case Some('Title) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), Score.getScore('Comment))
+        search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle))
       }
       case Some('Comment) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")), Score.getScore('Comment))
+        search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")))
       }
       case Some('Tip) => {
         val extractor = """tip:(.*)""" r;
         tokens.foreach {
           case token@extractor(tipType) => {
-            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)), Score.getScore('Tip))
+            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)))
           }
           case _ =>
         }
-        search(tokens, lines.filter(line => line.paragraphType == 'Tip), Score.getScore('Tip))
+        search(tokens, lines.filter(line => line.paragraphType == 'Tip))
       }
       case Some('Code) => {
         val extractor = """code:(.*)""" r;
         tokens.foreach {
           case token@extractor(lan) => {
-            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)), Score.getScore('Code))
+            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)))
           }
           case _ =>
         }
-        search(tokens, lines.filter(line => line.paragraphType == 'Code), Score.getScore('Code))
+        search(tokens, lines.filter(line => line.paragraphType == 'Code))
       }
-      case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym), Score.getScore(sym))
+      case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym))
       case _ => List()
     }
   }
