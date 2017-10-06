@@ -77,31 +77,33 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
     Score.keyWordToSymbol(context) match {
       case Some('All) => searchContent(tokens)
+      case Some('Url) => {
+        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), Score.getScore('Comment))
+      }
+      case Some('Title) => {
+        search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), Score.getScore('Comment))
+      }
       case Some('Comment) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")), Score.getScore('Comment))
       }
       case Some('Tip) => {
         val extractor = """tip:(.*)""" r;
-        tokens.foreach(token => {
-          token match {
-            case extractor(tipType) => {
-              return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)), Score.getScore('Tip))
-            }
-            case _ =>
+        tokens.foreach {
+          case token@extractor(tipType) => {
+            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)), Score.getScore('Tip))
           }
-        })
+          case _ =>
+        }
         search(tokens, lines.filter(line => line.paragraphType == 'Tip), Score.getScore('Tip))
       }
       case Some('Code) => {
         val extractor = """code:(.*)""" r;
-        tokens.foreach(token => {
-          token match {
-            case extractor(lan) => {
-              return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)), Score.getScore('Code))
-            }
-            case _ =>
+        tokens.foreach {
+          case token@extractor(lan) => {
+            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)), Score.getScore('Code))
           }
-        })
+          case _ =>
+        }
         List()
       }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym), Score.getScore(sym))

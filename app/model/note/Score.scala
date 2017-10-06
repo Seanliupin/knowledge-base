@@ -20,11 +20,18 @@ object Score {
       ("web", 'Web, 20),
       ("book", 'Book, 20),
       ("code", 'Code, 10),
+      ("url", 'Url, 10),
       ("line", 'Line, 10),
       ("tip", 'Tip, 10),
       ("time", 'Time, 0)
-
     )
+  }
+
+  def availableContext: List[String] = {
+    val filterOut = List("book", "web", "time", "subtitle", "comment")
+    val re = contexts.map(_._1).filter(item => !filterOut.exists(item == _))
+    re.foreach(x => println(x))
+    re
   }
 
   def getScore(symbol: Symbol): Int = {
