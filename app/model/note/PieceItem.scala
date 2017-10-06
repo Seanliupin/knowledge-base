@@ -75,8 +75,11 @@ abstract class Paragraph(line: String) extends Hit with Render {
     hitScore(line, token)
   }
 
+  def isEmpty: Boolean = line.trim.length == 0
+
   /**
     * 计算命中分数，全字符命中得分最高
+    * todo: 是否可以不用正则表达式来实现该算法
     **/
   final protected def hitScore(text: String, token: String): Int = {
     if (text.contains(token)) {
@@ -191,6 +194,7 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
 
   }
 
+  override def isEmpty: Boolean = codes.size == 0
 }
 
 object Time {

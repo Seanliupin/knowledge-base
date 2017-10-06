@@ -10,6 +10,7 @@ import java.io.File
   */
 object NoteBook {
   private val root = "/Users/seanliu/Note/"
+//  private val root = "/Users/seanliu/Note/ztodo"  // for test
 
   def notes: List[Note] = {
     files.map(file => {

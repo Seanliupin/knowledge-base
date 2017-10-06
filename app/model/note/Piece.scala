@@ -38,15 +38,13 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       case _ =>
     }
 
-    lines.groupBy(_.paragraphType).foreach(y => {
-      val zipItem = tokens zip y._2
-      zipItem.map(x => (x._1, x._2.hit(x._1))) //x._1 is token, x._2 is Hit
-        .filter(_._2 > 0) // filter out hitScore == 0
-        .foreach(x => {
-        val score = scores.getOrElse(x._1, 0)
-        scores = scores.updated(x._1, score + x._2)
-      })
-    })
+    for (token <- tokens; line <- lines; if !line.isEmpty) {
+      val hitScore = line.hit(token)
+      if (hitScore > 0) {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + hitScore)
+      }
+    }
 
     val contain = scores.toList.forall(_._2 > 0)
     val totalScore = scores.toList.map(_._2).sum
@@ -58,16 +56,16 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     }
   }
 
-  private def search(tokens: List[String], items: List[Hit]): List[HitScore] = {
+  private def search(tokens: List[String], items: List[Paragraph]): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
-    val zipItem = tokens zip items
-    zipItem.map(x => (x._1, x._2.hit(x._1))) //x._1 is token, x._2 is Hit
-      .filter(_._2 > 0) // filter out hitScore == 0
-      .foreach(x => {
-      val score = scores.getOrElse(x._1, 0)
-      scores = scores.updated(x._1, score + x._2)
-    })
+    for (token <- tokens; line <- items; if !line.isEmpty) {
+      val hitScore = line.hit(token)
+      if (hitScore > 0) {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + hitScore)
+      }
+    }
 
     val contain = scores.toList.forall(_._2 > 0)
     val totalScore = scores.toList.map(_._2).sum
