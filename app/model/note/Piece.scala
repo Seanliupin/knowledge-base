@@ -8,7 +8,7 @@ import model.html.Node
   * Time: 10:53 PM
   * 代表一则笔记
   */
-case class Piece(title: Title, fileName: Option[String]) extends KnowledgeBase with Render {
+case class Piece(title: Option[Title], fileName: Option[String]) extends KnowledgeBase with Render {
   protected var lines: List[Paragraph] = List()
   protected var keywords: List[KeyWord] = List()
   protected var comments: List[Comment] = List()
@@ -40,16 +40,21 @@ case class Piece(title: Title, fileName: Option[String]) extends KnowledgeBase w
     books = books ++ List(book)
   }
 
-  def isNotEmpty: Boolean = title.exist
+  def isValid: Boolean = title != None
 
   def searchContent(tokens: List[String]): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
-    tokens.filter(token => title.hit(token))
-      .foreach(token => {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + Score.scoreTitle)
-      })
+    title match {
+      case Some(realTitle) => {
+        tokens.filter(token => realTitle.hit(token))
+          .foreach(token => {
+            val score = scores.getOrElse(token, 0)
+            scores = scores.updated(token, score + Score.scoreTitle)
+          })
+      }
+      case _ =>
+    }
 
     val totalLines = lines.mkString.toLowerCase
     tokens.filter(token => totalLines.contains(token))
@@ -129,9 +134,14 @@ case class Piece(title: Title, fileName: Option[String]) extends KnowledgeBase w
 
   protected def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
-    //title 是可以直接看到的，fileName是鼠标悬停的时候显示
 
-    html.append(Node("div", "" + title.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
+    title match {
+      case Some(realTitle) => {
+        //title 是可以直接看到的，fileName是鼠标悬停的时候显示
+        html.append(Node("div", "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
+      }
+      case None => return "This is not a valid piece"
+    }
 
     if (keywords.size > 0) {
       html.append(Node("div", keywords.map(keyword => {

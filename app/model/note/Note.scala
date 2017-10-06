@@ -16,7 +16,7 @@ case class Note(fileName: String) extends KnowledgeBase {
     **/
   def getPiece: List[Piece] = {
     var pieces: List[Piece] = List()
-    var piece = Piece("", None)
+    var piece = Piece(None, None)
     var codeBase = Code(None)
 
     for (source <- managed(scala.io.Source.fromFile(fileName))) {
@@ -39,35 +39,35 @@ case class Note(fileName: String) extends KnowledgeBase {
           case code if codeBase.isValidCode => codeBase.addCode(code)
 
           case Extractor.titleExtractor(title) => {
-            if (piece.isNotEmpty) {
+            if (piece.isValid) {
               pieces = pieces ++ List(piece)
             }
-            piece = Piece(title.trim, Option(fileName))
+            piece = Piece(Some(title), Option(fileName))
           }
-          case Extractor.tagsExtractor(tags) if piece.isNotEmpty =>
+          case Extractor.tagsExtractor(tags) if piece.isValid =>
             tags.split(StringUtil.whiteSpaceSegmenter)
               .toList.map(_.trim)
               .filter(_.length > 0)
               .foreach(piece.addKeyword(_))
-          case Extractor.keysExtractor(keys) if piece.isNotEmpty =>
+          case Extractor.keysExtractor(keys) if piece.isValid =>
             keys.split(StringUtil.whiteSpaceSegmenter)
               .toList.map(_.trim)
               .filter(_.length > 0)
               .foreach(piece.addKeyword(_))
-          case Extractor.timeExtractor(time) if piece.isNotEmpty => piece.setTime(time)
-          case Extractor.WebExtractor(title, url, comment) if piece.isNotEmpty => piece.addWeb(Web(title, url, comment))
-          case Extractor.WebItemExtractor(title, url, comment) if piece.isNotEmpty => piece.addWeb(Web(title, url, comment))
-          case Extractor.bookExtractor(title, url, comment) if piece.isNotEmpty => piece.addBook(Book(title, url, comment))
-          case Extractor.commentExtractor(comment) if piece.isNotEmpty => piece.addComment(comment)
-          case Extractor.timeExtractor(time) if piece.isNotEmpty => piece.setTime(time)
-          case Extractor.subTitleExtractor(subTitle) if piece.isNotEmpty => piece.addLine(SubTitle(subTitle))
-          case _ if piece.isNotEmpty => piece.addLine(Line(line))
+          case Extractor.timeExtractor(time) if piece.isValid => piece.setTime(time)
+          case Extractor.WebExtractor(title, url, comment) if piece.isValid => piece.addWeb(Web(title, url, comment))
+          case Extractor.WebItemExtractor(title, url, comment) if piece.isValid => piece.addWeb(Web(title, url, comment))
+          case Extractor.bookExtractor(title, url, comment) if piece.isValid => piece.addBook(Book(title, url, comment))
+          case Extractor.commentExtractor(comment) if piece.isValid => piece.addComment(comment)
+          case Extractor.timeExtractor(time) if piece.isValid => piece.setTime(time)
+          case Extractor.subTitleExtractor(subTitle) if piece.isValid => piece.addLine(SubTitle(subTitle))
+          case _ if piece.isValid => piece.addLine(Line(line))
           case _ =>
         }
       }
     }
 
-    if (piece.isNotEmpty) {
+    if (piece.isValid) {
       pieces = pieces ++ List(piece)
     }
 
