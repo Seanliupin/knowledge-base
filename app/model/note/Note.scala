@@ -14,7 +14,7 @@ case class Note(fileName: String) extends KnowledgeBase {
   /**
     * parse piece of information
     **/
-  def getPiece: List[Piece] = {
+  def pieces: List[Piece] = {
     var pieces: List[Piece] = List()
     var piece = Piece(None, None)
     var codeBase = Code(None)
@@ -77,7 +77,7 @@ case class Note(fileName: String) extends KnowledgeBase {
   }
 
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
-    getPiece.flatMap(piece => {
+    pieces.flatMap(piece => {
       piece.search(tokens, context)
     }).filter(_.score > 0)
   }

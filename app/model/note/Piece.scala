@@ -22,7 +22,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
 
   def isValid: Boolean = title != None
 
-  def searchContent(tokens: List[String]): List[HitScore] = {
+  private def searchContent(tokens: List[String]): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
     title match {
@@ -71,7 +71,6 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     } else {
       List(HitScore("", 0))
     }
-
   }
 
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
