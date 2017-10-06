@@ -80,11 +80,23 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       case Some('Comment) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")), Score.getScore('Comment))
       }
-      case Some('Code) => {
-        val languageExtractor = """code:(.*)""" r;
+      case Some('Tip) => {
+        val extractor = """tip:(.*)""" r;
         tokens.foreach(token => {
           token match {
-            case languageExtractor(lan) => {
+            case extractor(tipType) => {
+              return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)), Score.getScore('Tip))
+            }
+            case _ =>
+          }
+        })
+        search(tokens, lines.filter(line => line.paragraphType == 'Tip), Score.getScore('Tip))
+      }
+      case Some('Code) => {
+        val extractor = """code:(.*)""" r;
+        tokens.foreach(token => {
+          token match {
+            case extractor(lan) => {
               return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)), Score.getScore('Code))
             }
             case _ =>
