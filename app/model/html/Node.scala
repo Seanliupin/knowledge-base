@@ -40,7 +40,7 @@ case class Node(tag: String, value: String) {
   override def toString(): String = {
     var className = ""
     if (names.size > 0) {
-      className = names.mkString(", ")
+      className = names.mkString(" ")
       className = "class =" + "\"" + className + "\""
     }
 

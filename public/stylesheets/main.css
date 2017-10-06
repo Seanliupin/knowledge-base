@@ -23,14 +23,29 @@ body {
     border-radius: 4px;
 }
 
-.piece-tip{
+.piece-tip {
     font-size: 17px;
     padding: 20px;
     margin: 20px 0;
     border-radius: 3px;
     border: 1px solid #eee;
+}
+
+.tip-default, .tip-danger {
     border-left-width: 5px;
-    border-left-color: #1b809e;
+}
+
+.tip-default {
+    border-left-color: #ce4844;
+}
+
+.tip-danger {
+    border-left-color: #ce4844;
+}
+
+.tip-note {
+    color: #999;
+    padding: 9px 14px;
 }
 
 .piece-url-container {

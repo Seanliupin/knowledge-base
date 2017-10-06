@@ -128,10 +128,17 @@ case class Line(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'Line
 }
 
-case class Tip(line: String) extends Paragraph(line) {
+case class Tip(line: String, color: Option[String]) extends Paragraph(line) {
   override def paragraphType: Symbol = 'Tip
 
-  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-tip")
+  private def colorClass: String = {
+    color match {
+      case Some(c) => s"tip-$c"
+      case None => "tip-default"
+    }
+  }
+
+  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-tip").className(colorClass)
 }
 
 case class Comment(line: String) extends Paragraph(line) {
@@ -188,6 +195,7 @@ object Extractor {
   val timeExtractor = """time:\s+(.*)""" r
   val commentExtractor = """comment:\s+(.*)""" r
   val tipExtractor = """>(.*)""" r
+  val colorTipExtractor = """>(.*?):\s*(.*)""" r
   val codeHeaderExtractor = """```(.*)""" r
   val codeFooterExtractor = """```""" r
   val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)(.*)""" r
