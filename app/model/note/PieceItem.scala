@@ -83,6 +83,8 @@ abstract class Paragraph(line: String) extends Hit with Render {
 
   def paragraphType: Symbol
 
+  def constrain(only: String): Boolean = true
+
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-content")
 }
 
@@ -138,14 +140,9 @@ case class Tip(line: String, color: Option[String]) extends Paragraph(line) {
     }
   }
 
+  override def constrain(only: String): Boolean = color == Some("note")
+
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-tip").className(colorClass)
-}
-
-case class Comment(line: String) extends Paragraph(line) {
-
-  override def paragraphType: Symbol = 'Comment
-
-  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-comment")
 }
 
 case class Code(language: Option[String]) extends Paragraph(language.getOrElse("")) {

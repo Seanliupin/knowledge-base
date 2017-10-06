@@ -30,7 +30,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
         tokens.filter(token => realTitle.hit(token))
           .foreach(token => {
             val score = scores.getOrElse(token, 0)
-            scores = scores.updated(token, score + Score.getScore('Title ))
+            scores = scores.updated(token, score + Score.getScore('Title))
           })
       }
       case _ =>
@@ -77,6 +77,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
     Score.keyWordToSymbol(context) match {
       case Some('All) => searchContent(tokens)
+      case Some('Comment) => {
+        search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")), Score.getScore('Comment))
+      }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym), Score.getScore(sym))
       case _ => List()
     }

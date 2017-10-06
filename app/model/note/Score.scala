@@ -15,8 +15,8 @@ object Score {
       ("all", 'All, 0),
       ("title", 'Title, 30),
       ("keyword", 'KeyWord, 30),
-      ("comment", 'Comment, 20),
       ("subtitle", 'SubTitle, 25),
+      ("comment", 'Comment, 20), //Comment 其实就是标记为note的Tip
       ("web", 'Web, 20),
       ("book", 'Book, 20),
       ("code", 'Code, 10),

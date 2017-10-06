@@ -58,7 +58,7 @@ case class Note(fileName: String) extends KnowledgeBase {
           case Extractor.WebExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
           case Extractor.WebItemExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
           case Extractor.bookExtractor(title, url, comment) if piece.isValid => piece.addLine(Book(title, url, comment))
-          case Extractor.commentExtractor(comment) if piece.isValid => piece.addLine(Comment(comment))
+          case Extractor.commentExtractor(comment) if piece.isValid => piece.addLine(Tip(comment, Some("note")))
           case Extractor.timeExtractor(time) if piece.isValid => piece.setTime(time)
           case Extractor.subTitleExtractor(subTitle) if piece.isValid => piece.addLine(SubTitle(subTitle))
           case Extractor.colorTipExtractor(color, tip) if piece.isValid => piece.addLine(Tip(tip, Some(color)))
