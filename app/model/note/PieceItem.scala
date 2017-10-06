@@ -92,7 +92,7 @@ object Title {
   implicit def stringTitle(line: String) = Title(line)
 }
 
-case class SubTitle(line: String) extends Paragraph(line){
+case class SubTitle(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-h3")
 }
 
@@ -122,14 +122,21 @@ object Comment {
   implicit def stringToComment(line: String) = Comment(line)
 }
 
-case class Code(language: String) extends Paragraph(language){
+case class Code(language: Option[String]) extends Paragraph(language.getOrElse("")) {
   var codes: List[String] = List()
 
-  def addCodeLine(code: String) = {
+  def addCode(code: String) = {
     codes = codes ++ List(code)
   }
 
+  def isValidCode: Boolean = language != None
+
   def hasCode: Boolean = codes.exists(_.trim.length > 0)
+
+  override def toHtml(tokens: List[String]): String = {
+    println("code = " + language)
+    Node("p", "text code").className("piece-code")
+  }
 
 }
 

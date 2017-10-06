@@ -17,10 +17,27 @@ case class Note(fileName: String) extends KnowledgeBase {
   def getPiece: List[Piece] = {
     var pieces: List[Piece] = List()
     var piece = Piece("", None)
+    var codeBase = Code(None)
 
     for (source <- managed(scala.io.Source.fromFile(fileName))) {
       for (line <- source.getLines) {
         line match {
+          case Extractor.codeFooterExtractor() => {
+            if (codeBase.isValidCode) {
+              piece.addLine(codeBase)
+              codeBase = Code(None)
+            } else {
+              codeBase = Code(Some(""))
+            }
+          }
+          case Extractor.codeHeaderExtractor(language) => {
+            if (codeBase.hasCode) {
+              piece.addLine(codeBase)
+            }
+            codeBase = Code(Some(language))
+          }
+          case code if codeBase.isValidCode => codeBase.addCode(code)
+
           case Extractor.titleExtractor(title) => {
             if (piece.isNotEmpty) {
               pieces = pieces ++ List(piece)
