@@ -20,6 +20,7 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
     ContextOption("body", false),
     ContextOption("keyword", false),
     ContextOption("web", false),
+    ContextOption("code", false),
     ContextOption("book", false),
     ContextOption("comment", false)
   )

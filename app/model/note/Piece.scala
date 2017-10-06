@@ -56,22 +56,21 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       case _ =>
     }
 
-    val totalLines = lines.mkString.toLowerCase
-    tokens.filter(token => totalLines.contains(token))
+    tokens.filter(token => lines.exists(_.hit(token)))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreBody)
       })
 
-    val totalComments = comments.mkString.toLowerCase
-    tokens.filter(token => totalComments.contains(token))
+
+    tokens.filter(token => comments.exists(_.hit(token)))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreComment)
       })
 
-    val totalKeywords = keywords.mkString.toLowerCase
-    tokens.filter(token => totalKeywords.contains(token))
+
+    tokens.filter(token => keywords.exists(_.hit(token)))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreTag)
@@ -127,6 +126,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       case Some("web") => search(tokens, webs, Score.scoreWeb)
       case Some("book") => search(tokens, books, Score.scoreBook)
       case Some("body") => search(tokens, lines, Score.scoreBody)
+      case Some("code") => search(tokens, lines.filter(line => line.paragraphType == 'Code), Score.scoreBody)
       case Some("all") => searchContent(tokens)
       case _ => List()
     }

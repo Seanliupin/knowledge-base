@@ -77,6 +77,8 @@ abstract class Paragraph(line: String) extends Hit with Render {
 
   override def toString: String = line
 
+  def paragraphType: Symbol = 'Paragraph
+
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-content")
 }
 
@@ -115,6 +117,9 @@ case class Line(line: String) extends Paragraph(line)
 
 
 case class Comment(line: String) extends Paragraph(line) {
+
+  override def paragraphType: Symbol = 'Comment
+
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-comment")
 }
 
@@ -140,8 +145,11 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
 
   def hasCode: Boolean = codes.exists(_.trim.length > 0)
 
+
+  override def paragraphType: Symbol = 'Code
+
   override def toHtml(tokens: List[String]): String = {
-    var base = new StringBuilder
+    val base = new StringBuilder
     codes.foreach(code => {
       base.append(Node("div", code).className("code-line"))
     })
