@@ -142,5 +142,7 @@ object Extractor {
   val WebItemExtractor = """\s*[*]\s+\[(.*?)\]\((.*?)\)(.*)""" r
   val timeExtractor = """time:\s+(.*)""" r
   val commentExtractor = """comment:\s+(.*)""" r
+  val codeHeaderExtractor = """```(.*)""" r
+  val codeFooterExtractor = """```""" r
   val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)(.*)""" r
 }

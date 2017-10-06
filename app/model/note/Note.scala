@@ -27,18 +27,6 @@ case class Note(fileName: String) extends KnowledgeBase {
             }
             piece = Piece(title.trim, Option(fileName))
           }
-          case Extractor.timeExtractor(time) if piece.isNotEmpty =>
-            piece.setTime(time)
-          case Extractor.WebExtractor(title, url, comment) if piece.isNotEmpty =>
-            piece.addWeb(Web(title, url, comment))
-          case Extractor.WebItemExtractor(title, url, comment) if piece.isNotEmpty =>
-            piece.addWeb(Web(title, url, comment))
-          case Extractor.bookExtractor(title, url, comment) if piece.isNotEmpty =>
-            piece.addBook(Book(title, url, comment))
-          case Extractor.commentExtractor(comment) if piece.isNotEmpty =>
-            piece.addComment(comment)
-          case Extractor.timeExtractor(time) if piece.isNotEmpty =>
-            piece.setTime(time)
           case Extractor.tagsExtractor(tags) if piece.isNotEmpty =>
             tags.split(StringUtil.whiteSpaceSegmenter)
               .toList.map(_.trim)
@@ -49,6 +37,12 @@ case class Note(fileName: String) extends KnowledgeBase {
               .toList.map(_.trim)
               .filter(_.length > 0)
               .foreach(piece.addKeyword(_))
+          case Extractor.timeExtractor(time) if piece.isNotEmpty => piece.setTime(time)
+          case Extractor.WebExtractor(title, url, comment) if piece.isNotEmpty => piece.addWeb(Web(title, url, comment))
+          case Extractor.WebItemExtractor(title, url, comment) if piece.isNotEmpty => piece.addWeb(Web(title, url, comment))
+          case Extractor.bookExtractor(title, url, comment) if piece.isNotEmpty => piece.addBook(Book(title, url, comment))
+          case Extractor.commentExtractor(comment) if piece.isNotEmpty => piece.addComment(comment)
+          case Extractor.timeExtractor(time) if piece.isNotEmpty => piece.setTime(time)
           case Extractor.subTitleExtractor(subTitle) if piece.isNotEmpty => piece.addLine(SubTitle(subTitle))
           case _ if piece.isNotEmpty => piece.addLine(Line(line))
           case _ =>
