@@ -1,5 +1,6 @@
 package model.note
 
+import helper.StringUtil
 import model.html.Node
 
 /**
@@ -43,14 +44,28 @@ abstract class Link(title: String, href: String, comment: String) extends Hit wi
     List(title, href, comment).exists(item => item.toLowerCase.contains(lowerToken))
   }
 
-  override def toHtml(tokens: List[String]): String = Node("a", renderHits(title, tokens)).href(href).className("piece-web")
+  protected def linkClassName: String = "piece-url"
+
+  override def toHtml(tokens: List[String]): String = {
+    val url = Node("a", renderHits(title, tokens)).href(href).className(linkClassName)
+    var comm = ""
+    if (StringUtil.isNotBlank(comment)) {
+      comm = Node("div", renderHits(comment, tokens)).className("piece-url-comment")
+    }
+    Node("div", url + comm).className("piece-url-container")
+  }
+
 
   override def toPlain: String = s"[$title]($href)($comment)"
 }
 
-case class Web(title: String, href: String, comment: String) extends Link(title, href, comment)
+case class Web(title: String, href: String, comment: String) extends Link(title, href, comment) {
+  override protected def linkClassName: String = "piece-web"
+}
 
-case class Book(title: String, href: String, comment: String) extends Link(title, href, comment)
+case class Book(title: String, href: String, comment: String) extends Link(title, href, comment) {
+  override protected def linkClassName: String = "piece-book"
+}
 
 
 abstract class Paragraph(line: String) extends Hit with Render {

@@ -7,4 +7,8 @@ package helper
   */
 object StringUtil {
   val whiteSpaceSegmenter = "[\\s]+"
+
+  def isBlank(str: String): Boolean = str.trim.length == 0
+
+  final def isNotBlank(str: String): Boolean = !isBlank(str)
 }

@@ -23,7 +23,18 @@ body {
     border-radius: 4px;
 }
 
-.piece-web, .piece-book {
+.piece-url-container{
+    display: block;
+    margin: 10px 0 10px;
+}
+
+.piece-web, .piece-book, .piece-url {
+    display: inline;
+    margin: 5px 0 5px;
+}
+
+.piece-url-comment {
+    color: gray;
     display: block;
     margin: 5px 0 5px;
 }
@@ -34,6 +45,10 @@ body {
 
 .piece-book:before {
     content: "Book: ";
+}
+
+.piece-url-comment:before {
+    content: "Tips: ";
 }
 
 .piece-title {
@@ -52,7 +67,7 @@ body {
     line-height: 1.1;
 }
 
-.piece-title-box{
+.piece-title-box {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
