@@ -1,6 +1,6 @@
 package model.note
 
-import model.html.Render
+import model.html.{Node, Render}
 
 /**
   * Author: Sean
@@ -8,26 +8,46 @@ import model.html.Render
   * Time: 10:33 AM
   */
 
-abstract class Link(title: String, href: String, comment: String) extends Hitable {
+abstract class Link(title: String, href: String, comment: String) extends Hitable with Render {
   override def hit(token: String): Boolean = {
     title.toLowerCase.contains(token) || href.toLowerCase.contains(token) || comment.toLowerCase.contains(token)
   }
+
+  override def toHtml(tokens: List[String]): String = Node("a", renderHits(title, tokens)).href(href).className("piece-web").toString()
+
+  override def toPlain: String = s"[$title]($href)($comment)"
 }
 
 case class Web(title: String, href: String, comment: String) extends Link(title, href, comment)
 
 case class Book(title: String, href: String, comment: String) extends Link(title, href, comment)
 
-case class Line(line: String) extends Hitable{
+abstract class Paragraph(line: String) extends Hitable with Render {
   override def hit(token: String): Boolean = {
     line.toLowerCase.contains(token)
   }
 
+  override def toPlain: String = line
+
   override def toString: String = line
+
+  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-content").toString()
+}
+
+
+case class Line(line: String) extends Paragraph(line) {
+}
+
+case class Comment(line: String) extends Paragraph(line) {
+  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-comment").toString()
 }
 
 object Line {
   implicit def stringToLine(line: String) = Line(line)
+}
+
+object Comment {
+  implicit def stringToComment(line: String) = Comment(line)
 }
 
 object Category {

@@ -1,6 +1,6 @@
 package model.note
 
-import model.html.Node
+import model.html.{Node, Render}
 
 /**
   * Author: Sean
@@ -8,10 +8,10 @@ import model.html.Node
   * Time: 10:53 PM
   * 代表一则笔记
   */
-case class Piece(title: String, fileName: Option[String]) extends Searchable {
+case class Piece(title: String, fileName: Option[String]) extends Searchable with Render {
   protected var lines: List[Line] = List()
   protected var keywords: List[Line] = List()
-  protected var comments: List[Line] = List()
+  protected var comments: List[Comment] = List()
   protected var webs: List[Web] = List()
   protected var books: List[Book] = List()
   private var time: Option[String] = None
@@ -24,7 +24,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     keywords = keywords ++ newKeywords
   }
 
-  def addComment(comment: Line) = {
+  def addComment(comment: Comment) = {
     comments = comments ++ List(comment)
   }
 
@@ -127,14 +127,6 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     }
   }
 
-  override def toHtml: String = {
-    renderHtml(List())
-  }
-
-  def pieceType: String = {
-    ""
-  }
-
   protected def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
     //title 是可以直接看到的，fileName是鼠标悬停的时候显示
@@ -149,29 +141,29 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
     }
 
     webs.foreach(web => {
-      html.append(Node("a", web.title).href(web.href).className("piece-web"))
+      html.append(web.toHtml(tokens))
     })
 
     books.foreach(book => {
-      html.append(Node("a", book.title).href(book.href).className("piece-book"))
+      html.append(book.toHtml(tokens))
     })
 
     lines.foreach(line => {
-      var text = line.toString
-      tokens.foreach(token => {
-        text = renderHit(text, token)
-      })
-      html.append(Node("p", text).className("piece-content"))
+      html.append(line.toHtml(tokens))
     })
 
-    comments.foreach(comment => {
-      var text = comment.toString
-      tokens.foreach(token => {
-        text = renderHit(text, token)
-      })
-      html.append(Node("p", text).className("piece-comment"))
+    comments.foreach(line => {
+      html.append(line.toHtml(tokens))
     })
 
     Node("div", html.toString).className("piece-container").toString()
+  }
+
+  override def toHtml(tokens: List[String]): String = {
+    renderHtml(tokens)
+  }
+
+  override def toPlain: String = {
+    ""
   }
 }
