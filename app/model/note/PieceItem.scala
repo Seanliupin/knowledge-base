@@ -122,6 +122,17 @@ object Comment {
   implicit def stringToComment(line: String) = Comment(line)
 }
 
+case class Code(language: String) extends Paragraph(language){
+  var codes: List[String] = List()
+
+  def addCodeLine(code: String) = {
+    codes = codes ++ List(code)
+  }
+
+  def hasCode: Boolean = codes.exists(_.trim.length > 0)
+
+}
+
 object Extractor {
   val titleExtractor = """##\s+(.*)""" r
   val subTitleExtractor = """###\s+(.*)""" r
