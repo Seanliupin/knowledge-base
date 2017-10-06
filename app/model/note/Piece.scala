@@ -30,7 +30,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
         tokens.filter(token => realTitle.hit(token))
           .foreach(token => {
             val score = scores.getOrElse(token, 0)
-            scores = scores.updated(token, score + Score.scoreTitle)
+            scores = scores.updated(token, score + Score.getScore('Title ))
           })
       }
       case _ =>
