@@ -1,5 +1,7 @@
 package model.note
 
+import model.html.Render
+
 /**
   * Author: Sean
   * Date: 5/10/2017
@@ -16,7 +18,7 @@ case class Web(title: String, href: String, comment: String) extends Link(title,
 
 case class Book(title: String, href: String, comment: String) extends Link(title, href, comment)
 
-case class Line(line: String) extends Hitable {
+case class Line(line: String) extends Hitable{
   override def hit(token: String): Boolean = {
     line.toLowerCase.contains(token)
   }
