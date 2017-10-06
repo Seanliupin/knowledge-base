@@ -28,8 +28,29 @@ object Line {
   implicit def stringToLine(line: String) = Line(line)
 }
 
+object Category {
+  def title = "## "
+
+  def keys = "keys: "
+
+  def tags = "tags: "
+
+  def web = "web: "
+
+  def time = "time: "
+
+  def comment = "comment: "
+}
+
 
 object Extractor {
-  val BookExtractor = """book:\s+\[(.*?)\]\((.*?)\)(.*)""" r
+  val titleExtractor = """##\s+(.*)""" r
+  val subTitleExtractor = """###\s+(.*)""" r
+  val keysExtractor = """keys:\s+(.*)""" r
+  val tagsExtractor = """tags:\s+(.*)""" r
   val WebExtractor = """web:\s+\[(.*?)\]\((.*?)\)(.*)""" r
+  val timeExtractor = """time:\s+(.*)""" r
+  val commentExtractor = """comment:\s+(.*)""" r
+
+  val BookExtractor = """book:\s+\[(.*?)\]\((.*?)\)(.*)""" r
 }

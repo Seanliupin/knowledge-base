@@ -1,7 +1,6 @@
 package model.note
 
 import helper.StringUtil
-import model.html.Category
 import resource.managed
 
 /**
@@ -21,28 +20,29 @@ case class Note(fileName: String) extends Searchable {
 
     for (source <- managed(scala.io.Source.fromFile(fileName))) {
       for (line <- source.getLines) {
-
-        if (line.startsWith(Category.title)) {
-          if (piece.isNotEmpty) {
-            pieces = pieces ++ List(piece)
-          }
-          piece = Piece(line.replace(Category.title, ""), Option(fileName))
-        } else if (piece.isNotEmpty) {
-          if (line.startsWith(Category.keys)) {
-            piece.addKeywords(line.replace(Category.keys, "").split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
-          } else if (line.startsWith(Category.tags)) {
-            piece.addKeywords(line.replace(Category.tags, "").split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
-          } else if (line.startsWith(Category.comment)) {
-            piece.addComment(line.replace(Category.comment, ""))
-          } else {
-            line match {
-              case Extractor.WebExtractor(title, url, comment) =>
-                piece.addWeb(Web(title, url, comment))
-              case Extractor.BookExtractor(title, url, comment) =>
-                piece.addBook(Book(title, url, comment))
-              case _ => piece.addLine(line)
+        line match {
+          case Extractor.titleExtractor(title) => {
+            if (piece.isNotEmpty) {
+              pieces = pieces ++ List(piece)
             }
+            piece = Piece(title.trim, Option(fileName))
           }
+          case Extractor.timeExtractor(time) if piece.isNotEmpty =>
+            piece.setTime(time)
+          case Extractor.WebExtractor(title, url, comment) if piece.isNotEmpty =>
+            piece.addWeb(Web(title, url, comment))
+          case Extractor.BookExtractor(title, url, comment) if piece.isNotEmpty =>
+            piece.addBook(Book(title, url, comment))
+          case Extractor.commentExtractor(comment) if piece.isNotEmpty =>
+            piece.addComment(comment)
+          case Extractor.timeExtractor(time) if piece.isNotEmpty =>
+            piece.setTime(time)
+          case Extractor.tagsExtractor(tags) if piece.isNotEmpty =>
+            piece.addKeywords(tags.split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
+          case Extractor.keysExtractor(keys) if piece.isNotEmpty =>
+            piece.addKeywords(keys.split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
+          case _ if piece.isNotEmpty => piece.addLine(line)
+          case _ =>
         }
       }
     }

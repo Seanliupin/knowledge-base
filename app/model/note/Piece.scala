@@ -14,6 +14,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
   protected var comments: List[Line] = List()
   protected var webs: List[Web] = List()
   protected var books: List[Book] = List()
+  private var time: Option[String] = None
 
   def addLine(line: Line) = {
     lines = lines ++ List(line)
@@ -25,6 +26,10 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
 
   def addComment(comment: Line) = {
     comments = comments ++ List(comment)
+  }
+
+  def setTime(time: String) = {
+    this.time = Some(time)
   }
 
   def addWeb(web: Web): Unit = {
@@ -133,7 +138,9 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable {
   protected def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
     //title 是可以直接看到的，fileName是鼠标悬停的时候显示
-    html.append(Node("a", title).className("piece-title").title(fileName.getOrElse("")))
+    val titleNode = Node("a", title).className("piece-title").title(fileName.getOrElse(""))
+    val timeNode = Node("text", time.getOrElse("")).className("piece-time")
+    html.append(Node("div", "" + titleNode + timeNode).className("piece-title-box"))
 
     if (keywords.size > 0) {
       html.append(Node("div", keywords.map(keyword => {

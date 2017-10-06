@@ -42,9 +42,23 @@ body {
     font-weight: 500;
     line-height: 1.1;
     color: inherit;
-    display: block;
-    padding-bottom: 9px;
+}
+
+.piece-time {
+    font-size: 15px;
+    color: rebeccapurple;
+    font-family: inherit;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+.piece-title-box{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
     margin: 20px 0 10px;
+    padding-bottom: 9px;
     border-bottom: 1px solid #eee;
 }
 
