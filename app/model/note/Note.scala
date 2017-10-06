@@ -49,7 +49,8 @@ case class Note(fileName: String) extends Searchable {
               .toList.map(_.trim)
               .filter(_.length > 0)
               .foreach(piece.addKeyword(_))
-          case _ if piece.isNotEmpty => piece.addLine(line)
+          case Extractor.subTitleExtractor(subTitle) if piece.isNotEmpty => piece.addLine(SubTitle(subTitle))
+          case _ if piece.isNotEmpty => piece.addLine(Line(line))
           case _ =>
         }
       }

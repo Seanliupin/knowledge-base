@@ -23,7 +23,7 @@ body {
     border-radius: 4px;
 }
 
-.piece-url-container{
+.piece-url-container {
     display: block;
     margin: 10px 0 10px;
 }
@@ -51,12 +51,16 @@ body {
     content: "Tips: ";
 }
 
-.piece-title {
+.piece-title, .piece-h3 {
     font-size: 30px;
     font-family: inherit;
     font-weight: 500;
     line-height: 1.1;
     color: inherit;
+}
+
+.piece-h3 {
+    font-size: 22px;
 }
 
 .piece-time {

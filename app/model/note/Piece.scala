@@ -9,14 +9,14 @@ import model.html.Node
   * 代表一则笔记
   */
 case class Piece(title: Title, fileName: Option[String]) extends Searchable with Render {
-  protected var lines: List[Line] = List()
+  protected var lines: List[Paragraph] = List()
   protected var keywords: List[KeyWord] = List()
   protected var comments: List[Comment] = List()
   protected var webs: List[Web] = List()
   protected var books: List[Book] = List()
   private var time: Option[Time] = None
 
-  def addLine(line: Line) = {
+  def addLine(line: Paragraph) = {
     lines = lines ++ List(line)
   }
 

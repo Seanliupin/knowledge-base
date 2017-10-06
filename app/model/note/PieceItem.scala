@@ -92,11 +92,10 @@ object Title {
   implicit def stringTitle(line: String) = Title(line)
 }
 
-case class SubTitle(line: String) extends Paragraph(line)
-
-object SubTitle {
-  implicit def stringToSubTitle(line: String) = SubTitle(line)
+case class SubTitle(line: String) extends Paragraph(line){
+  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-h3")
 }
+
 
 case class KeyWord(line: String) extends Paragraph(line)
 
@@ -114,9 +113,6 @@ object Time {
 
 case class Line(line: String) extends Paragraph(line)
 
-object Line {
-  implicit def stringToLine(line: String) = Line(line)
-}
 
 case class Comment(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-comment")
