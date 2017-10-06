@@ -63,6 +63,11 @@ body {
     font-size: 22px;
 }
 
+.code-line {
+    display: block;
+    font-size: 22px;
+}
+
 .piece-time {
     font-size: 15px;
     color: rebeccapurple;

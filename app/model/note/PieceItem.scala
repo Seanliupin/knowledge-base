@@ -129,13 +129,29 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
     codes = codes ++ List(code)
   }
 
+  override def hit(token: String): Boolean = {
+    val lowerToken = token.toLowerCase
+    codes.exists(code => {
+      code.toLowerCase.contains(lowerToken)
+    })
+  }
+
   def isValidCode: Boolean = language != None
 
   def hasCode: Boolean = codes.exists(_.trim.length > 0)
 
   override def toHtml(tokens: List[String]): String = {
-    println("code = " + language)
-    Node("p", "text code").className("piece-code")
+    var base = new StringBuilder
+    codes.foreach(code => {
+      base.append(Node("div", code).className("code-line"))
+    })
+
+    Node("figure", "").className("highlight")
+      .setText(Node("pre", "")
+        .setText(Node("code", base.toString)
+          .className("language-html")
+          .addProperty("data-lang", language.getOrElse("html"))))
+
   }
 
 }
