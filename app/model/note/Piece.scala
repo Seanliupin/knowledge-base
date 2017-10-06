@@ -110,6 +110,8 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
 
     Score.keyWordToSymbol(context) match {
       case Some('All) => {
+        if (tokens.size == 0) return List()
+
         val last = tokens.last
         last match {
           case tipExtractor(tipType) => {
@@ -132,6 +134,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
         search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")))
       }
       case Some('Tip) => {
+        if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
         val last = tokens.last
         last match {
           case tipExtractor(tipType) => {
@@ -141,6 +144,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
         }
       }
       case Some('Code) => {
+        if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Code), true)
         val last = tokens.last
         last match {
           case codeExtractor(lan) => {
