@@ -29,7 +29,7 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
   }
 
   def search(query: String, context: String) = Action { implicit request: Request[AnyContent] =>
-    val tokens = query.trim.split(StringUtil.whiteSpaceSegmenter).map(_.trim.toLowerCase).filter(_.length > 0).toList
+    val tokens = query.split(StringUtil.whiteSpaceSegmenter).map(_.trim).filter(_.length > 0).toList
     Ok(views.html.index(query, contextList.map(c => ContextOption(c.value, c.value == context)), NoteService.search(tokens, Option(context))))
   }
 

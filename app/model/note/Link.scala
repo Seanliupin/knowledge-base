@@ -10,7 +10,8 @@ import model.html.{Node, Render}
 
 abstract class Link(title: String, href: String, comment: String) extends Hitable with Render {
   override def hit(token: String): Boolean = {
-    title.toLowerCase.contains(token) || href.toLowerCase.contains(token) || comment.toLowerCase.contains(token)
+    val lowerToken = token.toLowerCase
+    List(title, href, comment).exists(item => item.toLowerCase.contains(lowerToken))
   }
 
   override def toHtml(tokens: List[String]): String = Node("a", renderHits(title, tokens)).href(href).className("piece-web").toString()
@@ -23,8 +24,9 @@ case class Web(title: String, href: String, comment: String) extends Link(title,
 case class Book(title: String, href: String, comment: String) extends Link(title, href, comment)
 
 abstract class Paragraph(line: String) extends Hitable with Render {
+
   override def hit(token: String): Boolean = {
-    line.toLowerCase.contains(token)
+    line.toLowerCase.contains(token.toLowerCase)
   }
 
   override def toPlain: String = line

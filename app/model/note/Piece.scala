@@ -95,7 +95,7 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable wit
     }
   }
 
-  def searchH(tokens: List[String], items: List[Hitable], scoreValue: Int): List[Hit] = {
+  private def search(tokens: List[String], items: List[Hitable], scoreValue: Int): List[Hit] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
     tokens.filter(token => items.exists(_.hit(token)))
@@ -117,11 +117,11 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable wit
 
   override def search(tokens: List[String], context: Option[String]): List[Hit] = {
     context match {
-      case Some("keyword") => searchH(tokens, keywords, Score.scoreTag)
-      case Some("comment") => searchH(tokens, comments, Score.scoreComment)
-      case Some("web") => searchH(tokens, webs, Score.scoreWeb)
-      case Some("book") => searchH(tokens, books, Score.scoreBook)
-      case Some("body") => searchH(tokens, lines, Score.scoreBody)
+      case Some("keyword") => search(tokens, keywords, Score.scoreTag)
+      case Some("comment") => search(tokens, comments, Score.scoreComment)
+      case Some("web") => search(tokens, webs, Score.scoreWeb)
+      case Some("book") => search(tokens, books, Score.scoreBook)
+      case Some("body") => search(tokens, lines, Score.scoreBody)
       case Some("all") => searchContent(tokens)
       case _ => List()
     }
