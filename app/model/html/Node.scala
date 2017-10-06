@@ -42,7 +42,10 @@ case class Node(tag: String, value: String) {
       myHref = "href= " + "\"" + href + "\""
     }
 
-
     s"<$tag $className $myTitle $myHref>$value</$tag>"
   }
+}
+
+object Node {
+  implicit def nodeToString(node: Node): String = node.toString()
 }

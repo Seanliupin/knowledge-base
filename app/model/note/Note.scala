@@ -31,16 +31,24 @@ case class Note(fileName: String) extends Searchable {
             piece.setTime(time)
           case Extractor.WebExtractor(title, url, comment) if piece.isNotEmpty =>
             piece.addWeb(Web(title, url, comment))
-          case Extractor.BookExtractor(title, url, comment) if piece.isNotEmpty =>
+          case Extractor.WebItemExtractor(title, url, comment) if piece.isNotEmpty =>
+            piece.addWeb(Web(title, url, comment))
+          case Extractor.bookExtractor(title, url, comment) if piece.isNotEmpty =>
             piece.addBook(Book(title, url, comment))
           case Extractor.commentExtractor(comment) if piece.isNotEmpty =>
             piece.addComment(comment)
           case Extractor.timeExtractor(time) if piece.isNotEmpty =>
             piece.setTime(time)
           case Extractor.tagsExtractor(tags) if piece.isNotEmpty =>
-            piece.addKeywords(tags.split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
+            tags.split(StringUtil.whiteSpaceSegmenter)
+              .toList.map(_.trim)
+              .filter(_.length > 0)
+              .foreach(piece.addKeyword(_))
           case Extractor.keysExtractor(keys) if piece.isNotEmpty =>
-            piece.addKeywords(keys.split(StringUtil.whiteSpaceSegmenter).toList.map(Line(_)))
+            keys.split(StringUtil.whiteSpaceSegmenter)
+              .toList.map(_.trim)
+              .filter(_.length > 0)
+              .foreach(piece.addKeyword(_))
           case _ if piece.isNotEmpty => piece.addLine(line)
           case _ =>
         }
@@ -54,7 +62,7 @@ case class Note(fileName: String) extends Searchable {
     pieces
   }
 
-  override def search(tokens: List[String], context: Option[String]): List[Hit] = {
+  override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
     getPiece.flatMap(piece => {
       piece.search(tokens, context)
     }).filter(_.score > 0)

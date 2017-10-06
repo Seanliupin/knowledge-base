@@ -1,6 +1,6 @@
 package model.note
 
-import model.html.{Node, Render}
+import model.html.Node
 
 /**
   * Author: Sean
@@ -8,27 +8,27 @@ import model.html.{Node, Render}
   * Time: 10:53 PM
   * 代表一则笔记
   */
-case class Piece(title: String, fileName: Option[String]) extends Searchable with Render {
+case class Piece(title: Title, fileName: Option[String]) extends Searchable with Render {
   protected var lines: List[Line] = List()
-  protected var keywords: List[Line] = List()
+  protected var keywords: List[KeyWord] = List()
   protected var comments: List[Comment] = List()
   protected var webs: List[Web] = List()
   protected var books: List[Book] = List()
-  private var time: Option[String] = None
+  private var time: Option[Time] = None
 
   def addLine(line: Line) = {
     lines = lines ++ List(line)
   }
 
-  def addKeywords(newKeywords: List[Line]) = {
-    keywords = keywords ++ newKeywords
+  def addKeyword(newKeyword: KeyWord) = {
+    keywords = newKeyword +: keywords
   }
 
   def addComment(comment: Comment) = {
     comments = comments ++ List(comment)
   }
 
-  def setTime(time: String) = {
+  def setTime(time: Time) = {
     this.time = Some(time)
   }
 
@@ -40,12 +40,12 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable wit
     books = books ++ List(book)
   }
 
-  def isNotEmpty: Boolean = title.trim.length > 0
+  def isNotEmpty: Boolean = title.exist
 
-  def searchContent(tokens: List[String]): List[Hit] = {
+  def searchContent(tokens: List[String]): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
-    tokens.filter(token => title.toLowerCase.contains(token))
+    tokens.filter(token => title.hit(token))
       .foreach(token => {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + Score.scoreTitle)
@@ -89,13 +89,13 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable wit
     val totalScore = scores.toList.map(_._2).sum
 
     if (contain) {
-      List(Hit(renderHtml(tokens), totalScore))
+      List(HitScore(renderHtml(tokens), totalScore))
     } else {
-      List(Hit("", 0))
+      List(HitScore("", 0))
     }
   }
 
-  private def search(tokens: List[String], items: List[Hitable], scoreValue: Int): List[Hit] = {
+  private def search(tokens: List[String], items: List[Hit], scoreValue: Int): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
     tokens.filter(token => items.exists(_.hit(token)))
@@ -108,14 +108,14 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable wit
     val totalScore = scores.toList.map(_._2).sum
 
     if (contain) {
-      List(Hit(renderHtml(tokens), totalScore))
+      List(HitScore(renderHtml(tokens), totalScore))
     } else {
-      List(Hit("", 0))
+      List(HitScore("", 0))
     }
 
   }
 
-  override def search(tokens: List[String], context: Option[String]): List[Hit] = {
+  override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
     context match {
       case Some("keyword") => search(tokens, keywords, Score.scoreTag)
       case Some("comment") => search(tokens, comments, Score.scoreComment)
@@ -130,9 +130,8 @@ case class Piece(title: String, fileName: Option[String]) extends Searchable wit
   protected def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
     //title 是可以直接看到的，fileName是鼠标悬停的时候显示
-    val titleNode = Node("a", title).className("piece-title").title(fileName.getOrElse(""))
-    val timeNode = Node("text", time.getOrElse("")).className("piece-time")
-    html.append(Node("div", "" + titleNode + timeNode).className("piece-title-box"))
+
+    html.append(Node("div", "" + title.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
 
     if (keywords.size > 0) {
       html.append(Node("div", keywords.map(keyword => {

@@ -6,5 +6,5 @@ package model.note
   * Time: 10:02 AM
   */
 trait Searchable {
-  def search(tokens: List[String], context: Option[String]): List[Hit]
+  def search(tokens: List[String], context: Option[String]): List[HitScore]
 }
