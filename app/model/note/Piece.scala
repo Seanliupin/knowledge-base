@@ -56,14 +56,37 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     }
   }
 
-  private def search(tokens: List[String], items: List[Paragraph]): List[HitScore] = {
+  private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
+
+    /**
+      * item 有可能被某些条件过滤掉了
+      **/
+    if (items.size == 0) {
+      return List()
+    }
+
+    /**
+      * 如果没有token，并且还有item，则将item返回
+      **/
+
+    if (tokens.size == 0) {
+      if (renderOnly) {
+        return List(HitScore(renderHtml(tokens, items), 10))
+      } else {
+        return List(HitScore(renderHtml(tokens), 10))
+      }
+    }
+
+    var hitItems: List[Paragraph] = List()
 
     for (token <- tokens; line <- items; if !line.isEmpty) {
       val hitScore = line.hit(token)
       if (hitScore > 0) {
         val score = scores.getOrElse(token, 0)
         scores = scores.updated(token, score + hitScore)
+
+        hitItems = line +: hitItems
       }
     }
 
@@ -71,15 +94,34 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     val totalScore = scores.toList.map(_._2).sum
 
     if (contain) {
-      List(HitScore(renderHtml(tokens), totalScore))
+      if (renderOnly) {
+        return List(HitScore(renderHtml(tokens, hitItems), totalScore)) // 这里的hitItems不用reverse，因为在最外层，其会根据score重新排序
+      } else {
+        return List(HitScore(renderHtml(tokens), totalScore))
+      }
     } else {
       List(HitScore("", 0))
     }
   }
 
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
+    val tipExtractor = """tip:(.*)""" r;
+    val codeExtractor = """code:(.*)""" r;
+
     Score.keyWordToSymbol(context) match {
-      case Some('All) => searchContent(tokens)
+      case Some('All) => {
+        val last = tokens.last
+        last match {
+          case tipExtractor(tipType) => {
+            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)))
+          }
+          case codeExtractor(lan) => {
+            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)))
+          }
+          case _ => searchContent(tokens)
+        }
+
+      }
       case Some('Url) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book))
       }
@@ -90,28 +132,36 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
         search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")))
       }
       case Some('Tip) => {
-        val extractor = """tip:(.*)""" r;
-        tokens.foreach {
-          case token@extractor(tipType) => {
-            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)))
+        val last = tokens.last
+        last match {
+          case tipExtractor(tipType) => {
+            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)), true)
           }
-          case _ =>
+          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
         }
-        search(tokens, lines.filter(line => line.paragraphType == 'Tip))
       }
       case Some('Code) => {
-        val extractor = """code:(.*)""" r;
-        tokens.foreach {
-          case token@extractor(lan) => {
-            return search(tokens.filter(_ != token), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)))
+        val last = tokens.last
+        last match {
+          case codeExtractor(lan) => {
+            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)), true)
           }
-          case _ =>
+          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Code), true)
         }
-        search(tokens, lines.filter(line => line.paragraphType == 'Code))
+
+
       }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym))
       case _ => List()
     }
+  }
+
+  private def renderHtml(tokens: List[String], item: List[Render]): String = {
+    val html = new StringBuilder
+    item.foreach(line => {
+      html.append(line.toHtml(tokens))
+    })
+    html.toString
   }
 
   protected def renderHtml(tokens: List[String]): String = {
@@ -136,7 +186,6 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     other.foreach(line => {
       html.append(line.toHtml(tokens))
     })
-
 
     Node("div", html.toString).className("piece-container").toString()
   }
