@@ -9,6 +9,10 @@ import model.html.Node
   * Time: 10:33 AM
   */
 trait Hit {
+  //todo: 其实hit函数可以返回一个Int，
+  // 以代表其命中的分数。如果是完整的命中，
+  // 则得分更高，如果token只是嵌入在单词中，则得分更低
+  // 在不同的段落中，命中的得分也不一样。
   def hit(token: String): Boolean
 }
 
@@ -188,13 +192,13 @@ object Extractor {
   val subTitleExtractor = """###\s+(.*)""" r
   val keysExtractor = """keys:\s+(.*)""" r
   val tagsExtractor = """tags:\s+(.*)""" r
-  val WebExtractor = """web:\s+\[(.*?)\]\((.*?)\)(.*)""" r
-  val WebItemExtractor = """\s*[*]\s+\[(.*?)\]\((.*?)\)(.*)""" r
+  val WebExtractor = """web:\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
+  val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
+  val WebItemExtractor = """\s*[*]\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
   val timeExtractor = """time:\s+(.*)""" r
   val commentExtractor = """comment:\s+(.*)""" r
   val tipExtractor = """>(.*)""" r
   val colorTipExtractor = """>(.*?):\s*(.*)""" r
   val codeHeaderExtractor = """```(.*)""" r
   val codeFooterExtractor = """```""" r
-  val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)(.*)""" r
 }
