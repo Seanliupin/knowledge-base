@@ -104,7 +104,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
           }
           case _ =>
         }
-        List()
+        search(tokens, lines.filter(line => line.paragraphType == 'Code), Score.getScore('Code))
       }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym), Score.getScore(sym))
       case _ => List()
