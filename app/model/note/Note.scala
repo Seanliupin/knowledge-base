@@ -9,7 +9,7 @@ import resource.managed
   * Time: 10:48 PM
   * 这个类表示一篇笔记
   */
-case class Note(fileName: String) extends Searchable {
+case class Note(fileName: String) extends KnowledgeBase {
 
   /**
     * parse piece of information

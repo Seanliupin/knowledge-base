@@ -8,7 +8,7 @@ import model.html.Node
   * Time: 10:53 PM
   * 代表一则笔记
   */
-case class Piece(title: Title, fileName: Option[String]) extends Searchable with Render {
+case class Piece(title: Title, fileName: Option[String]) extends KnowledgeBase with Render {
   protected var lines: List[Paragraph] = List()
   protected var keywords: List[KeyWord] = List()
   protected var comments: List[Comment] = List()
