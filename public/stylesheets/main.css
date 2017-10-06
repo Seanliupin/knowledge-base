@@ -23,6 +23,16 @@ body {
     border-radius: 4px;
 }
 
+.piece-tip{
+    font-size: 17px;
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 3px;
+    border: 1px solid #eee;
+    border-left-width: 5px;
+    border-left-color: #1b809e;
+}
+
 .piece-url-container {
     display: block;
     margin: 10px 0 10px;

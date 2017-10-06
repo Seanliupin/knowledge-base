@@ -12,6 +12,7 @@ object Score {
     **/
   val contexts: List[(String, Symbol, Int)] = {
     List(
+      ("all", 'All, 0),
       ("title", 'Title, 30),
       ("keyword", 'KeyWord, 30),
       ("comment", 'Comment, 20),
@@ -20,8 +21,9 @@ object Score {
       ("book", 'Book, 20),
       ("code", 'Code, 10),
       ("line", 'Line, 10),
-      ("time", 'Time, 0),
-      ("all", 'All, 0)
+      ("tip", 'Tip, 10),
+      ("time", 'Time, 0)
+
     )
   }
 

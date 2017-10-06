@@ -110,11 +110,7 @@ case class SubTitle(line: String) extends Paragraph(line) {
 case class KeyWord(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'KeyWord
 
-  override def toHtml(tokens: List[String]): String =  Node("code", line).className("piece-keyword").toString()
-}
-
-object KeyWord {
-  implicit def stringToKeyWord(line: String) = KeyWord(line)
+  override def toHtml(tokens: List[String]): String = Node("code", line).className("piece-keyword").toString()
 }
 
 case class Time(line: String) extends Paragraph(line) {
@@ -132,16 +128,17 @@ case class Line(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'Line
 }
 
+case class Tip(line: String) extends Paragraph(line) {
+  override def paragraphType: Symbol = 'Tip
+
+  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-tip")
+}
 
 case class Comment(line: String) extends Paragraph(line) {
 
   override def paragraphType: Symbol = 'Comment
 
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-comment")
-}
-
-object Comment {
-  implicit def stringToComment(line: String) = Comment(line)
 }
 
 case class Code(language: Option[String]) extends Paragraph(language.getOrElse("")) {
@@ -190,6 +187,7 @@ object Extractor {
   val WebItemExtractor = """\s*[*]\s+\[(.*?)\]\((.*?)\)(.*)""" r
   val timeExtractor = """time:\s+(.*)""" r
   val commentExtractor = """comment:\s+(.*)""" r
+  val tipExtractor = """>(.*)""" r
   val codeHeaderExtractor = """```(.*)""" r
   val codeFooterExtractor = """```""" r
   val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)(.*)""" r
