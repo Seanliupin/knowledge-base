@@ -130,17 +130,17 @@ case class Line(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'Line
 }
 
-case class Tip(line: String, color: Option[String]) extends Paragraph(line) {
+case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
   override def paragraphType: Symbol = 'Tip
 
   private def colorClass: String = {
-    color match {
+    tipType match {
       case Some(c) => s"tip-$c"
       case None => "tip-default"
     }
   }
 
-  override def constrain(only: String): Boolean = color == Some("note")
+  override def constrain(only: String): Boolean = tipType == Some(only)
 
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-tip").className(colorClass)
 }
@@ -163,6 +163,7 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
 
   def hasCode: Boolean = codes.exists(_.trim.length > 0)
 
+  override def constrain(only: String): Boolean = language == Some(only)
 
   override def paragraphType: Symbol = 'Code
 

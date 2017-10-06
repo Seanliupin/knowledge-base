@@ -61,7 +61,7 @@ case class Note(fileName: String) extends KnowledgeBase {
           case Extractor.commentExtractor(comment) if piece.isValid => piece.addLine(Tip(comment, Some("note")))
           case Extractor.timeExtractor(time) if piece.isValid => piece.setTime(time)
           case Extractor.subTitleExtractor(subTitle) if piece.isValid => piece.addLine(SubTitle(subTitle))
-          case Extractor.colorTipExtractor(color, tip) if piece.isValid => piece.addLine(Tip(tip, Some(color)))
+          case Extractor.colorTipExtractor(tipType, tip) if piece.isValid => piece.addLine(Tip(tip, Some(tipType)))
           case Extractor.tipExtractor(tip) if piece.isValid => piece.addLine(Tip(tip, None))
           case _ if piece.isValid => piece.addLine(Line(line))
           case _ =>
