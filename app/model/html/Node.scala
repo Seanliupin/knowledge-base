@@ -5,6 +5,7 @@ package model.html
   * Date: 4/10/2017
   * Time: 11:45 PM
   */
+//todo : refactor tag to option
 case class Node(tag: String, value: String) {
   var names: List[String] = List()
   private var properties: List[(String, String)] = List()
@@ -38,6 +39,9 @@ case class Node(tag: String, value: String) {
   }
 
   override def toString(): String = {
+    if (tag.length == 0) {
+      return ""
+    }
     var className = ""
     if (names.size > 0) {
       className = names.mkString(" ")
@@ -65,4 +69,8 @@ case class Node(tag: String, value: String) {
 
 object Node {
   implicit def nodeToString(node: Node): String = node.toString()
+
+  def emptyNode: Node = {
+    Node("", "")
+  }
 }

@@ -186,24 +186,47 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
   override def isEmpty: Boolean = {
     title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
   }
+
+  /**
+    * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
+    **/
+  protected def renderedBody(tokens: List[String]): String = {
+    val base = new StringBuilder
+    lines.foreach(code => {
+      base.append(Node("div", renderHits(code, tokens)).className("chapter-line"))
+    })
+
+    base.toString()
+  }
+
+  override def toHtml(tokens: List[String]): String = {
+    var titleNode = ""
+    title match {
+      case Some(t) => {
+        if (t.trim.length > 0) {
+          titleNode = Node("div", t).className("chapter-title")
+        }
+      }
+      case None =>
+    }
+
+    val bodyNode = Node("div", renderedBody(tokens)).className("chapter-body")
+
+    Node("div", titleNode + bodyNode).className("chapter")
+  }
+
 }
 
 case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan, title) {
 
   override def paragraphType: Symbol = 'Code
 
-  override def toHtml(tokens: List[String]): String = {
+  override def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
       base.append(Node("div", renderHits(code, tokens)).className("code-line"))
     })
-
-    Node("figure", "").className("highlight")
-      .setText(Node("pre", "")
-        .setText(Node("code", base.toString)
-          .className("language-html")
-          .addProperty("data-lang", lan.getOrElse("html"))))
-
+    base.toString
   }
 }
 
@@ -211,18 +234,12 @@ case class Comment(ctype: Option[String], title: Option[String]) extends Chapter
 
   override def paragraphType: Symbol = 'Comment
 
-  override def toHtml(tokens: List[String]): String = {
+  override def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
       base.append(Node("div", renderHits(code, tokens)).className("comment-line"))
     })
-
-    //todo: to render comment
-    Node("figure", "").className("highlight")
-      .setText(Node("pre", "")
-        .setText(Node("code", base.toString)
-          .className("language-html")))
-
+    base.toString
   }
 }
 
