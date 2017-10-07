@@ -17,26 +17,43 @@ case class Note(fileName: String) extends KnowledgeBase {
   def pieces: List[Piece] = {
     var pieces: List[Piece] = List()
     var piece = Piece(None, None)
-    var codeBase = Code(None)
+    var codeBlock = Code(None, None)
+    var commentBlock = Comment(None, None)
 
     for (source <- managed(scala.io.Source.fromFile(fileName))) {
       for (line <- source.getLines) {
         line match {
           case Extractor.codeFooterExtractor() => {
-            if (codeBase.isValidCode) {
-              piece.addLine(codeBase)
-              codeBase = Code(None)
+            if (codeBlock.isValid) {
+              piece.addLine(codeBlock)
+              codeBlock = Code(None, None)
             } else {
-              codeBase = Code(Some(""))
+              codeBlock = Code(Some(""), Some(""))
             }
           }
-          case Extractor.codeHeaderExtractor(language) => {
-            if (codeBase.hasCode) {
-              piece.addLine(codeBase)
+          case Extractor.commentFooterExtractor() => {
+            if (commentBlock.isValid) {
+              piece.addLine(commentBlock)
+              commentBlock = Comment(None, None)
+            } else {
+              commentBlock = Comment(Some(""), Some(""))
             }
-            codeBase = Code(Some(language))
           }
-          case code if codeBase.isValidCode => codeBase.addCode(code)
+          case Extractor.codeHeaderExtractor(lan, title) => {
+            if (!codeBlock.isEmpty) {
+              piece.addLine(codeBlock)
+            }
+            codeBlock = Code(Some(lan), Some(title.trim))
+          }
+          case Extractor.commentHeaderExtractor(ctype, title) => {
+            if (!commentBlock.isEmpty) {
+              piece.addLine(commentBlock)
+            }
+
+            commentBlock = Comment(Some(ctype), Some(title))
+          }
+          case code if codeBlock.isValid => codeBlock.addLine(code)
+          case comment if commentBlock.isValid => commentBlock.addLine(comment)
 
           case Extractor.titleExtractor(title) => {
             if (piece.isValid) {

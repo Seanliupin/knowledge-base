@@ -11,7 +11,7 @@ import model.html.Node
 trait Hit {
   /**
     * todo: 不仅可以返回分数，还可以返回命中的个数，因此，更好的做法是返回一个tuple
-    * */
+    **/
   def hit(token: String): Int
 }
 
@@ -164,28 +164,37 @@ case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-tip").className(colorClass)
 }
 
-case class Code(language: Option[String]) extends Paragraph(language.getOrElse("")) {
-  var codes: List[String] = List()
+/**
+  * 多行组成的一个块，比如一段代码，一段评注等。用某一个
+  **/
+abstract class Chapter(ctype: Option[String], title: Option[String]) extends Paragraph(title.getOrElse("")) {
+  protected var lines: List[String] = List()
 
-  def addCode(code: String) = {
-    codes = codes ++ List(code)
+  def isValid: Boolean = ctype != None
+
+  def addLine(line: String) = {
+    lines = lines ++ List(line)
   }
 
   override def hit(token: String): Int = {
-    codes.map(hitScore(_, token)).sum
+    //总命中分数由正文命中分数和标题命中分数构成，这里提升了标题命中分的权重
+    lines.map(hitScore(_, token)).sum + hitScore(title.getOrElse(""), token) * 3
   }
 
-  def isValidCode: Boolean = language != None
+  override def constrain(only: String): Boolean = ctype == Some(only)
 
-  def hasCode: Boolean = codes.exists(_.trim.length > 0)
+  override def isEmpty: Boolean = {
+    title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
+  }
+}
 
-  override def constrain(only: String): Boolean = language == Some(only)
+case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan, title) {
 
   override def paragraphType: Symbol = 'Code
 
   override def toHtml(tokens: List[String]): String = {
     val base = new StringBuilder
-    codes.foreach(code => {
+    lines.foreach(code => {
       base.append(Node("div", renderHits(code, tokens)).className("code-line"))
     })
 
@@ -193,11 +202,28 @@ case class Code(language: Option[String]) extends Paragraph(language.getOrElse("
       .setText(Node("pre", "")
         .setText(Node("code", base.toString)
           .className("language-html")
-          .addProperty("data-lang", language.getOrElse("html"))))
+          .addProperty("data-lang", lan.getOrElse("html"))))
 
   }
+}
 
-  override def isEmpty: Boolean = codes.size == 0
+case class Comment(ctype: Option[String], title: Option[String]) extends Chapter(ctype, title) {
+
+  override def paragraphType: Symbol = 'Comment
+
+  override def toHtml(tokens: List[String]): String = {
+    val base = new StringBuilder
+    lines.foreach(code => {
+      base.append(Node("div", renderHits(code, tokens)).className("comment-line"))
+    })
+
+    //todo: to render comment
+    Node("figure", "").className("highlight")
+      .setText(Node("pre", "")
+        .setText(Node("code", base.toString)
+          .className("language-html")))
+
+  }
 }
 
 object Time {
@@ -220,8 +246,8 @@ object Extractor {
   val timeExtractor = """time:\s+(.*)""" r
   val typeLessTipExtractor = """>(.*)""" r
   val typedTipExtractor = """>(.*?):\s*(.*)""" r
-  val codeHeaderExtractor = """```(.*)""" r
+  val codeHeaderExtractor = """```(\w*)[:]?\b*(.*)""" r
+  val commentHeaderExtractor = """'''(\w*)[:]?\b*(.*)""" r
   val codeFooterExtractor = """```""" r
-  val commentHeaderExtractor = """'''(.*)""" r
   val commentFooterExtractor = """'''""" r
 }
