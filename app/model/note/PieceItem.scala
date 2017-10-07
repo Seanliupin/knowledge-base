@@ -9,6 +9,9 @@ import model.html.Node
   * Time: 10:33 AM
   */
 trait Hit {
+  /**
+    * todo: 不仅可以返回分数，还可以返回命中的个数，因此，更好的做法是返回一个tuple
+    * */
   def hit(token: String): Int
 }
 
@@ -205,6 +208,7 @@ object Title {
   implicit def stringTitle(line: String) = Title(line)
 }
 
+
 object Extractor {
   val titleExtractor = """##\s+(.*)""" r
   val subTitleExtractor = """###\s+(.*)""" r
@@ -214,9 +218,10 @@ object Extractor {
   val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
   val WebItemExtractor = """\s*[*]?\s*\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
   val timeExtractor = """time:\s+(.*)""" r
-  val commentExtractor = """comment:\s+(.*)""" r
-  val tipExtractor = """>(.*)""" r
-  val colorTipExtractor = """>(.*?):\s*(.*)""" r
+  val typeLessTipExtractor = """>(.*)""" r
+  val typedTipExtractor = """>(.*?):\s*(.*)""" r
   val codeHeaderExtractor = """```(.*)""" r
   val codeFooterExtractor = """```""" r
+  val commentHeaderExtractor = """'''(.*)""" r
+  val commentFooterExtractor = """'''""" r
 }
