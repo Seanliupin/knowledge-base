@@ -174,7 +174,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     title match {
       case Some(realTitle) => {
         //title 是可以直接看到的，fileName是鼠标悬停的时候显示
-        html.append(Node("div", "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
+        html.append(Node(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
       }
       case None => return "This is not a valid piece"
     }
@@ -183,7 +183,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
     val other = lines.filter(_.paragraphType != 'KeyWord)
 
     if (keywords.size > 0) {
-      html.append(Node("div", keywords.map(_.toHtml(List())).mkString("  "))
+      html.append(Node(Some("div"), keywords.map(_.toHtml(List())).mkString("  "))
         .className("piece-keyword-container"))
     }
 
@@ -191,7 +191,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
       html.append(line.toHtml(tokens))
     })
 
-    Node("div", html.toString).className("piece-container").toString()
+    Node(Some("div"), html.toString).className("piece-container").toString()
   }
 
   override def toHtml(tokens: List[String]): String = {

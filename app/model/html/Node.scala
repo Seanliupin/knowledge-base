@@ -5,8 +5,7 @@ package model.html
   * Date: 4/10/2017
   * Time: 11:45 PM
   */
-//todo : refactor tag to option
-case class Node(tag: String, value: String) {
+case class Node(tag: Option[String], value: String) {
   var names: List[String] = List()
   private var properties: List[(String, String)] = List()
   private var title = ""
@@ -39,7 +38,7 @@ case class Node(tag: String, value: String) {
   }
 
   override def toString(): String = {
-    if (tag.length == 0) {
+    if (tag == None) {
       return ""
     }
     var className = ""
@@ -63,7 +62,9 @@ case class Node(tag: String, value: String) {
       re += p._1 + "=\"" + p._2 + "\"  "
     })
 
-    s"<$tag $className $myTitle $myHref $re>$nodeText</$tag>"
+    val tagValue = tag.getOrElse("")
+
+    s"<$tagValue $className $myTitle $myHref $re>$nodeText</$tagValue>"
   }
 }
 
@@ -71,6 +72,6 @@ object Node {
   implicit def nodeToString(node: Node): String = node.toString()
 
   def emptyNode: Node = {
-    Node("", "")
+    Node(None, "")
   }
 }

@@ -24,7 +24,7 @@ trait Render {
     * render hit with strong by default, sub class can render hit their style
     **/
   protected def renderHit(text: String, token: String): String = {
-    text.replaceAll(token, Node("strong", token).className("text-danger"))
+    text.replaceAll(token, Node(Some("strong"), token).className("text-danger"))
   }
 
   protected def renderHits(text: String, tokens: List[String]): String = {
@@ -49,12 +49,12 @@ abstract class Link(title: String, href: String, comment: String) extends Paragr
   }
 
   override def toHtml(tokens: List[String]): String = {
-    val url = Node("a", renderHits(title, tokens)).href(href).className(linkClassName)
+    val url = Node(Some("a"), renderHits(title, tokens)).href(href).className(linkClassName)
     var comm = ""
     if (StringUtil.isNotBlank(comment)) {
-      comm = Node("div", renderHits(comment, tokens)).className("piece-url-comment")
+      comm = Node(Some("div"), renderHits(comment, tokens)).className("piece-url-comment")
     }
-    Node("div", url + comm).className("piece-url-container")
+    Node(Some("div"), url + comm).className("piece-url-container")
   }
 
 
@@ -113,7 +113,7 @@ abstract class Paragraph(line: String) extends Hit with Render {
 
   def constrain(only: String): Boolean = true
 
-  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-content")
+  override def toHtml(tokens: List[String]): String = Node(Some("p"), renderHits(tokens)).className("piece-content")
 }
 
 case class Title(line: String) extends Paragraph(line) {
@@ -121,13 +121,13 @@ case class Title(line: String) extends Paragraph(line) {
     line.trim.length > 0
   }
 
-  def toHtml(tokens: List[String], fileName: String): String = Node("a", line).className("piece-title").title(fileName)
+  def toHtml(tokens: List[String], fileName: String): String = Node(Some("a"), line).className("piece-title").title(fileName)
 
   override def paragraphType: Symbol = 'Title
 }
 
 case class SubTitle(line: String) extends Paragraph(line) {
-  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-h3")
+  override def toHtml(tokens: List[String]): String = Node(Some("p"), renderHits(tokens)).className("piece-h3")
 
   override def paragraphType: Symbol = 'SubTitle
 }
@@ -135,11 +135,11 @@ case class SubTitle(line: String) extends Paragraph(line) {
 case class KeyWord(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'KeyWord
 
-  override def toHtml(tokens: List[String]): String = Node("code", line).className("piece-keyword").toString()
+  override def toHtml(tokens: List[String]): String = Node(Some("code"), line).className("piece-keyword").toString()
 }
 
 case class Time(line: String) extends Paragraph(line) {
-  override def toHtml(tokens: List[String]): String = Node("text", line).className("piece-time")
+  override def toHtml(tokens: List[String]): String = Node(Some("text"), line).className("piece-time")
 
   override def paragraphType: Symbol = 'Time
 
@@ -161,7 +161,7 @@ case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
 
   override def constrain(only: String): Boolean = tipType == Some(only)
 
-  override def toHtml(tokens: List[String]): String = Node("p", renderHits(tokens)).className("piece-tip").className(colorClass)
+  override def toHtml(tokens: List[String]): String = Node(Some("p"), renderHits(tokens)).className("piece-tip").className(colorClass)
 }
 
 /**
@@ -193,7 +193,7 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
   protected def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node("div", renderHits(code, tokens)).className("chapter-line"))
+      base.append(Node(Some("div"), renderHits(code, tokens)).className("chapter-line"))
     })
 
     base.toString()
@@ -204,15 +204,15 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
     title match {
       case Some(t) => {
         if (t.trim.length > 0) {
-          titleNode = Node("div", t).className("chapter-title")
+          titleNode = Node(Some("div"), t).className("chapter-title")
         }
       }
       case None =>
     }
 
-    val bodyNode = Node("div", renderedBody(tokens)).className("chapter-body")
+    val bodyNode = Node(Some("div"), renderedBody(tokens)).className("chapter-body")
 
-    Node("div", titleNode + bodyNode).className("chapter")
+    Node(Some("div"), titleNode + bodyNode).className("chapter")
   }
 
 }
@@ -224,7 +224,7 @@ case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan,
   override def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node("div", renderHits(code, tokens)).className("code-line"))
+      base.append(Node(Some("div"), renderHits(code, tokens)).className("code-line"))
     })
     base.toString
   }
@@ -237,7 +237,7 @@ case class Comment(ctype: Option[String], title: Option[String]) extends Chapter
   override def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node("div", renderHits(code, tokens)).className("comment-line"))
+      base.append(Node(Some("div"), renderHits(code, tokens)).className("comment-line"))
     })
     base.toString
   }
