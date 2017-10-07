@@ -1,6 +1,9 @@
 package service
 
-import model.note.NoteBook
+import java.util.Observable
+
+import helper.WatchDir
+import model.note.{NoteBook, Piece}
 
 /**
   * Author: Sean
@@ -8,12 +11,25 @@ import model.note.NoteBook
   * Time: 10:31 PM
   */
 object NoteService {
-  val pieces = NoteBook.notes.flatMap(note => note.pieces)
+  private var pieces: List[Piece] = List()
+  private var inWatch = false;
+
+  private def getPiece: List[Piece] = {
+    if (!inWatch) {
+      pieces = NoteBook.notes.flatMap(note => note.pieces)
+      inWatch = true
+      WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
+        print(notice)
+        pieces = NoteBook.notes.flatMap(note => note.pieces)
+      })
+    }
+    pieces
+  }
 
   def search(tokens: List[String], context: Option[String]): String = {
     val all = new StringBuilder
 
-    pieces.flatMap(piece => piece.search(tokens, context))
+    getPiece.flatMap(piece => piece.search(tokens, context))
       .filter(_.score > 0)
       .sortWith((x, y) => x.score > y.score)
       //.foreach(hit => all.append(hit.hit + " score = " + hit.score))

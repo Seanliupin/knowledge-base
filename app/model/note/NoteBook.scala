@@ -9,8 +9,8 @@ import java.io.File
   * 这个类表示这个笔记本
   */
 object NoteBook {
-  private val root = "/Users/seanliu/Note/"
-//  private val root = "/Users/seanliu/Note/ztodo"  // for test
+  val root = "/Users/seanliu/Note/"
+  //   val root = "/Users/seanliu/Note/ztodo"  // for test
 
   def notes: List[Note] = {
     files.map(file => {

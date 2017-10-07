@@ -62,9 +62,10 @@ case class Node(tag: Option[String], value: String) {
       re += p._1 + "=\"" + p._2 + "\"  "
     })
 
-    val tagValue = tag.getOrElse("")
-
-    s"<$tagValue $className $myTitle $myHref $re>$nodeText</$tagValue>"
+    tag match {
+      case Some(tagValue) if tagValue.trim.length > 0 => s"<$tagValue $className $myTitle $myHref $re>$nodeText</$tagValue>"
+      case _ => ""
+    }
   }
 }
 
