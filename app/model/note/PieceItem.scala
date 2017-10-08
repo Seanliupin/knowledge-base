@@ -243,10 +243,6 @@ case class Comment(ctype: Option[String], title: Option[String]) extends Chapter
   }
 }
 
-object Time {
-  implicit def stringToTime(line: String) = Time(line)
-}
-
 object Title {
   implicit def stringTitle(line: String) = Title(line)
 }
