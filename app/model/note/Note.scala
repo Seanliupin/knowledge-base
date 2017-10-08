@@ -19,12 +19,24 @@ case class Note(fileName: String) {
     var piece = Piece(None, None)
     var codeBlock = Code(None, None)
     var commentBlock = Comment(None, None)
+    var globalTags: List[KeyWord] = List()
+
+    def addPiece(piece: Piece): List[Piece] = {
+      globalTags.foreach(piece.addLine)
+      pieces = piece +: pieces
+      pieces
+    }
 
     for {
       source <- managed(scala.io.Source.fromFile(fileName))
       line <- source.getLines
     } {
       line match {
+        case Extractor.globalTagsExtractor(tags) if !piece.isValid => {
+          globalTags = tags.split(StringUtil.whiteSpaceSegmenter)
+            .toList.map(KeyWord(_))
+        }
+
         case Extractor.codeFooterExtractor() => {
           if (codeBlock.isValid) {
             piece.addLine(codeBlock)
@@ -59,20 +71,18 @@ case class Note(fileName: String) {
 
         case Extractor.titleExtractor(title) => {
           if (piece.isValid) {
-            pieces = piece +: pieces
+            addPiece(piece)
           }
           piece = Piece(Some(title), Option(fileName))
         }
         case Extractor.tagsExtractor(tags) if piece.isValid =>
           tags.split(StringUtil.whiteSpaceSegmenter)
-            .toList.map(_.trim)
-            .filter(_.length > 0)
-            .foreach(keyWord => piece.addLine(KeyWord(keyWord)))
+            .map(KeyWord(_))
+            .foreach(piece.addLine)
         case Extractor.keysExtractor(keys) if piece.isValid =>
           keys.split(StringUtil.whiteSpaceSegmenter)
-            .toList.map(_.trim)
-            .filter(_.length > 0)
-            .foreach(keyWord => piece.addLine(KeyWord(keyWord)))
+            .map(KeyWord(_))
+            .foreach(piece.addLine)
         case Extractor.timeExtractor(time) if piece.isValid => piece.setTime(time)
         case Extractor.WebExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
         case Extractor.WebItemExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
@@ -87,7 +97,7 @@ case class Note(fileName: String) {
     }
 
     if (piece.isValid) {
-      pieces = piece +: pieces
+      addPiece(piece)
     }
 
     pieces

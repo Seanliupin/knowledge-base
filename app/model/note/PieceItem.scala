@@ -257,6 +257,7 @@ object Extractor {
   val subTitleExtractor = """###\s+(.*)""" r
   val keysExtractor = """keys:\s+(.*)""" r
   val tagsExtractor = """tags:\s+(.*)""" r
+  val globalTagsExtractor = """globalTags:\s+(.*)""" r
   val WebExtractor = """web:\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
   val bookExtractor = """book:\s+\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
   val WebItemExtractor = """\s*[*]?\s*\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
