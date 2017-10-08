@@ -30,6 +30,12 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     val tipExtractor = """tip:(.*)""" r;
     val codeExtractor = """code:(.*)""" r;
 
+    //需要将title纳入搜索范围
+    val lines = title match {
+      case Some(realTitle) => realTitle +: this.lines
+      case _ => this.lines
+    }
+
     Score.keyWordToSymbol(context) match {
       case Some('All) => {
         if (tokens.size == 0) return None
