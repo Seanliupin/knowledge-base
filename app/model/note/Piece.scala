@@ -26,7 +26,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     this.time = Some(time)
   }
 
-  def hasTime = time != Node
+  def hasNotTime = time == None
 
   def isValid: Boolean = title != None
 

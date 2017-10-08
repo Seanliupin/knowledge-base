@@ -35,7 +35,7 @@ case class Note(fileName: String) {
       globalTags.foreach(piece.addLine)
       var fixPiece = piece
 
-      if (!piece.hasTime) {
+      if (piece.hasNotTime) {
         for {
           titleFromFile <- globalTitle
           year <- globalYear
