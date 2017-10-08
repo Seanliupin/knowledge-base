@@ -16,9 +16,17 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     lines = lines ++ List(line)
   }
 
+  def setLines(lines: List[Paragraph]) = {
+    this.lines = lines
+  }
+
+  def getLines = lines
+
   def setTime(time: Time) = {
     this.time = Some(time)
   }
+
+  def hasTime = time != Node
 
   def isValid: Boolean = title != None
 

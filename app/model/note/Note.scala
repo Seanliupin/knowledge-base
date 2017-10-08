@@ -20,10 +20,39 @@ case class Note(fileName: String) {
     var codeBlock = Code(None, None)
     var commentBlock = Comment(None, None)
     var globalTags: List[KeyWord] = List()
+    var globalTitle: Option[String] = None
+    var globalYear: Option[String] = None
+
+    fileName match {
+      case Extractor.titleYearExtractor(_, title, year, _) => {
+        globalTitle = Some(title)
+        globalYear = Some(year)
+      }
+      case _ =>
+    }
 
     def addPiece(piece: Piece): List[Piece] = {
       globalTags.foreach(piece.addLine)
-      pieces = piece +: pieces
+      var fixPiece = piece
+
+      if (!piece.hasTime) {
+        for {
+          titleFromFile <- globalTitle
+          year <- globalYear
+          oldTitle <- piece.title
+        } {
+          oldTitle.line match {
+            case Extractor.dayMonthExtractor(month, day) => {
+              fixPiece = Piece(Some(Title(titleFromFile)), piece.fileName)
+              fixPiece.setTime(Time(s"$year/$month/$day"))
+              fixPiece.setLines(piece.getLines)
+            }
+            case _ =>
+          }
+        }
+      }
+
+      pieces = fixPiece +: pieces
       pieces
     }
 
