@@ -1,9 +1,6 @@
 package service
 
-import java.util.Observable
-
-import helper.WatchDir
-import model.note.{NoteBook, Piece}
+import model.note.NoteBook
 
 /**
   * Author: Sean
@@ -11,29 +8,13 @@ import model.note.{NoteBook, Piece}
   * Time: 10:31 PM
   */
 object NoteService {
-  private var pieces: List[Piece] = List()
-  private var inWatch = false;
-
-  private def getPiece: List[Piece] = {
-    if (!inWatch) {
-      pieces = NoteBook.notes.flatMap(note => note.pieces)
-      inWatch = true
-//      WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
-//        print(notice)
-//        pieces = NoteBook.notes.flatMap(note => note.pieces)
-//      })
-
-    }
-    pieces
-  }
-
   def search(tokens: List[String], context: Option[String]): String = {
     val all = new StringBuilder
 
-    val allPiece = getPiece
+    val pieces = NoteBook.getPiece
 
     val allHits = for {
-      piece <- allPiece
+      piece <- pieces
       hit <- piece.search(tokens, context) //filter out None
     } yield hit
 

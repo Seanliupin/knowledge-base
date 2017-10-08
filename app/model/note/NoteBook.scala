@@ -12,7 +12,26 @@ object NoteBook {
   val root = "/Users/seanliu/Note/"
   //   val root = "/Users/seanliu/Note/ztodo"  // for test
 
-  def notes: List[Note] = {
+  private var pieces: List[Piece] = List()
+  private var inWatch = false;
+
+  def getPiece: List[Piece] = {
+    //watch file chages
+    //    if (!inWatch) {
+    //      pieces = NoteBook.notes.flatMap(note => note.pieces)
+    //      inWatch = true
+    //      WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
+    //        print(notice)
+    //        pieces = NoteBook.notes.flatMap(note => note.pieces)
+    //      })
+    //    }
+    //    pieces
+
+    pieces = NoteBook.notes.flatMap(note => note.pieces)
+    pieces
+  }
+
+  private def notes: List[Note] = {
     files.map(file => {
       Note(file.getAbsolutePath)
     })

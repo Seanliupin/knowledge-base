@@ -9,7 +9,7 @@ import resource.managed
   * Time: 10:48 PM
   * 这个类表示一篇笔记
   */
-case class Note(fileName: String) extends KnowledgeBase {
+case class Note(fileName: String) {
 
   /**
     * parse piece of information
@@ -91,12 +91,5 @@ case class Note(fileName: String) extends KnowledgeBase {
     }
 
     pieces
-  }
-
-  override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
-    for {
-      piece <- pieces
-      hit <- piece.search(tokens, context)
-    } yield hit
   }
 }
