@@ -8,7 +8,7 @@ import model.html.Node
   * Time: 10:53 PM
   * 代表一则笔记
   */
-case class Piece(title: Option[Title], fileName: Option[String]) extends KnowledgeBase with Render {
+case class Piece(title: Option[Title], fileName: Option[String]) extends Render {
   protected var lines: List[Paragraph] = List()
   private var time: Option[Time] = None
 
@@ -23,97 +23,16 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
   def isValid: Boolean = title != None
 
   /**
-    * idea: 不同的命中词在搜索文本中的位置信息也可以
-    * */
-  private def searchContent(tokens: List[String]): List[HitScore] = {
-    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
-
-    title match {
-      case Some(realTitle) => {
-        tokens.foreach(token => {
-          val hitScore = realTitle.hit(token)
-          if (hitScore > 0) {
-            val score = scores.getOrElse(token, 0)
-            scores = scores.updated(token, score + hitScore)
-          }
-        })
-      }
-      case _ =>
-    }
-
-    for (token <- tokens; line <- lines; if !line.isEmpty) {
-      val hitScore = line.hit(token)
-      if (hitScore > 0) {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + hitScore)
-      }
-    }
-
-    val contain = scores.toList.forall(_._2 > 0)
-    val totalScore = scores.toList.map(_._2).sum
-
-    if (contain) {
-      List(HitScore(renderHtml(tokens), totalScore))
-    } else {
-      List(HitScore("", 0))
-    }
-  }
-
-  private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false): List[HitScore] = {
-    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
-
-    /**
-      * item 有可能被某些条件过滤掉了
-      **/
-    if (items.size == 0) {
-      return List()
-    }
-
-    /**
-      * 如果没有token，并且还有item，则将item返回
-      **/
-
-    if (tokens.size == 0) {
-      if (renderOnly) {
-        return List(HitScore(renderHtml(tokens, items), 10))
-      } else {
-        return List(HitScore(renderHtml(tokens), 10))
-      }
-    }
-
-    var hitItems: List[Paragraph] = List()
-
-    for (token <- tokens; line <- items; if !line.isEmpty) {
-      val hitScore = line.hit(token)
-      if (hitScore > 0) {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + hitScore)
-
-        hitItems = line +: hitItems
-      }
-    }
-
-    val contain = scores.toList.forall(_._2 > 0)
-    val totalScore = scores.toList.map(_._2).sum
-
-    if (contain) {
-      if (renderOnly) {
-        return List(HitScore(renderHtml(tokens, hitItems), totalScore)) // 这里的hitItems不用reverse，因为在最外层，其会根据score重新排序
-      } else {
-        return List(HitScore(renderHtml(tokens), totalScore))
-      }
-    } else {
-      List(HitScore("", 0))
-    }
-  }
-
-  override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
+    * todo:
+    * idea: 不同的命中词在搜索文本中的位置信息也可以用于计算命中分数，命中token之间相隔越近，则分数越高
+    **/
+  def search(tokens: List[String], context: Option[String]): Option[HitScore] = {
     val tipExtractor = """tip:(.*)""" r;
     val codeExtractor = """code:(.*)""" r;
 
     Score.keyWordToSymbol(context) match {
       case Some('All) => {
-        if (tokens.size == 0) return List()
+        if (tokens.size == 0) return None
 
         val last = tokens.last
         last match {
@@ -159,7 +78,89 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
 
       }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym))
-      case _ => List()
+      case _ => None
+    }
+  }
+
+  private def searchContent(tokens: List[String]): Option[HitScore] = {
+    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
+
+    title match {
+      case Some(realTitle) => {
+        tokens.foreach(token => {
+          val hitScore = realTitle.hit(token)
+          if (hitScore > 0) {
+            val score = scores.getOrElse(token, 0)
+            scores = scores.updated(token, score + hitScore)
+          }
+        })
+      }
+      case _ =>
+    }
+
+    for (token <- tokens; line <- lines; if !line.isEmpty) {
+      val hitScore = line.hit(token)
+      if (hitScore > 0) {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + hitScore)
+      }
+    }
+
+    val contain = scores.toList.forall(_._2 > 0)
+    val totalScore = scores.toList.map(_._2).sum
+
+    if (contain) {
+      Some(HitScore(renderHtml(tokens), totalScore))
+    } else {
+      None
+    }
+  }
+
+  private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false): Option[HitScore] = {
+    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
+
+    /**
+      * item 有可能被某些条件过滤掉了
+      **/
+    if (items.size == 0) {
+      return None
+    }
+
+    /**
+      * 如果没有token，并且还有item，则将item返回
+      **/
+
+    if (tokens.size == 0) {
+      if (renderOnly) {
+        return Some(HitScore(renderHtml(tokens, items), 10))
+      } else {
+        return Some(HitScore(renderHtml(tokens), 10))
+      }
+    }
+
+    var hitItems: List[Paragraph] = List()
+
+    for (token <- tokens; line <- items; if !line.isEmpty) {
+      val hitScore = line.hit(token)
+      if (hitScore > 0) {
+        val score = scores.getOrElse(token, 0)
+        scores = scores.updated(token, score + hitScore)
+
+        hitItems = line +: hitItems
+      }
+    }
+
+    val contain = scores.toList.forall(_._2 > 0)
+    val totalScore = scores.toList.map(_._2).sum
+
+    if (contain) {
+      if (renderOnly) {
+        return Some(HitScore(renderHtml(tokens, hitItems), totalScore)) // 这里的hitItems不用reverse，因为在最外层，其会根据score重新排序
+      } else {
+        return Some(HitScore(renderHtml(tokens), totalScore))
+      }
+    } else {
+      None
     }
   }
 

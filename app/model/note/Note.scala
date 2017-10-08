@@ -93,8 +93,9 @@ case class Note(fileName: String) extends KnowledgeBase {
   }
 
   override def search(tokens: List[String], context: Option[String]): List[HitScore] = {
-    pieces.flatMap(piece => {
-      piece.search(tokens, context)
-    }).filter(_.score > 0)
+    for {
+      piece <- pieces
+      hit <- piece.search(tokens, context)
+    } yield hit
   }
 }
