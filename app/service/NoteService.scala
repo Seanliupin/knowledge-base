@@ -18,10 +18,11 @@ object NoteService {
     if (!inWatch) {
       pieces = NoteBook.notes.flatMap(note => note.pieces)
       inWatch = true
-      WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
-        print(notice)
-        pieces = NoteBook.notes.flatMap(note => note.pieces)
-      })
+//      WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
+//        print(notice)
+//        pieces = NoteBook.notes.flatMap(note => note.pieces)
+//      })
+
     }
     pieces
   }

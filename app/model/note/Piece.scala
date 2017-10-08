@@ -22,6 +22,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Knowled
 
   def isValid: Boolean = title != None
 
+  /**
+    * idea: 不同的命中词在搜索文本中的位置信息也可以
+    * */
   private def searchContent(tokens: List[String]): List[HitScore] = {
     var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
 
