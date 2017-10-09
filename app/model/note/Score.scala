@@ -30,7 +30,6 @@ object Score {
   def availableContext: List[String] = {
     val filterOut = List("book", "web", "time", "subtitle", "comment")
     val re = contexts.map(_._1).filter(item => !filterOut.exists(item == _))
-    re.foreach(x => println(x))
     re
   }
 

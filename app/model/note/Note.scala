@@ -117,7 +117,13 @@ case class Note(fileName: String) {
         case Extractor.WebItemExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
         case Extractor.bookExtractor(title, url, comment) if piece.isValid => piece.addLine(Book(title, url, comment))
         case Extractor.subTitleExtractor(subTitle) if piece.isValid => piece.addLine(SubTitle(subTitle))
-        case Extractor.typedTipExtractor(tipType, tip) if piece.isValid => piece.addLine(Tip(tip, Some(tipType)))
+        case Extractor.typedTipExtractor(tipType, tip) if piece.isValid => {
+          if (tipType.trim.length == 0) {
+            piece.addLine(Tip(tip, None))
+          } else {
+            piece.addLine(Tip(tip, Some(tipType)))
+          }
+        }
         case Extractor.typeLessTipExtractor(tip) if piece.isValid => piece.addLine(Tip(tip, None))
         case _ if piece.isValid => piece.addLine(Line(line))
         case _ =>
