@@ -57,7 +57,7 @@ case class Note(fileName: String) {
     }
 
     for {
-      source <- managed(scala.io.Source.fromFile(fileName))
+      source <- managed(scala.io.Source.fromFile(fileName,"UTF-8"))
       line <- source.getLines
     } {
       line match {
