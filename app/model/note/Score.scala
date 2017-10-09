@@ -56,4 +56,16 @@ object Score {
     }
   }
 
+  /**
+    * (wordMatch, caseMatch)
+    **/
+  def getMatchScore(m: (Boolean, Boolean)): Int = {
+    m match {
+      case (true, true) => 10
+      case (true, false) => 8
+      case (false, true) => 3
+      case (false, false) => 1
+    }
+  }
+
 }

@@ -85,14 +85,33 @@ abstract class Paragraph(line: String) extends Hit with Render {
     * todo: 是否可以不用正则表达式来实现该算法
     **/
   final protected def hitScore(text: String, token: String): Int = {
-    if (text.contains(token)) {
-      return hitInWord
-    }
-    if (text.toLowerCase.contains(token.toLowerCase)) {
-      return hitInWordIgnoreCase
-    }
+    Algorithm.computeScore(getMatchList(token, text), paragraphType)
+  }
 
-    return 0
+  /**
+    * List[(是否全字符匹配, 是否大小写匹配，单词位置)]
+    **/
+  private def getMatchList(word: String, target: String): List[(Boolean, Boolean, Int)] = {
+    val trimWord = word.trim
+    val ignoreCase = trimWord.map(c => {
+      if (c.isLetter) {
+        s"(${c.toLower}|${c.toUpper})"
+      } else if ("()[]{}.".contains(c)) {
+        s"\\$c"
+      } else {
+        c
+      }
+    }).foldLeft("")((a, b) => {
+      a + b
+    })
+
+    val ignoreCaseR = s"${ignoreCase}" r
+    val paddingTarget = s" ${target} " //保证了获取字符的时候不越界
+    ignoreCaseR
+      .findAllMatchIn(paddingTarget)
+      .map(w => (w, paddingTarget.charAt(w.start - 1), paddingTarget.charAt(w.end), w.start - 1))
+      .map(tu => (!(tu._2.isLetterOrDigit || tu._3.isLetterOrDigit), tu._1.toString == trimWord, tu._4))
+      .toList
   }
 
   final protected def hitWord: Int = weight * 5
@@ -249,7 +268,7 @@ object Title {
 
 
 object Extractor {
-  val titleYearExtractor =  """(.*?)([^/]*?)-(\d{4})-(.*)""" r
+  val titleYearExtractor = """(.*?)([^/]*?)-(\d{4})-(.*)""" r
   val dayMonthExtractor = """(\d{1,2})/(\d{1,2})""" r
 
   val titleExtractor = """##\s+(.*)""" r
