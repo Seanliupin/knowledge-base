@@ -12,7 +12,7 @@ trait Hit {
   /**
     * todo: 不仅可以返回分数，还可以返回命中的个数，因此，更好的做法是返回一个tuple
     **/
-  def hit(token: String): Int
+  def hit(token: String): List[(Boolean, Boolean, Int, Symbol)]
 }
 
 trait Render {
@@ -44,8 +44,8 @@ trait Render {
 abstract class Link(title: String, href: String, comment: String) extends Paragraph(title) {
   protected def linkClassName: String = "piece-url"
 
-  override def hit(token: String): Int = {
-    List(title, href, comment).map(item => hitScore(item, token)).sum
+  override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
+    List(title, href, comment).flatMap(item => hitScore(item, token))
   }
 
   override def toHtml(tokens: List[String]): String = {
@@ -74,7 +74,7 @@ case class Book(title: String, href: String, comment: String) extends Link(title
 }
 
 abstract class Paragraph(line: String) extends Hit with Render {
-  override def hit(token: String): Int = {
+  override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
     hitScore(line, token)
   }
 
@@ -84,8 +84,8 @@ abstract class Paragraph(line: String) extends Hit with Render {
     * 计算命中分数，全字符命中得分最高
     * todo: 是否可以不用正则表达式来实现该算法
     **/
-  final protected def hitScore(text: String, token: String): Int = {
-    Algorithm.computeScore(getMatchList(token, text), paragraphType)
+  final protected def hitScore(text: String, token: String): List[(Boolean, Boolean, Int, Symbol)] = {
+    getMatchList(token, text).map(x => (x._1, x._2, x._3, paragraphType))
   }
 
   /**
@@ -195,9 +195,8 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
     lines = lines ++ List(line)
   }
 
-  override def hit(token: String): Int = {
-    //总命中分数由正文命中分数和标题命中分数构成，这里提升了标题命中分的权重
-    lines.map(hitScore(_, token)).sum + hitScore(title.getOrElse(""), token) * 3
+  override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
+    lines.flatMap(hitScore(_, token)) ++ hitScore(title.getOrElse(""), token)
   }
 
   override def constrain(only: String): Boolean = ctype == Some(only)

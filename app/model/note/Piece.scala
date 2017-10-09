@@ -97,42 +97,45 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
   }
 
   private def searchContent(tokens: List[String]): Option[HitScore] = {
-    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
+    var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
 
+    var titleScore = 0
     title match {
       case Some(realTitle) => {
         tokens.foreach(token => {
-          val hitScore = realTitle.hit(token)
-          if (hitScore > 0) {
-            val score = scores.getOrElse(token, 0)
-            scores = scores.updated(token, score + hitScore)
+          val hitList = realTitle.hit(token)
+          if (hitList.size > 0) {
+            titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Title)
+            hasHit = hasHit.updated(token, true)
           }
         })
       }
       case _ =>
     }
 
+    var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
+
     for (token <- tokens; line <- lines; if !line.isEmpty) {
-      val hitScore = line.hit(token)
-      if (hitScore > 0) {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + hitScore)
+      val hitList = line.hit(token)
+      if (hitList.size > 0) {
+        hasHit = hasHit.updated(token, true)
+        allList = allList ++ hitList
       }
     }
 
-    val contain = scores.toList.forall(_._2 > 0)
-    val totalScore = scores.toList.map(_._2).sum
+    val bodyScore = allList.groupBy(_._4).map {
+      case (sym, list) => Algorithm.computeScore(list.map(x => (x._1, x._2, x._3)), sym)
+    }.sum
 
-    if (contain) {
-      Some(HitScore(renderHtml(tokens), totalScore))
+    if (hasHit.toList.forall(_._2)) {
+      Some(HitScore(renderHtml(tokens), titleScore + bodyScore))
     } else {
       None
     }
   }
 
   private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false): Option[HitScore] = {
-    var scores: Map[String, Int] = tokens.map(token => (token, 0)).toMap
-
+    var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
     /**
       * item 有可能被某些条件过滤掉了
       **/
@@ -152,26 +155,28 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       }
     }
 
+
+    var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
     var hitItems: List[Paragraph] = List()
 
-    for (token <- tokens; line <- items; if !line.isEmpty) {
-      val hitScore = line.hit(token)
-      if (hitScore > 0) {
-        val score = scores.getOrElse(token, 0)
-        scores = scores.updated(token, score + hitScore)
-
+    for (token <- tokens; line <- lines; if !line.isEmpty) {
+      val hitList = line.hit(token)
+      if (hitList.size > 0) {
+        hasHit = hasHit.updated(token, true)
+        allList = allList ++ hitList
         hitItems = line +: hitItems
       }
     }
 
-    val contain = scores.toList.forall(_._2 > 0)
-    val totalScore = scores.toList.map(_._2).sum
+    val bodyScore = allList.groupBy(_._4).map {
+      case (sym, list) => Algorithm.computeScore(list.map(x => (x._1, x._2, x._3)), sym)
+    }.sum
 
-    if (contain) {
+    if (hasHit.toList.forall(_._2)) {
       if (renderOnly) {
-        return Some(HitScore(renderHtml(tokens, hitItems), totalScore)) // 这里的hitItems不用reverse，因为在最外层，其会根据score重新排序
+        return Some(HitScore(renderHtml(tokens, hitItems), bodyScore)) // 这里的hitItems不用reverse，因为在最外层，其会根据score重新排序
       } else {
-        return Some(HitScore(renderHtml(tokens), totalScore))
+        return Some(HitScore(renderHtml(tokens), bodyScore))
       }
     } else {
       None
