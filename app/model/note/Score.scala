@@ -45,15 +45,14 @@ object Score {
   def keyWordToSymbol(keyword: Option[String]): Option[Symbol] = {
     keyword match {
       case Some(key) => {
-        contexts.foreach(context => {
-          if (context._1 == key) {
-            return Some(context._2)
-          }
-        })
-        return None
+        contexts.foreach {
+          case (searchKey, symbol, _) if searchKey == key => return Some(symbol)
+          case _ =>
+        }
       }
-      case _ => None
+      case None =>
     }
+    None
   }
 
   /**
