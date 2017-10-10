@@ -162,7 +162,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
     var hitItems: List[Paragraph] = List()
 
-    for (token <- tokens; line <- lines; if !line.isEmpty) {
+    for (token <- tokens; line <- items; if !line.isEmpty) {
       val hitList = line.hit(token)
       if (hitList.size > 0) {
         hasHit = hasHit.updated(token, true)
