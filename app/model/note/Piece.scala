@@ -58,7 +58,6 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
           }
           case _ => searchContent(tokens)
         }
-
       }
       case Some('Url) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book))
@@ -66,11 +65,11 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some('Title) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle))
       }
-      case Some('Comment) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")))
-      }
       case Some('KeyWord) => {
         search(tokens, lines.filter(line => line.paragraphType == 'KeyWord))
+      }
+      case Some('Comment) => {
+        search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")))
       }
       case Some('Tip) => {
         if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
@@ -194,7 +193,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     html.toString
   }
 
-  protected def renderHtml(tokens: List[String]): String = {
+  private def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
 
     title match {

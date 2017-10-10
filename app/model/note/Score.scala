@@ -13,16 +13,16 @@ object Score {
   val contexts: List[(String, Symbol, Int)] = {
     List(
       ("all", 'All, 0),
-      ("title", 'Title, 30),
-      ("keyword", 'KeyWord, 30),
-      ("subtitle", 'SubTitle, 25),
-      ("comment", 'Comment, 20), //Comment 其实就是标记为note的Tip
-      ("web", 'Web, 20),
-      ("book", 'Book, 20),
-      ("code", 'Code, 10),
-      ("url", 'Url, 10),
-      ("line", 'Line, 10),
-      ("tip", 'Tip, 10),
+      ("title", 'Title, 350),
+      ("keyword", 'KeyWord, 400),
+      ("subtitle", 'SubTitle, 250),
+      ("comment", 'Comment, 150), //Comment 其实就是标记为note的Tip
+      ("web", 'Web, 80),
+      ("book", 'Book, 80),
+      ("code", 'Code, 50),
+      ("url", 'Url, 100),
+      ("line", 'Line, 100),
+      ("tip", 'Tip, 140),
       ("time", 'Time, 0)
     )
   }
