@@ -69,6 +69,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some('Comment) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")))
       }
+      case Some('KeyWord) => {
+        search(tokens, lines.filter(line => line.paragraphType == 'KeyWord))
+      }
       case Some('Tip) => {
         if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
         val last = tokens.last
@@ -174,7 +177,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     if (hasHit.toList.forall(_._2)) {
       if (renderOnly) {
-        return Some(HitScore(renderHtml(tokens, hitItems), bodyScore)) // 这里的hitItems不用reverse，因为在最外层，其会根据score重新排序
+        return Some(HitScore(renderHtml(tokens, hitItems), bodyScore))
       } else {
         return Some(HitScore(renderHtml(tokens), bodyScore))
       }
