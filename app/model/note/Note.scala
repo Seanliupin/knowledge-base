@@ -18,7 +18,7 @@ case class Note(fileName: String) {
     var pieces: List[Piece] = List()
     var piece = Piece(None, None)
     var codeBlock = Code(None, None)
-    var commentBlock = Comment(None, None)
+    var commentBlock = Memo(None, None)
     var globalTags: List[KeyWord] = List()
     var globalTitle: Option[String] = None
     var globalYear: Option[String] = None
@@ -77,9 +77,9 @@ case class Note(fileName: String) {
         case Extractor.commentFooterExtractor() => {
           if (commentBlock.isValid) {
             piece.addLine(commentBlock)
-            commentBlock = Comment(None, None)
+            commentBlock = Memo(None, None)
           } else {
-            commentBlock = Comment(Some(""), Some(""))
+            commentBlock = Memo(Some(""), Some(""))
           }
         }
         case Extractor.codeHeaderExtractor(lan, title) => {
@@ -93,7 +93,7 @@ case class Note(fileName: String) {
             piece.addLine(commentBlock)
           }
 
-          commentBlock = Comment(Some(ctype), Some(title))
+          commentBlock = Memo(Some(ctype), Some(title))
         }
         case code if codeBlock.isValid => codeBlock.addLine(code)
         case comment if commentBlock.isValid => commentBlock.addLine(comment)

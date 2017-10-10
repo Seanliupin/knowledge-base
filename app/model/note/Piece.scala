@@ -37,6 +37,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
   def search(tokens: List[String], context: Option[String]): Option[HitScore] = {
     val tipExtractor = """tip:(.*)""" r;
     val codeExtractor = """code:(.*)""" r;
+    val memoExtractor = """memo:(.*)""" r;
 
     //需要将title纳入搜索范围
     val lines = title match {
@@ -56,6 +57,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
           case codeExtractor(lan) => {
             search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)))
           }
+          case memoExtractor(memoType) => {
+            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Memo && line.constrain(memoType)))
+          }
           case _ => searchContent(tokens)
         }
       }
@@ -68,8 +72,8 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some('KeyWord) => {
         search(tokens, lines.filter(line => line.paragraphType == 'KeyWord))
       }
-      case Some('Comment) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain("note")))
+      case Some('Memo) => {
+        search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
       }
       case Some('Tip) => {
         if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)

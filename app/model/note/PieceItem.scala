@@ -248,9 +248,9 @@ case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan,
   }
 }
 
-case class Comment(ctype: Option[String], title: Option[String]) extends Chapter(ctype, title) {
+case class Memo(ctype: Option[String], title: Option[String]) extends Chapter(ctype, title) {
 
-  override def paragraphType: Symbol = 'Comment
+  override def paragraphType: Symbol = 'Memo
 
   override def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder

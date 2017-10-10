@@ -16,7 +16,7 @@ object Score {
       ("title", 'Title, 350),
       ("keyword", 'KeyWord, 400),
       ("subtitle", 'SubTitle, 250),
-      ("comment", 'Comment, 150), //Comment 其实就是标记为note的Tip
+      ("memo", 'Memo, 150),
       ("web", 'Web, 80),
       ("book", 'Book, 80),
       ("code", 'Code, 50),
@@ -28,7 +28,7 @@ object Score {
   }
 
   def availableContext: List[String] = {
-    val filterOut = List("book", "web", "time", "subtitle", "comment")
+    val filterOut = List("book", "web", "time", "subtitle")
     val re = contexts.map(_._1).filter(item => !filterOut.exists(item == _))
     re
   }
