@@ -267,7 +267,7 @@ object Title {
 
 
 object Extractor {
-  val titleYearExtractor = """(.*?)([^/]*?)-(\d{4})-(.*)""" r
+  val titleYearExtractor = """(.*?)([^\\/]*?)-(\d{4})-(.*)""" r
   val dayMonthExtractor = """(\d{1,2})/(\d{1,2})""" r
 
   val titleExtractor = """##\s+(.*)""" r
