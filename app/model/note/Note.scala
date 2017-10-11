@@ -31,6 +31,10 @@ case class Note(fileName: String) {
       case _ =>
     }
 
+    def getHashCode(str: String): String = {
+      s"${str.hashCode}"
+    }
+
     def addPiece(piece: Piece): List[Piece] = {
       globalTags.foreach(piece.addLine)
       var fixPiece = piece
@@ -43,7 +47,7 @@ case class Note(fileName: String) {
         } {
           oldTitle.line match {
             case Extractor.dayMonthExtractor(month, day) => {
-              fixPiece = Piece(Some(Title(titleFromFile)), piece.fileName)
+              fixPiece = Piece(Some(Title(titleFromFile, Some(getHashCode(s"$fileName$oldTitle")))), piece.fileName)
               fixPiece.setTime(Time(s"$year/$month/$day"))
               fixPiece.setLines(piece.getLines)
             }
@@ -57,7 +61,7 @@ case class Note(fileName: String) {
     }
 
     for {
-      source <- managed(scala.io.Source.fromFile(fileName,"UTF-8"))
+      source <- managed(scala.io.Source.fromFile(fileName, "UTF-8"))
       line <- source.getLines
     } {
       line match {
@@ -102,7 +106,7 @@ case class Note(fileName: String) {
           if (piece.isValid) {
             addPiece(piece)
           }
-          piece = Piece(Some(Title(title)), Option(fileName))
+          piece = Piece(Some(Title(title, Some(getHashCode(s"$fileName$title")))), Option(fileName))
         }
         case Extractor.tagsExtractor(tags) if piece.isValid =>
           tags.split(StringUtil.whiteSpaceSegmenter)

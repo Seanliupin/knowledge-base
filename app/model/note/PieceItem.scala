@@ -135,12 +135,20 @@ abstract class Paragraph(line: String) extends Hit with Render {
   override def toHtml(tokens: List[String]): String = Node(Some("p"), renderHits(tokens)).className("piece-content")
 }
 
-case class Title(line: String) extends Paragraph(line) {
+case class Title(line: String, hrefId: Option[String] = None) extends Paragraph(line) {
   def exist: Boolean = {
     line.trim.length > 0
   }
 
-  def toHtml(tokens: List[String], fileName: String): String = Node(Some("a"), line).className("piece-title").title(fileName)
+  def toHtml(tokens: List[String], fileName: String): String = {
+
+    val titleNode = Node(Some("a"), line).className("piece-title").title(fileName)
+    hrefId match {
+      case Some(href) => Node(Some("div"), titleNode).addProperty("id", href)
+      case None => titleNode
+    }
+
+  }
 
   override def paragraphType: Symbol = 'Title
 }
