@@ -9,19 +9,23 @@ import model.note.NoteBook
   */
 object NoteService {
   def search(tokens: List[String], context: Option[String]): String = {
-    val all = new StringBuilder
+    val bodyString = new StringBuilder
+    val cateString = new StringBuilder
 
     val pieces = NoteBook.getPiece
 
     val allHits = for {
       piece <- pieces
       hit <- piece.search(tokens, context) //filter out None
-    } yield hit
+    } yield (hit, piece)
 
-    allHits.sortWith((x, y) => x.score > y.score)
+    allHits.sortWith((x, y) => x._1.score > x._1.score)
       //.foreach(hit => all.append(hit.hit + " score = " + hit.score))
-      .foreach(hit => all.append(hit.hit))
+      .foreach(hitPair => {
+      cateString.append(hitPair._2.title) // 在这里构建目录
+      bodyString.append(hitPair._1.hit)
+    })
 
-    all.toString()
+    bodyString.toString()
   }
 }
