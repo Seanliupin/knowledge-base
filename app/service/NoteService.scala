@@ -1,5 +1,6 @@
 package service
 
+import model.html.Node
 import model.note.NoteBook
 
 /**
@@ -8,9 +9,9 @@ import model.note.NoteBook
   * Time: 10:31 PM
   */
 object NoteService {
-  def search(tokens: List[String], context: Option[String]): String = {
-    val bodyString = new StringBuilder
-    val cateString = new StringBuilder
+  def search(tokens: List[String], context: Option[String]): (String, String) = {
+    val body = new StringBuilder
+    val category = new StringBuilder
 
     val pieces = NoteBook.getPiece
 
@@ -19,13 +20,20 @@ object NoteService {
       hit <- piece.search(tokens, context) //filter out None
     } yield (hit, piece)
 
-    allHits.sortWith((x, y) => x._1.score > x._1.score)
-      //.foreach(hit => all.append(hit.hit + " score = " + hit.score))
+    allHits.sortWith((x, y) => x._1.score > y._1.score)
       .foreach(hitPair => {
-      cateString.append(hitPair._2.title) // 在这里构建目录
-      bodyString.append(hitPair._1.hit)
-    })
+        hitPair._2.title match {
+          case Some(innerTitle) => category.append(
+            Node(Some("a"), innerTitle.line)
+              .className("category-item")
+              .addProperty("href", s"#${innerTitle.hrefId.getOrElse("")}")
+              .setOuterNode(Node(Some("li"), "")))
+          case None =>
+        }
+        body.append(hitPair._1.hit)
+        //body.append(hitPair._1.hit + " score = " + hitPair._1.score)
+      })
 
-    bodyString.toString()
+    (category.toString(), body.toString())
   }
 }

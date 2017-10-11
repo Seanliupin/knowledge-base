@@ -11,6 +11,7 @@ case class Node(tag: Option[String], value: String) {
   private var title = ""
   private var href = ""
   private var nodeText: String = value
+  private var outerNode: Option[Node] = None
 
   def className(name: String): Node = {
     names = name :: names
@@ -19,6 +20,11 @@ case class Node(tag: Option[String], value: String) {
 
   def addProperty(name: String, value: String): Node = {
     properties = (name, value) +: properties
+    this
+  }
+
+  def setOuterNode(node: Node): Node = {
+    outerNode = Some(node)
     this
   }
 
@@ -62,9 +68,14 @@ case class Node(tag: Option[String], value: String) {
       re += p._1 + "=\"" + p._2 + "\"  "
     })
 
-    tag match {
+    val selfHtml = tag match {
       case Some(tagValue) if tagValue.trim.length > 0 => s"<$tagValue $className $myTitle $myHref $re>$nodeText</$tagValue>"
       case _ => ""
+    }
+
+    outerNode match {
+      case Some(node) => node.setText(selfHtml).toString()
+      case None => selfHtml
     }
   }
 }

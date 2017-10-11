@@ -147,7 +147,6 @@ case class Title(line: String, hrefId: Option[String] = None) extends Paragraph(
       case Some(href) => Node(Some("div"), titleNode).addProperty("id", href)
       case None => titleNode
     }
-
   }
 
   override def paragraphType: Symbol = 'Title
@@ -169,7 +168,6 @@ case class Time(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node(Some("text"), line).className("piece-time")
 
   override def paragraphType: Symbol = 'Time
-
 }
 
 case class Line(line: String) extends Paragraph(line) {

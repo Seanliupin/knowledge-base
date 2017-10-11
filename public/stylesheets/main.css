@@ -78,6 +78,11 @@ body {
     font-size: 22px;
 }
 
+.category-item{
+    display: block;
+    margin-bottom: 10px;
+}
+
 .code-line, .comment-line, .chapter-line {
     display: block;
     font-size: 22px;

@@ -1,4 +1,4 @@
-@(query: String, contextList: List[model.note.ContextOption], result: String)
+@(query: String, contextList: List[model.note.ContextOption], category: String, result: String)
 
 @main(query) {
     <nav class="navbar navbar-inverse navbar-fixed-top">
@@ -18,18 +18,24 @@
                             <input type="text" name="query" class="form-control" value="@query" placeholder="Search...">
                         </form>
                     </li>
-
-
                 </ul>
             </div>
         </div>
     </nav>
 
-
     <div class="container">
+        <div class="col-xs-12 col-sm-7">
+            <div class="lead" id="result">@Html(result)</div>
+        </div>
 
-        <div class="starter-template">
-            <p class="lead" id="result">@Html(result)</p>
+        <div class="col-xs-12 col-sm-offset-1 col-sm-2 sidebar" role="navigation">
+            <div class="row">
+                <div class="col-xs-6 col-sm-12">
+                    <ul>
+                        @Html(category)
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 }
