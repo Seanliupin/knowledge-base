@@ -261,11 +261,6 @@ case class Memo(ctype: Option[String], title: Option[String]) extends Chapter(ct
   }
 }
 
-object Title {
-  implicit def stringTitle(line: String) = Title(line)
-}
-
-
 object Extractor {
   val titleYearExtractor = """(.*?)([^\\/]*?)-(\d{4})-(.*)""" r
   val dayMonthExtractor = """(\d{1,2})/(\d{1,2})""" r

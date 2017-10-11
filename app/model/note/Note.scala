@@ -102,7 +102,7 @@ case class Note(fileName: String) {
           if (piece.isValid) {
             addPiece(piece)
           }
-          piece = Piece(Some(title), Option(fileName))
+          piece = Piece(Some(Title(title)), Option(fileName))
         }
         case Extractor.tagsExtractor(tags) if piece.isValid =>
           tags.split(StringUtil.whiteSpaceSegmenter)
