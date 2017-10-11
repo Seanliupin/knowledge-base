@@ -57,7 +57,6 @@ abstract class Link(title: String, href: String, comment: String) extends Paragr
     Node(Some("div"), url + comm).className("piece-url-container")
   }
 
-
   override def toPlain: String = s"[$title]($href)($comment)"
 }
 
@@ -171,7 +170,20 @@ case class Time(line: String) extends Paragraph(line) {
 }
 
 case class Line(line: String) extends Paragraph(line) {
+  private val itemExtractor = """\s+\*\s+(.*)""" r;
+
   override def paragraphType: Symbol = 'Line
+
+  override def toHtml(tokens: List[String]): String = {
+    line match {
+      case itemExtractor(item) => {
+        Node(Some("li"), renderHits(item, tokens))
+          .className("un-order-list")
+          .setOuterNode(Node(Some("ul"), ""))
+      }
+      case _ => super.toHtml(tokens)
+    }
+  }
 }
 
 case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
