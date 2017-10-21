@@ -11,8 +11,6 @@ import model.note.NoteBook
   */
 object ForTest {
   def main(args: Array[String]): Unit = {
-    WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
-      print(Thread.currentThread().getId + " => " + notice)
-    })
+
   }
 }
