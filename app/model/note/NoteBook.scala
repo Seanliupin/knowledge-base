@@ -1,6 +1,12 @@
 package model.note
 
 import java.io.File
+import java.util.Observable
+
+import helper.WatchDir
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Author: Sean
@@ -16,18 +22,18 @@ object NoteBook {
   private var inWatch = false;
 
   def getPiece: List[Piece] = {
-    //watch file chages
-    //    if (!inWatch) {
-    //      pieces = NoteBook.notes.flatMap(note => note.pieces)
-    //      inWatch = true
-    //      WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
-    //        print(notice)
-    //        pieces = NoteBook.notes.flatMap(note => note.pieces)
-    //      })
-    //    }
-    //    pieces
 
-    pieces = NoteBook.notes.flatMap(note => note.pieces)
+    if (!inWatch) {
+      Future {
+        inWatch = true
+        WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
+          pieces = NoteBook.notes.flatMap(note => note.pieces)
+        })
+      }
+
+      pieces = NoteBook.notes.flatMap(note => note.pieces)
+    }
+
     pieces
   }
 
