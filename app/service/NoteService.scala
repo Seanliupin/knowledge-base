@@ -1,7 +1,13 @@
 package service
 
+import java.util.concurrent.TimeUnit
+
 import model.html.Node
 import model.note.NoteBook
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{Await, Future}
 
 /**
   * Author: Sean
@@ -13,14 +19,18 @@ object NoteService {
     val body = new StringBuilder
     val category = new StringBuilder
 
-    val pieces = NoteBook.getPiece
+    val pieces = Future.sequence(NoteBook.getPiece.map {
+      piece =>
+        Future {
+          (piece.search(tokens, context), piece)
+        }
+    })
 
-    val allHits = for {
-      piece <- pieces
-      hit <- piece.search(tokens, context) //filter out None
-    } yield (hit, piece)
-
-    allHits.sortWith((x, y) => x._1.score > y._1.score)
+    Await.result(pieces, FiniteDuration(10, TimeUnit.SECONDS))
+      .filter(_._1 != None).map {
+      case (Some(x), y) => (x, y)
+    }
+      .sortWith((x, y) => x._1.score > y._1.score)
       .foreach(hitPair => {
         hitPair._2.title match {
           case Some(innerTitle) => category.append(
