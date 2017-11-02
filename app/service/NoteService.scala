@@ -2,7 +2,6 @@ package service
 
 import java.util.concurrent.TimeUnit
 
-import model.html.Node
 import model.note.NoteBook
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -32,12 +31,8 @@ object NoteService {
     }
       .sortWith((x, y) => x._1.score > y._1.score)
       .foreach(hitPair => {
-        hitPair._2.title match {
-          case Some(innerTitle) => category.append(
-            Node(Some("a"), innerTitle.line)
-              .className("category-item")
-              .addProperty("href", s"#${innerTitle.hrefId.getOrElse("")}")
-              .setOuterNode(Node(Some("li"), "")))
+        hitPair._2.urlRef match {
+          case Some(ref) => category.append(ref)
           case None =>
         }
         body.append(hitPair._1.hit)

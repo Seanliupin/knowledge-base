@@ -102,6 +102,22 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     }
   }
 
+  def urlRef: Option[String] = {
+    title.map(innerTitle => {
+      val keywords = lines.filter(_.paragraphType == 'KeyWord)
+      var append = ""
+      if (keywords.size > 0) {
+        append = "-(" + keywords.mkString("/") + ")"
+      }
+
+      Node(Some("a"), s"${innerTitle.line}${append}")
+        .className("category-item")
+        .addProperty("href", s"#${innerTitle.hrefId.getOrElse("")}")
+        .setOuterNode(Node(Some("li"), ""))
+    })
+  }
+
+
   private def searchContent(tokens: List[String]): Option[HitScore] = {
     var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
 
