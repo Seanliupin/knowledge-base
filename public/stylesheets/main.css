@@ -49,28 +49,39 @@ body {
     margin: 10px 0 10px;
 }
 
-.piece-web, .piece-book, .piece-url {
+.piece-web, .piece-url {
     display: inline;
     margin: 5px 0 5px;
 }
+
+.piece-book{
+    display: inline;
+    margin: 5px 0 5px;
+    color: green;
+}
+
 
 .piece-url-comment {
     color: gray;
     display: block;
     margin: 5px 0 5px;
-}
+    margin-bottom: 5px;
+    padding: 5px;
 
-.piece-web:before {
-    content: "Web: ";
+    border-radius: 4px;
+    border: 1px solid #e0e;
+    margin-bottom: 15px;
 }
 
 .piece-book:before {
-    content: "Book: ";
+    content: "<<";
 }
 
-.piece-url-comment:before {
-    content: "Tips: ";
+.piece-book:after {
+    content: ">>";
 }
+
+
 
 .piece-title, .piece-h3 {
     font-size: 30px;
