@@ -95,7 +95,7 @@ abstract class Paragraph(line: String) extends Hit with Render {
     val ignoreCase = trimWord.map(c => {
       if (c.isLetter) {
         s"(${c.toLower}|${c.toUpper})"
-      } else if ("()[]{}.".contains(c)) {
+      } else if ("()[]{}.+".contains(c)) {
         s"\\$c"
       } else {
         c
