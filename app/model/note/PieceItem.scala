@@ -24,7 +24,18 @@ trait Render {
     * render hit with strong by default, sub class can render hit their style
     **/
   protected def renderHit(text: String, token: String): String = {
-    text.replaceAll(token, Node(Some("strong"), token).className("text-danger"))
+    val _token = token.map(c => {
+      if (c.isLetter) {
+        s"(${c.toUpper}|${c.toLower})"
+      } else if ("()[]{}+.*?".contains(c)) {
+        s"\\${c}"
+      } else {
+        c
+      }
+    }).mkString("")
+
+    text.replaceAll(_token, Node(Some("strong"), token).className("text-danger"))
+
   }
 
   protected def renderHits(text: String, tokens: List[String]): String = {
@@ -95,7 +106,7 @@ abstract class Paragraph(line: String) extends Hit with Render {
     val ignoreCase = trimWord.map(c => {
       if (c.isLetter) {
         s"(${c.toLower}|${c.toUpper})"
-      } else if ("()[]{}.+".contains(c)) {
+      } else if ("()[]{}+.*?".contains(c)) {
         s"\\$c"
       } else {
         c
