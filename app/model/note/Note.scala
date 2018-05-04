@@ -7,7 +7,7 @@ import resource.managed
   * Author: Sean
   * Date: 4/10/2017
   * Time: 10:48 PM
-  * 这个类表示一篇笔记
+  * 这个类表示一篇笔记，一个文件中可以包含多篇笔记。
   */
 case class Note(fileName: String) {
 
