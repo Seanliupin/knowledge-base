@@ -60,7 +60,10 @@ abstract class Link(title: String, href: String, comment: String) extends Paragr
   }
 
   override def toHtml(tokens: List[String]): String = {
-    val url = Node(Some("a"), renderHits(title, tokens)).href(href).className(linkClassName)
+    val url = Node(Some("a"), renderHits(title, tokens))
+      .href(href)
+      .className(linkClassName)
+      .addProperty("target","_blank")
     var comm = ""
     if (StringUtil.isNotBlank(comment)) {
       comm = Node(Some("div"), renderHits(comment, tokens)).className("piece-url-comment")
