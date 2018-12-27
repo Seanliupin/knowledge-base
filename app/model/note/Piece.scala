@@ -73,7 +73,14 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         search(tokens, lines.filter(line => line.paragraphType == 'KeyWord))
       }
       case Some('Memo) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
+        if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
+        val last = tokens.last
+        last match {
+          case memoExtractor(memoType) => {
+            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Memo && line.constrain(memoType)), true)
+          }
+          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
+        }
       }
       case Some('Tip) => {
         if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
@@ -158,6 +165,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
   private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false): Option[HitScore] = {
     var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
+
     /**
       * item 有可能被某些条件过滤掉了
       **/
