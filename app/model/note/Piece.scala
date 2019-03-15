@@ -142,6 +142,20 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case _ =>
     }
 
+    time match {
+      case Some(realTime) => {
+        tokens.foreach(token => {
+          val hitList = realTime.hit(token)
+          if (hitList.size > 0) {
+            titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Time)
+            hasHit = hasHit.updated(token, true)
+          }
+        })
+      }
+      case _ =>
+    }
+
+
     var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
 
     for (token <- tokens; line <- lines; if !line.isEmpty) {
