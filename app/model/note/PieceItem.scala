@@ -218,10 +218,10 @@ case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
 /**
   * 多行组成的一个块，比如一段代码，一段评注等。用某一个
   **/
-abstract class Chapter(ctype: Option[String], title: Option[String]) extends Paragraph(title.getOrElse("")) {
+abstract class Chapter(cType: Option[String], title: Option[String]) extends Paragraph(title.getOrElse("")) {
   protected var lines: List[String] = List()
 
-  def isValid: Boolean = ctype != None
+  def isValid: Boolean = cType != None
 
   def addLine(line: String) = {
     lines = lines ++ List(line)
@@ -231,7 +231,7 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
     lines.flatMap(hitScore(_, token)) ++ hitScore(title.getOrElse(""), token)
   }
 
-  override def constrain(only: String): Boolean = ctype == Some(only)
+  override def constrain(only: String): Boolean = cType == Some(only)
 
   override def isEmpty: Boolean = {
     title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
@@ -252,17 +252,26 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
   }
 
   override def toHtml(tokens: List[String]): String = {
+    val typeName = cType match {
+      case Some(t) => s"$prefix-$t"
+      case None => s"$prefix-blank"
+    }
+
     var titleNode = ""
     title match {
       case Some(t) => {
         if (t.trim.length > 0) {
-          titleNode = Node(Some("div"), t).className(s"$prefix-title")
+          titleNode = Node(Some("div"), t)
+            .className(s"$prefix-title")
+            .className(s"$typeName-title")
         }
       }
       case None =>
     }
 
-    val bodyNode = Node(Some("div"), renderedBody(tokens)).className(s"$prefix-block")
+    val bodyNode = Node(Some("div"), renderedBody(tokens))
+      .className(s"$prefix-block")
+      .className(s"$typeName-block")
 
     Node(Some("div"), titleNode + bodyNode).className(s"$prefix")
   }
