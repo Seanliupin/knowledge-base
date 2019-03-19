@@ -186,7 +186,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     /**
       * item 有可能被某些条件过滤掉了
       **/
-    if (items.size == 0) {
+    if (items.isEmpty) {
       return None
     }
 
@@ -194,7 +194,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       * 如果没有token，并且还有item，则将item返回
       **/
 
-    if (tokens.size == 0) {
+    if (tokens.isEmpty) {
       if (renderOnly) {
         return Some(HitScore(renderHtml(tokens, items), 10))
       } else {
@@ -208,7 +208,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     for (token <- tokens; line <- items; if !line.isEmpty) {
       val hitList = line.hit(token)
-      if (hitList.size > 0) {
+      if (hitList.nonEmpty) {
         hasHit = hasHit.updated(token, true)
         allList = allList ++ hitList
         hitItems = line +: hitItems
@@ -221,9 +221,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     if (hasHit.toList.forall(_._2)) {
       if (renderOnly) {
-        return Some(HitScore(renderHtml(tokens, hitItems), bodyScore))
+        Some(HitScore(renderHtml(tokens, hitItems), bodyScore))
       } else {
-        return Some(HitScore(renderHtml(tokens), bodyScore))
+        Some(HitScore(renderHtml(tokens), bodyScore))
       }
     } else {
       None
