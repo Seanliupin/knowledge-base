@@ -238,7 +238,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   }
 
   // memo or code
-  final def prefix: String = paragraphType.toString().toLowerCase.filter((i: Char) => i != '\'')
+  final def chapterType: String = paragraphType.toString().toLowerCase.filter((i: Char) => i != '\'')
 
   /**
     * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
@@ -246,7 +246,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   protected def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node(Some("div"), renderHits(code, tokens)).className(s"$prefix-line"))
+      base.append(Node(Some("div"), renderHits(code, tokens)).className(s"$chapterType-line"))
     })
 
     base.toString()
@@ -254,24 +254,24 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
 
   override def toHtml(tokens: List[String]): String = {
     val typeName = cType match {
-      case Some(t) => s"$prefix-$t"
-      case None => s"$prefix-blank"
+      case Some(t) => s"$chapterType-$t"
+      case None => s"$chapterType-blank"
     }
 
     var titleNode = ""
     title match {
       case Some(t) => {
         val metaNode = cType match {
-          case Some(ct) if ct.nonEmpty => "" + Node(Some("div"), s"${ct.capitalize}: ")
+          case Some(subType) if subType.nonEmpty => "" + Node(Some("div"), s"${subType.capitalize}: ")
             .className("block-meta")
-            .className(s"$prefix-meta")
-            .className(s"$ct-meta")
+            .className(s"$chapterType-meta")
+            .className(s"$subType-meta")
           case _ => ""
         }
 
         if (t.trim.length > 0) {
           titleNode = Node(Some("div"), metaNode + t)
-            .className(s"$prefix-title")
+            .className(s"$chapterType-title")
             .className(s"$typeName-title")
         }
       }
@@ -279,10 +279,10 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
     }
 
     val bodyNode = Node(Some("div"), renderedBody(tokens))
-      .className(s"$prefix-block")
+      .className(s"$chapterType-block")
       .className(s"$typeName-block")
 
-    Node(Some("div"), titleNode + bodyNode).className(s"$prefix")
+    Node(Some("div"), titleNode + bodyNode).className(s"$chapterType")
   }
 
 }
