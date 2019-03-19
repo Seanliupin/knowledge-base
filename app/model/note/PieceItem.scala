@@ -237,6 +237,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
     title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
   }
 
+  // memo or code
   final def prefix: String = paragraphType.toString().toLowerCase.filter((i: Char) => i != '\'')
 
   /**
@@ -260,8 +261,16 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
     var titleNode = ""
     title match {
       case Some(t) => {
+        val metaNode = cType match {
+          case Some(ct) if ct.nonEmpty => "" + Node(Some("div"), s"${ct.capitalize}: ")
+            .className("block-meta")
+            .className(s"$prefix-meta")
+            .className(s"$ct-meta")
+          case _ => ""
+        }
+
         if (t.trim.length > 0) {
-          titleNode = Node(Some("div"), t)
+          titleNode = Node(Some("div"), metaNode + t)
             .className(s"$prefix-title")
             .className(s"$typeName-title")
         }
