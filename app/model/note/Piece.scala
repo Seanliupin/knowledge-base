@@ -66,45 +66,49 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         if (tokens.isEmpty) return None
         firstSelector match {
           case Some((s, sType)) => {
-            search(leftTokens, lines.filter(line => line.paragraphType == s && line.constrain(sType)))
+            if (sType == "*") {
+              search(leftTokens, lines.filter(line => line.paragraphType == s), withinItem = true)
+            } else {
+              search(leftTokens, lines.filter(line => line.paragraphType == s && line.constrain(sType)), withinItem = true)
+            }
           }
           case None => searchContent(tokens)
         }
       }
       case Some('Url) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), true)
+        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), renderOnly = true, withinItem = true)
       }
       case Some('Title) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle))
+        search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
       }
       case Some('KeyWord) => {
         search(tokens, lines.filter(line => line.paragraphType == 'KeyWord))
       }
       case Some('Memo) => {
-        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
+        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Memo), renderOnly = true, withinItem = true)
         firstSelector match {
           case Some((_, sType)) => {
-            search(leftTokens, lines.filter(line => line.paragraphType == 'Memo && line.constrain(sType)), true)
+            search(leftTokens, lines.filter(line => line.paragraphType == 'Memo && line.constrain(sType)), renderOnly = true, withinItem = true)
           }
-          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
+          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Memo), renderOnly = true, withinItem = true)
         }
       }
       case Some('Tip) => {
-        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
+        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), renderOnly = true, withinItem = true)
         firstSelector match {
           case Some((_, sType)) => {
-            search(leftTokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain(sType)), true)
+            search(leftTokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain(sType)), renderOnly = true, true)
           }
-          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
+          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Tip), renderOnly = true, withinItem = true)
         }
       }
       case Some('Code) => {
-        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Code), true)
+        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Code), renderOnly = true, withinItem = true)
         firstSelector match {
           case Some((_, sType)) => {
-            search(leftTokens, lines.filter(line => line.paragraphType == 'Code && line.constrain(sType)), true)
+            search(leftTokens, lines.filter(line => line.paragraphType == 'Code && line.constrain(sType)), renderOnly = true, withinItem = true)
           }
-          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Code), true)
+          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Code), renderOnly = true, withinItem = true)
         }
       }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym))
@@ -116,7 +120,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     title.map(innerTitle => {
       val keywords = lines.filter(_.paragraphType == 'KeyWord)
       var append = ""
-      if (keywords.size > 0) {
+      if (keywords.nonEmpty) {
         append = "-(" + keywords.mkString("/") + ")"
       }
 
@@ -136,7 +140,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some(realTitle) => {
         tokens.foreach(token => {
           val hitList = realTitle.hit(token)
-          if (hitList.size > 0) {
+          if (hitList.nonEmpty) {
             titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Title)
             hasHit = hasHit.updated(token, true)
           }
@@ -149,7 +153,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some(realTime) => {
         tokens.foreach(token => {
           val hitList = realTime.hit(token)
-          if (hitList.size > 0) {
+          if (hitList.nonEmpty) {
             titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Time)
             hasHit = hasHit.updated(token, true)
           }
@@ -163,7 +167,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     for (token <- tokens; line <- lines; if !line.isEmpty) {
       val hitList = line.hit(token)
-      if (hitList.size > 0) {
+      if (hitList.nonEmpty) {
         hasHit = hasHit.updated(token, true)
         allList = allList ++ hitList
       }
@@ -180,7 +184,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     }
   }
 
-  private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false): Option[HitScore] = {
+  private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false, withinItem: Boolean = false): Option[HitScore] = {
     var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
 
     /**
@@ -206,14 +210,30 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
     var hitItems: List[Paragraph] = List()
 
-    for (token <- tokens; line <- items; if !line.isEmpty) {
-      val hitList = line.hit(token)
-      if (hitList.nonEmpty) {
-        hasHit = hasHit.updated(token, true)
-        allList = allList ++ hitList
-        hitItems = line +: hitItems
+    //如果仅仅在元素(url,memo,code)内搜索，则token需要在元素内全出现
+    if (withinItem) {
+      for (line <- items; if !line.isEmpty) {
+        val allTempHits = tokens.map(t => (t, line.hit(t)))
+        val fullMatch = allTempHits.forall(t => t._2.nonEmpty)
+        if (fullMatch) {
+          allTempHits.foreach(t => {
+            hasHit = hasHit.updated(t._1, true)
+            allList = allList ++ t._2
+            hitItems = line +: hitItems
+          })
+        }
+      }
+    } else {
+      for (token <- tokens; line <- items; if !line.isEmpty) {
+        val hitList = line.hit(token)
+        if (hitList.nonEmpty) {
+          hasHit = hasHit.updated(token, true)
+          allList = allList ++ hitList
+          hitItems = line +: hitItems
+        }
       }
     }
+
 
     val bodyScore = allList.groupBy(_._4).map {
       case (sym, list) => Algorithm.computeScore(list.map(x => (x._1, x._2, x._3)), sym)
@@ -252,7 +272,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     val keywords = lines.filter(_.paragraphType == 'KeyWord)
     val other = lines.filter(_.paragraphType != 'KeyWord)
 
-    if (keywords.size > 0) {
+    if (keywords.nonEmpty) {
       html.append(Node(Some("div"), keywords.map(_.toHtml(List())).mkString("  "))
         .className("piece-keyword-container"))
     }
