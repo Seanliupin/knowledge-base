@@ -64,7 +64,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         }
       }
       case Some('Url) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book))
+        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book),true)
       }
       case Some('Title) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle))
