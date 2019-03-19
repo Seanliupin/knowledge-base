@@ -64,7 +64,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         }
       }
       case Some('Url) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book),true)
+        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), true)
       }
       case Some('Title) => {
         search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle))
@@ -229,7 +229,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
   private def renderHtml(tokens: List[String], item: List[Render]): String = {
     val html = new StringBuilder
-    item.foreach(line => {
+    item.distinct.foreach(line => {
       html.append(line.toHtml(tokens))
     })
     html.toString
