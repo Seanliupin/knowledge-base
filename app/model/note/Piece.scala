@@ -45,22 +45,30 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case _ => this.lines
     }
 
+    val selectors = tokens.map {
+      case token@tipExtractor(tipType) => (Some('Tip, tipType), token)
+      case token@codeExtractor(tipType) => (Some('Code, tipType), token)
+      case token@memoExtractor(tipType) => (Some('Memo, tipType), token)
+      case token => (None, token)
+    }
+
+    val validSelectors = selectors.filter(it => it._1.isDefined).map(it => it)
+    val firstSelector = if (validSelectors.isEmpty) {
+      None
+    } else {
+      validSelectors.head._1
+    }
+
+    val leftTokens = selectors.filter(it => it._1.isEmpty).map(it => it._2)
+
     Score.keyWordToSymbol(context) match {
       case Some('All) => {
-        if (tokens.size == 0) return None
-
-        val last = tokens.last
-        last match {
-          case tipExtractor(tipType) => {
-            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)))
+        if (tokens.isEmpty) return None
+        firstSelector match {
+          case Some((s, sType)) => {
+            search(leftTokens, lines.filter(line => line.paragraphType == s && line.constrain(sType)))
           }
-          case codeExtractor(lan) => {
-            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)))
-          }
-          case memoExtractor(memoType) => {
-            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Memo && line.constrain(memoType)))
-          }
-          case _ => searchContent(tokens)
+          case None => searchContent(tokens)
         }
       }
       case Some('Url) => {
@@ -73,36 +81,31 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         search(tokens, lines.filter(line => line.paragraphType == 'KeyWord))
       }
       case Some('Memo) => {
-        if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
-        val last = tokens.last
-        last match {
-          case memoExtractor(memoType) => {
-            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Memo && line.constrain(memoType)), true)
+        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
+        firstSelector match {
+          case Some((_, sType)) => {
+            search(leftTokens, lines.filter(line => line.paragraphType == 'Memo && line.constrain(sType)), true)
           }
           case _ => search(tokens, lines.filter(line => line.paragraphType == 'Memo), true)
         }
       }
       case Some('Tip) => {
-        if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
-        val last = tokens.last
-        last match {
-          case tipExtractor(tipType) => {
-            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Tip && line.constrain(tipType)), true)
+        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
+        firstSelector match {
+          case Some((_, sType)) => {
+            search(leftTokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain(sType)), true)
           }
           case _ => search(tokens, lines.filter(line => line.paragraphType == 'Tip), true)
         }
       }
       case Some('Code) => {
-        if (tokens.size == 0) return search(tokens, lines.filter(line => line.paragraphType == 'Code), true)
-        val last = tokens.last
-        last match {
-          case codeExtractor(lan) => {
-            search(tokens.filter(_ != last), lines.filter(line => line.paragraphType == 'Code && line.constrain(lan)), true)
+        if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Code), true)
+        firstSelector match {
+          case Some((_, sType)) => {
+            search(leftTokens, lines.filter(line => line.paragraphType == 'Code && line.constrain(sType)), true)
           }
           case _ => search(tokens, lines.filter(line => line.paragraphType == 'Code), true)
         }
-
-
       }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym))
       case _ => None

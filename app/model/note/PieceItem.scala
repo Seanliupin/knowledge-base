@@ -237,7 +237,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
     title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
   }
 
-  final def prefix: String = paragraphType.toString().toLowerCase.filter((i: Char) => i != ''')
+  final def prefix: String = paragraphType.toString().toLowerCase.filter((i: Char) => i != '\'')
 
   /**
     * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
