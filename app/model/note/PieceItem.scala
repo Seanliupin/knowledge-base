@@ -63,7 +63,7 @@ abstract class Link(title: String, href: String, comment: String) extends Paragr
     val url = Node(Some("a"), renderHits(title, tokens))
       .href(href)
       .className(linkClassName)
-      .addProperty("target","_blank")
+      .addProperty("target", "_blank")
     var comm = ""
     if (StringUtil.isNotBlank(comment)) {
       comm = Node(Some("div"), renderHits(comment, tokens)).className("piece-url-comment")
@@ -237,13 +237,15 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
     title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
   }
 
+  final def prefix: String = paragraphType.toString().toLowerCase.filter((i: Char) => i != ''')
+
   /**
     * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
     **/
   protected def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node(Some("div"), renderHits(code, tokens)).className("chapter-line"))
+      base.append(Node(Some("div"), renderHits(code, tokens)).className(s"$prefix-line"))
     })
 
     base.toString()
@@ -254,15 +256,15 @@ abstract class Chapter(ctype: Option[String], title: Option[String]) extends Par
     title match {
       case Some(t) => {
         if (t.trim.length > 0) {
-          titleNode = Node(Some("div"), t).className("chapter-title")
+          titleNode = Node(Some("div"), t).className(s"$prefix-title")
         }
       }
       case None =>
     }
 
-    val bodyNode = Node(Some("div"), renderedBody(tokens)).className("chapter-body")
+    val bodyNode = Node(Some("div"), renderedBody(tokens)).className(s"$prefix-block")
 
-    Node(Some("div"), titleNode + bodyNode).className("chapter")
+    Node(Some("div"), titleNode + bodyNode).className(s"$prefix")
   }
 
 }
