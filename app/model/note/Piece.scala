@@ -61,11 +61,11 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       validSelectors.head._1
     }
 
-    val leftTokens = selectors.filter(it => it._1.isEmpty).map(it => it._2)
 
     Score.keyWordToSymbol(context) match {
       case Some('All) => {
         if (tokens.isEmpty) return None
+        val leftTokens = selectors.filter(it => it._1.isEmpty).map(it => it._2)
         val validInItems = List("memo", "url", "tip", "code", "title")
 
         firstSelector match {
@@ -91,39 +91,87 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         }
       }
       case Some('Url) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), renderOnly = true, withinItem = true)
+        val filteredTokens = selectors.filter(s => {
+          s._1 match {
+            case Some((p1, p2)) if p1 == 'In && p2 == "url" => false
+            case _ => true
+          }
+        }).map(it => it._2)
+
+        search(filteredTokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), renderOnly = true, withinItem = true)
       }
       case Some('Title) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
+        val filteredTokens = selectors.filter(s => {
+          s._1 match {
+            case Some((p1, p2)) if p1 == 'In && p2 == "title" => false
+            case _ => true
+          }
+        }).map(it => it._2)
+
+        search(filteredTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
       }
       case Some('KeyWord) => {
-        search(tokens, lines.filter(line => line.paragraphType == 'KeyWord))
+        val filteredTokens = selectors.filter(s => {
+          s._1 match {
+            case Some((p1, p2)) if p1 == 'In && p2 == "keyword" => false
+            case _ => true
+          }
+        }).map(it => it._2)
+
+        search(filteredTokens, lines.filter(line => line.paragraphType == 'KeyWord))
       }
       case Some('Memo) => {
         if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Memo), renderOnly = true, withinItem = true)
-        firstSelector match {
-          case Some((_, sType)) => {
-            search(leftTokens, lines.filter(line => line.paragraphType == 'Memo && line.constrain(sType)), renderOnly = true, withinItem = true)
+
+        val filteredTokens = selectors.filter(s => {
+          s._1 match {
+            case Some((p1, p2)) if p1 == 'In && p2 == "memo" => false
+            case Some((p1, _)) if p1 == 'Memo => false
+            case _ => true
           }
-          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Memo), renderOnly = true, withinItem = true)
+        }).map(it => it._2)
+
+        firstSelector match {
+          case Some((s, sType)) if s == 'Memo => {
+            search(filteredTokens, lines.filter(line => line.paragraphType == 'Memo && line.constrain(sType)), renderOnly = true, withinItem = true)
+          }
+          case _ => search(filteredTokens, lines.filter(line => line.paragraphType == 'Memo), renderOnly = true, withinItem = true)
         }
       }
       case Some('Tip) => {
         if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Tip), renderOnly = true, withinItem = true)
-        firstSelector match {
-          case Some((_, sType)) => {
-            search(leftTokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain(sType)), renderOnly = true, true)
+
+        val filteredTokens = selectors.filter(s => {
+          s._1 match {
+            case Some((p1, p2)) if p1 == 'In && p2 == "tip" => false
+            case Some((p1, _)) if p1 == 'Tip => false
+            case _ => true
           }
-          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Tip), renderOnly = true, withinItem = true)
+        }).map(it => it._2)
+
+        firstSelector match {
+          case Some((s, sType)) if s == 'Tip => {
+            search(filteredTokens, lines.filter(line => line.paragraphType == 'Tip && line.constrain(sType)), renderOnly = true, true)
+          }
+          case _ => search(filteredTokens, lines.filter(line => line.paragraphType == 'Tip), renderOnly = true, withinItem = true)
         }
       }
       case Some('Code) => {
         if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Code), renderOnly = true, withinItem = true)
-        firstSelector match {
-          case Some((_, sType)) => {
-            search(leftTokens, lines.filter(line => line.paragraphType == 'Code && line.constrain(sType)), renderOnly = true, withinItem = true)
+
+        val filteredTokens = selectors.filter(s => {
+          s._1 match {
+            case Some((p1, p2)) if p1 == 'In && p2 == "code" => false
+            case Some((p1, _)) if p1 == 'Code => false
+            case _ => true
           }
-          case _ => search(tokens, lines.filter(line => line.paragraphType == 'Code), renderOnly = true, withinItem = true)
+        }).map(it => it._2)
+
+        firstSelector match {
+          case Some((s, sType)) if s == 'Code => {
+            search(filteredTokens, lines.filter(line => line.paragraphType == 'Code && line.constrain(sType)), renderOnly = true, withinItem = true)
+          }
+          case _ => search(filteredTokens, lines.filter(line => line.paragraphType == 'Code), renderOnly = true, withinItem = true)
         }
       }
       case Some(sym) => search(tokens, lines.filter(line => line.paragraphType == sym))
