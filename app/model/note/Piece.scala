@@ -6,7 +6,7 @@ import model.html.Node
   * Author: Sean
   * Date: 4/10/2017
   * Time: 10:53 PM
-  * 代表一则笔记
+  * 代表一则笔记，多篇笔记可以被组织在一个文件下面。
   */
 case class Piece(title: Option[Title], fileName: Option[String]) extends Render {
   protected var lines: List[Paragraph] = List()
@@ -76,7 +76,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
               case "tip" => search(leftTokens, lines.filter(line => line.paragraphType == 'Tip), withinItem = true)
               case "url" => search(leftTokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), withinItem = true)
               case "title" => search(leftTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
-              case "tag" => search(leftTokens, lines.filter(line => line.paragraphType == 'KeyWord), withinItem = true)
+              case "tag" => search(leftTokens, lines.filter(line => line.paragraphType == 'KeyWord))
               case _ => searchContent(leftTokens)
             }
           }
