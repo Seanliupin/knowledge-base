@@ -177,6 +177,12 @@ case class KeyWord(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node(Some("code"), line).className("piece-keyword").toString()
 }
 
+case class Script(line: String) extends Paragraph(line) {
+  override def paragraphType: Symbol = 'Script
+
+  override def toHtml(tokens: List[String]): String = Node(Some("div"), s"<script src=$line></script> ").className("script").toString()
+}
+
 case class Time(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node(Some("text"), line).className("piece-time")
 
@@ -330,6 +336,8 @@ object Extractor {
   val WebItemExtractor = """\s*[*]?\s*\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
 
   val timeExtractor = """time:\s+(.*)""" r
+
+  val scriptExtractor = """\<script\s+src=(.*)\<\/script\>""" r
 
   val typeLessTipExtractor = """>(.*)""" r
   val typedTipExtractor = """>(.*?):\s*(.*)""" r
