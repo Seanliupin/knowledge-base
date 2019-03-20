@@ -143,7 +143,7 @@ body {
     background-color: #fff;;
 }
 
-.block-meta{
+.block-meta {
     display: inline;
     font-size: medium;
 }
@@ -179,4 +179,8 @@ body {
 .piece-keyword-container {
     margin-top: 15px;
     margin-bottom: 15px;
+}
+
+.input-box {
+    min-width: 400px;
 }
