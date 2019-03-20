@@ -35,9 +35,10 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     * idea: 不同的命中词在搜索文本中的位置信息也可以用于计算命中分数，命中token之间相隔越近，则分数越高
     **/
   def search(tokens: List[String], context: Option[String]): Option[HitScore] = {
-    val tipExtractor = """tip:(.*)""" r;
-    val codeExtractor = """code:(.*)""" r;
-    val memoExtractor = """memo:(.*)""" r;
+    val tipExtractor = """tip:([\w|\*]*)""" r;
+    val codeExtractor = """code:([\w|\*]*)""" r;
+    val memoExtractor = """memo:([\w|\*]*)""" r;
+    val inExtractor = """in:([\w|\*]*)""" r;
 
     //需要将title纳入搜索范围
     val lines = title match {
@@ -49,10 +50,11 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case token@tipExtractor(tipType) => (Some('Tip, tipType), token)
       case token@codeExtractor(tipType) => (Some('Code, tipType), token)
       case token@memoExtractor(tipType) => (Some('Memo, tipType), token)
+      case token@inExtractor(tipType) => (Some('In, tipType), token)
       case token => (None, token)
     }
 
-    val validSelectors = selectors.filter(it => it._1.isDefined).map(it => it)
+    val validSelectors = selectors.filter(it => it._1.isDefined)
     val firstSelector = if (validSelectors.isEmpty) {
       None
     } else {
@@ -64,15 +66,28 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     Score.keyWordToSymbol(context) match {
       case Some('All) => {
         if (tokens.isEmpty) return None
+        val validInItems = List("memo", "url", "tip", "code", "title")
+
         firstSelector match {
-          case Some((s, sType)) => {
+          case Some((s, sType)) if s == 'In && validInItems.contains(sType) => {
+            sType match {
+              case "memo" => search(leftTokens, lines.filter(line => line.paragraphType == 'Memo), withinItem = true)
+              case "code" => search(leftTokens, lines.filter(line => line.paragraphType == 'Code), withinItem = true)
+              case "tip" => search(leftTokens, lines.filter(line => line.paragraphType == 'Tip), withinItem = true)
+              case "url" => search(leftTokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), withinItem = true)
+              case "title" => search(leftTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
+              case "keywords" => search(leftTokens, lines.filter(line => line.paragraphType == 'KeyWord), withinItem = true)
+              case _ => searchContent(leftTokens)
+            }
+          }
+          case Some((s, sType)) if s == 'Tip || s == 'Code || s == 'Memo => {
             if (sType == "*") {
               search(leftTokens, lines.filter(line => line.paragraphType == s), withinItem = true)
             } else {
               search(leftTokens, lines.filter(line => line.paragraphType == s && line.constrain(sType)), withinItem = true)
             }
           }
-          case None => searchContent(tokens)
+          case _ => searchContent(tokens)
         }
       }
       case Some('Url) => {
