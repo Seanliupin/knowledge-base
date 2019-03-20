@@ -66,7 +66,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some('All) => {
         if (tokens.isEmpty) return None
         val leftTokens = selectors.filter(it => it._1.isEmpty).map(it => it._2)
-        val validInItems = List("memo", "url", "tip", "code", "title")
+        val validInItems = List("memo", "code", "tip", "url", "title", "tag")
 
         firstSelector match {
           case Some((s, sType)) if s == 'In && validInItems.contains(sType) => {
@@ -76,7 +76,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
               case "tip" => search(leftTokens, lines.filter(line => line.paragraphType == 'Tip), withinItem = true)
               case "url" => search(leftTokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), withinItem = true)
               case "title" => search(leftTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
-              case "keywords" => search(leftTokens, lines.filter(line => line.paragraphType == 'KeyWord), withinItem = true)
+              case "tag" => search(leftTokens, lines.filter(line => line.paragraphType == 'KeyWord), withinItem = true)
               case _ => searchContent(leftTokens)
             }
           }
