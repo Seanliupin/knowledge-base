@@ -66,7 +66,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some('All) => {
         if (tokens.isEmpty) return None
         val leftTokens = selectors.filter(it => it._1.isEmpty).map(it => it._2)
-        val validInItems = List("memo", "code", "tip", "url", "title", "tag")
+        val validInItems = List("memo", "code", "tip", "url", "title", "tag", "*")
 
         firstSelector match {
           case Some((s, sType)) if s == 'In && validInItems.contains(sType) => {
