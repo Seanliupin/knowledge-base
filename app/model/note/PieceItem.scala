@@ -177,10 +177,32 @@ case class KeyWord(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = Node(Some("code"), line).className("piece-keyword").toString()
 }
 
-case class Script(line: String) extends Paragraph(line) {
+/**
+  * 对于script来讲，src没有太多意义，只有对它的描述有点意义。
+  **/
+case class Script(src: String, des: String) extends Paragraph(des) {
+
   override def paragraphType: Symbol = 'Script
 
-  override def toHtml(tokens: List[String]): String = Node(Some("div"), s"<script src=$line></script> ").className("script").toString()
+  /**
+    * 其始终都不应该是空
+    **/
+  override def isEmpty: Boolean = false
+
+
+  override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
+    hitScore(des, token)
+  }
+
+  override def toHtml(tokens: List[String]): String = {
+    val scriptDes = if (des.trim().isEmpty) {
+      ""
+    } else {
+      Node(Some("div"), renderHits(des, tokens)).className("script-des").toString()
+    }
+    Node(Some("div"), scriptDes + s"<script src=$src></script> ").className("script-body").toString()
+  }
+
 }
 
 case class Time(line: String) extends Paragraph(line) {
@@ -337,7 +359,7 @@ object Extractor {
 
   val timeExtractor = """time:\s+(.*)""" r
 
-  val scriptExtractor = """\<script\s+src=(.*)\<\/script\>""" r
+  val scriptExtractor = """\<script\s+src=(.*?)\>(.*?)\<\/script\>""" r
 
   val typeLessTipExtractor = """>(.*)""" r
   val typedTipExtractor = """>(.*?):\s*(.*)""" r

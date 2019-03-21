@@ -23,6 +23,7 @@ object Score {
       ("url", 'Url, 100),
       ("line", 'Line, 100),
       ("tip", 'Tip, 140),
+      ("script", 'Script, 120),
       ("time", 'Time, 50)
     )
   }

@@ -121,7 +121,7 @@ case class Note(fileName: String) {
         case Extractor.WebItemExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
         case Extractor.bookExtractor(title, url, comment) if piece.isValid => piece.addLine(Book(title, url, comment))
         case Extractor.subTitleExtractor(subTitle) if piece.isValid => piece.addLine(SubTitle(subTitle))
-        case Extractor.scriptExtractor(src) if piece.isValid => piece.addLine(Script(src))
+        case Extractor.scriptExtractor(src, des) if piece.isValid => piece.addLine(Script(src, des))
         case Extractor.typedTipExtractor(tipType, tip) if piece.isValid => {
           if (tipType.trim.length == 0) {
             piece.addLine(Tip(tip, None))

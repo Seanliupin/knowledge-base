@@ -131,7 +131,7 @@ body {
     background-color: #f7f7f9;;
 }
 
-.memo-title, .code-title {
+.memo-title, .code-title, .script-des {
     display: block;
     padding: 10px;
     color: #aa6708;

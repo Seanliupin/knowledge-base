@@ -66,7 +66,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       case Some('All) => {
         if (tokens.isEmpty) return None
         val leftTokens = selectors.filter(it => it._1.isEmpty).map(it => it._2)
-        val validInItems = List("memo", "code", "tip", "url", "title", "tag", "*")
+        val validInItems = List("memo", "code", "tip", "url", "title", "tag", "script", "*")
 
         firstSelector match {
           case Some((s, sType)) if s == 'In && validInItems.contains(sType) => {
@@ -77,6 +77,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
               case "url" => search(leftTokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), withinItem = true)
               case "title" => search(leftTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
               case "tag" => search(leftTokens, lines.filter(line => line.paragraphType == 'KeyWord))
+              case "script" => search(leftTokens, lines.filter(line => line.paragraphType == 'Script), withinItem = true)
               case _ => searchContent(leftTokens)
             }
           }
@@ -109,6 +110,16 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         }).map(it => it._2)
 
         search(filteredTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
+      }
+      case Some('Script) => {
+        val filteredTokens = selectors.filter(s => {
+          s._1 match {
+            case Some((p1, p2)) if p1 == 'In && p2 == "script" => false
+            case _ => true
+          }
+        }).map(it => it._2)
+
+        search(filteredTokens, lines.filter(line => line.paragraphType == 'Script), renderOnly = true, withinItem = true)
       }
       case Some('KeyWord) => {
         val filteredTokens = selectors.filter(s => {
@@ -247,6 +258,12 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     }
   }
 
+  /**
+    * renderOnly: 是不是仅仅渲染该元素
+    *
+    * withinItem: 是否所有的搜索词都需要出现在该元素中
+    *
+    **/
   private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false, withinItem: Boolean = false): Option[HitScore] = {
     var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
 
