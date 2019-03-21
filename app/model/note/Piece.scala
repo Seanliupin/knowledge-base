@@ -289,6 +289,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
     var hitItems: List[Paragraph] = List()
+    var innerUse: List[(List[(Boolean, Boolean, Int, Symbol)], Paragraph)] = List()
 
     //如果仅仅在元素(url,memo,code)内搜索，则token需要在元素内全出现
     if (withinItem) {
@@ -300,6 +301,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
             hasHit = hasHit.updated(t._1, true)
             allList = allList ++ t._2
             hitItems = line +: hitItems
+            innerUse = (t._2, line) +: innerUse
           })
         }
       }
@@ -321,6 +323,15 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     if (hasHit.toList.forall(_._2)) {
       if (renderOnly) {
+        //当仅仅是渲染该元素时，则在文章内按分值重排元素
+        hitItems = innerUse.map(hit => {
+          val tmp = hit._1.map(x => {
+            (x._1, x._2, x._3)
+          })
+
+          (hit._2, Algorithm.computeScore(tmp, hit._2.paragraphType))
+        }).sortBy(_._2).reverse.map(_._1)
+
         Some(HitScore(renderHtml(tokens, hitItems), bodyScore))
       } else {
         Some(HitScore(renderHtml(tokens), bodyScore))
