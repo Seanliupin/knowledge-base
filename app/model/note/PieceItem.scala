@@ -26,7 +26,7 @@ trait Render {
   protected def renderHit(text: String, token: String): String = {
     val _token = token.map(c => {
       if (c.isLetter) {
-        s"(${c.toUpper}|${c.toLower})"
+        s"[${c.toUpper}|${c.toLower}]"
       } else if ("()[]{}+.*?".contains(c)) {
         s"\\$c"
       } else {
@@ -34,8 +34,14 @@ trait Render {
       }
     }).mkString("")
 
-    text.replaceAll(_token, Node(Some("strong"), token).className("text-danger"))
+    val extractor = s"(.*?)(${_token})(.*)" r
 
+    text match {
+      case extractor(head, t, tail) => {
+        head + Node(Some("strong"), t).className("text-danger") + renderHit(tail, token)
+      }
+      case _ => text
+    }
   }
 
   protected def renderHits(text: String, tokens: List[String]): String = {
