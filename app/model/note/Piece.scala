@@ -207,12 +207,20 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
 
   private def searchContent(tokens: List[String]): Option[HitScore] = {
-    var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
+    val outToken = tokens.filter(_.startsWith("-")).map(_.tail)
+    val inToken = tokens.filter(!_.startsWith("-"))
+
+    var hasHit: Map[String, Boolean] = inToken.map(token => (token, false)).toMap
 
     var titleScore = 0
     title match {
       case Some(realTitle) => {
-        tokens.foreach(token => {
+        val hasAnyOut = outToken.flatMap(realTitle.hit).nonEmpty
+        if (hasAnyOut) {
+          return None
+        }
+
+        inToken.foreach(token => {
           val hitList = realTitle.hit(token)
           if (hitList.nonEmpty) {
             titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Title)
@@ -225,7 +233,13 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     time match {
       case Some(realTime) => {
-        tokens.foreach(token => {
+
+        val hasAnyOut = outToken.flatMap(realTime.hit).nonEmpty
+        if (hasAnyOut) {
+          return None
+        }
+
+        inToken.foreach(token => {
           val hitList = realTime.hit(token)
           if (hitList.nonEmpty) {
             titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Time)
@@ -239,7 +253,13 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
 
-    for (token <- tokens; line <- lines; if !line.isEmpty) {
+    for (token <- outToken; line <- lines; if !line.isEmpty) {
+      if (line.hit(token).nonEmpty) {
+        return None
+      }
+    }
+
+    for (token <- inToken; line <- lines; if !line.isEmpty) {
       val hitList = line.hit(token)
       if (hitList.nonEmpty) {
         hasHit = hasHit.updated(token, true)
@@ -252,7 +272,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     }.sum
 
     if (hasHit.toList.forall(_._2)) {
-      Some(HitScore(renderHtml(tokens), titleScore + bodyScore))
+      Some(HitScore(renderHtml(inToken), titleScore + bodyScore))
     } else {
       None
     }
@@ -265,8 +285,6 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     *
     **/
   private def search(tokens: List[String], lines: List[Paragraph], renderOnly: Boolean = false, withinItem: Boolean = false): Option[HitScore] = {
-    var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
-
     /**
       * item 有可能被某些条件过滤掉了
       **/
@@ -286,18 +304,24 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       }
     }
 
+    val outToken = tokens.filter(_.startsWith("-")).map(_.tail)
+    val inToken = tokens.filter(!_.startsWith("-"))
 
     var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
     var hitItems: List[Paragraph] = List()
     var innerUse: List[(List[(Boolean, Boolean, Int, Symbol)], Paragraph)] = List()
 
+    var hasHit: Map[String, Boolean] = inToken.map(token => (token, false)).toMap
+
     //如果仅仅在元素(url,memo,code)内搜索，则token需要在元素内全出现
     if (withinItem) {
       for (line <- lines; if !line.isEmpty) {
-        val allTempHits = tokens.map(t => (t, line.hit(t)))
-        val fullMatch = allTempHits.forall(t => t._2.nonEmpty)
-        if (fullMatch) {
-          allTempHits.foreach(t => {
+        val allInHits = inToken.map(t => (t, line.hit(t)))
+        val allOutHits = outToken.map(t => (t, line.hit(t)))
+        val hasAnyOut = allOutHits.exists(_._2.nonEmpty)
+        val fullMatch = allInHits.forall(t => t._2.nonEmpty)
+        if (fullMatch && !hasAnyOut) {
+          allInHits.foreach(t => {
             hasHit = hasHit.updated(t._1, true)
             allList = allList ++ t._2
             hitItems = line +: hitItems
@@ -306,7 +330,14 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         }
       }
     } else {
-      for (token <- tokens; line <- lines; if !line.isEmpty) {
+      for (token <- outToken; line <- lines; if !line.isEmpty) {
+        val hitList = line.hit(token)
+        if (hitList.nonEmpty) {
+          return None
+        }
+      }
+
+      for (token <- inToken; line <- lines; if !line.isEmpty) {
         val hitList = line.hit(token)
         if (hitList.nonEmpty) {
           hasHit = hasHit.updated(token, true)
@@ -332,9 +363,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
           (hit._2, Algorithm.computeScore(tmp, hit._2.paragraphType))
         }).sortBy(_._2).reverse.map(_._1)
 
-        Some(HitScore(renderHtml(tokens, hitItems), bodyScore))
+        Some(HitScore(renderHtml(inToken, hitItems), bodyScore))
       } else {
-        Some(HitScore(renderHtml(tokens), bodyScore))
+        Some(HitScore(renderHtml(inToken), bodyScore))
       }
     } else {
       None
