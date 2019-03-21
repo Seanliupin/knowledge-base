@@ -1,8 +1,7 @@
 package controllers
 
-import javax.inject._
-
 import helper.StringUtil
+import javax.inject._
 import model.note.{ContextOption, Score}
 import play.api.db._
 import play.api.mvc._
@@ -18,11 +17,16 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
   private val contextList: List[ContextOption] = Score.availableContext.map(ContextOption(_, false))
 
   def index() = Action { implicit request: Request[AnyContent] =>
-    Ok(views.html.index("", contextList.map(c => ContextOption(c.value, c.value == "all")), "",""))
+    Ok(views.html.index("", contextList.map(c => ContextOption(c.value, c.value == "all")), "", ""))
   }
 
   def search(query: String, context: String) = Action { implicit request: Request[AnyContent] =>
-    val tokens = query.split(StringUtil.whiteSpaceSegmenter).map(_.trim).filter(_.length > 0).toList
+    val tokens = query.split(StringUtil.whiteSpaceSegmenter)
+      .map(_.trim)
+      .map(_.toLowerCase)
+      .filter(_.length > 0)
+      .toSet //转小写后去重
+      .toList
     val (category, body) = NoteService.search(tokens, Option(context))
     Ok(views.html.index(query, contextList.map(c => ContextOption(c.value, c.value == context)), category, body))
   }
