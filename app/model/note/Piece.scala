@@ -264,13 +264,13 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     * withinItem: 是否所有的搜索词都需要出现在该元素中
     *
     **/
-  private def search(tokens: List[String], items: List[Paragraph], renderOnly: Boolean = false, withinItem: Boolean = false): Option[HitScore] = {
+  private def search(tokens: List[String], lines: List[Paragraph], renderOnly: Boolean = false, withinItem: Boolean = false): Option[HitScore] = {
     var hasHit: Map[String, Boolean] = tokens.map(token => (token, false)).toMap
 
     /**
       * item 有可能被某些条件过滤掉了
       **/
-    if (items.isEmpty) {
+    if (lines.isEmpty) {
       return None
     }
 
@@ -280,7 +280,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     if (tokens.isEmpty) {
       if (renderOnly) {
-        return Some(HitScore(renderHtml(tokens, items), 10))
+        return Some(HitScore(renderHtml(tokens, lines), 10))
       } else {
         return Some(HitScore(renderHtml(tokens), 10))
       }
@@ -292,7 +292,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     //如果仅仅在元素(url,memo,code)内搜索，则token需要在元素内全出现
     if (withinItem) {
-      for (line <- items; if !line.isEmpty) {
+      for (line <- lines; if !line.isEmpty) {
         val allTempHits = tokens.map(t => (t, line.hit(t)))
         val fullMatch = allTempHits.forall(t => t._2.nonEmpty)
         if (fullMatch) {
@@ -304,7 +304,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         }
       }
     } else {
-      for (token <- tokens; line <- items; if !line.isEmpty) {
+      for (token <- tokens; line <- lines; if !line.isEmpty) {
         val hitList = line.hit(token)
         if (hitList.nonEmpty) {
           hasHit = hasHit.updated(token, true)
