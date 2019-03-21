@@ -28,7 +28,7 @@ trait Render {
       if (c.isLetter) {
         s"(${c.toUpper}|${c.toLower})"
       } else if ("()[]{}+.*?".contains(c)) {
-        s"\\${c}"
+        s"\\$c"
       } else {
         c
       }

@@ -74,11 +74,11 @@ body {
 }
 
 .piece-book:before {
-    content: "<<";
+    content: "《";
 }
 
 .piece-book:after {
-    content: ">>";
+    content: "》";
 }
 
 
