@@ -114,15 +114,13 @@ abstract class Paragraph(line: String) extends Hit with Render {
     val trimWord = word.trim
     val ignoreCase = trimWord.map(c => {
       if (c.isLetter) {
-        s"(${c.toLower}|${c.toUpper})"
+        s"[${c.toLower}|${c.toUpper}]"
       } else if ("()[]{}+.*?".contains(c)) {
         s"\\$c"
       } else {
         c
       }
-    }).foldLeft("")((a, b) => {
-      a + b
-    })
+    }).mkString("")
 
     val ignoreCaseR = s"${ignoreCase}" r
     val paddingTarget = s" ${target} " //保证了获取字符的时候不越界
