@@ -231,7 +231,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
   }
 
   private def searchContent(tokens: List[String]): Option[HitScore] = {
-    val outToken = tokens.filter(_.startsWith("-")).map(_.tail)
+    val outToken = tokens.filter(_.startsWith("-")).map(_.tail).map(_.trim).filter(_.length > 0)
     if (bodyContain(outToken)) {
       return None
     }
@@ -322,7 +322,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       * 1. 如果全篇渲染，则全篇过滤
       * 2. 若只渲染元素，则过滤元素
       **/
-    val outToken = tokens.filter(_.startsWith("-")).map(_.tail)
+    val outToken = tokens.filter(_.startsWith("-")).map(_.tail).map(_.trim).filter(_.length > 0)
 
     if (renderOnly) {
       okLines = lines.filter(l => {
