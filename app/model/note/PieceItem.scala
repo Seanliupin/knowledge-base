@@ -20,6 +20,34 @@ trait Render {
 
   def toPlain: String
 
+  final def renderHits(tokens: List[String]): String = {
+    renderHits(toPlain, tokens)
+  }
+
+  /**
+    * 需要把url单独出来，否则经渲染后url格式会被破坏掉，从而在网页上不能点击
+    **/
+  protected def renderHits(text: String, tokens: List[String]): String = {
+    val pattern = """(.*?)\<a(.*?)\>(.*)</a>(.*)""" r;
+    text match {
+      case pattern(head, href, body, tail) => {
+        renderHitsNoUrl(head, tokens) + s"<a $href>" + renderHitsNoUrl(body, tokens) + "</a>" + renderHits(tail, tokens)
+      }
+      case _ => renderHitsNoUrl(text, tokens)
+    }
+  }
+
+  /**
+    * 渲染不带url的文本
+    **/
+  private def renderHitsNoUrl(text: String, tokens: List[String]): String = {
+    var renderedText = text
+    tokens.foreach(token => {
+      renderedText = renderHit(renderedText, token)
+    })
+    renderedText
+  }
+
   /**
     * render hit with strong by default, sub class can render hit their style
     **/
@@ -42,18 +70,6 @@ trait Render {
       }
       case _ => text
     }
-  }
-
-  protected def renderHits(text: String, tokens: List[String]): String = {
-    var renderedText = text
-    tokens.foreach(token => {
-      renderedText = renderHit(renderedText, token)
-    })
-    renderedText
-  }
-
-  final def renderHits(tokens: List[String]): String = {
-    renderHits(toPlain, tokens)
   }
 }
 
