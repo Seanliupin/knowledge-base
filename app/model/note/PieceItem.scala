@@ -197,8 +197,7 @@ case class Title(line: String, hrefId: Option[String] = None) extends Paragraph(
   }
 
   def toHtml(tokens: List[String], fileName: String): String = {
-
-    val titleNode = Node(Some("a"), line).className("piece-title").title(fileName)
+    val titleNode = Node(Some("a"), renderHits(line, tokens)).className("piece-title").title(fileName)
     hrefId match {
       case Some(href) => Node(Some("div"), titleNode).addProperty("id", href)
       case None => titleNode
