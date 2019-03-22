@@ -28,6 +28,8 @@ trait Render {
     * 需要把url单独出来，否则经渲染后url格式会被破坏掉，从而在网页上不能点击
     **/
   protected def renderHits(text: String, tokens: List[String]): String = {
+    if (text.trim.isEmpty) return text
+
     val pattern = """(.*?)\<a(.*?)\>(.*)</a>(.*)""" r;
     text match {
       case pattern(head, href, body, tail) => {
@@ -53,14 +55,14 @@ trait Render {
           if (item._2 >= coll.head._1) {
             (item._1, coll.head._2, true) +: coll.tail
           } else {
-            List((item._1, item._2, true), (item._2 + 1, coll.head._1 - 1, false)) ++ coll
+            List((item._1, item._2, true), (item._2, coll.head._1, false)) ++ coll
           }
         }
       }
 
-    val fullColoredSpan = (0, coloredSpan.head._1 - 1, false) +: coloredSpan
+    val fullColoredSpan = (0, coloredSpan.head._1, false) +: coloredSpan
     fullColoredSpan.filter(s => !(s._1 >= text.length || s._2 <= 0)).map(it => {
-      val sub = text.substring(it._1, it._2 + 1)
+      val sub = text.substring(it._1, it._2)
       if (it._3) {
         Node(Some("strong"), sub).className("text-danger").toString()
       } else {
@@ -72,7 +74,7 @@ trait Render {
   /**
     * render hit with strong by default, sub class can render hit their style
     **/
-  protected def renderHit(text: String, token: String, begin: Int): List[(Int, Int)] = {
+  protected def renderHit(text: String, token: String, offset: Int): List[(Int, Int)] = {
     val _token = token.map(c => {
       if (c.isLetter) {
         s"[${c.toUpper}|${c.toLower}]"
@@ -87,7 +89,7 @@ trait Render {
 
     text match {
       case extractor(head, _, tail) => {
-        (begin + head.length, begin + text.length - tail.length - 1) +: renderHit(tail, token, text.length - tail.length)
+        (offset + head.length, offset + text.length - tail.length) +: renderHit(tail, token, offset + text.length - tail.length)
       }
       case _ => List()
     }
