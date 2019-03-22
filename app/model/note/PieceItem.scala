@@ -41,17 +41,38 @@ trait Render {
     * 渲染不带url的文本
     **/
   private def renderHitsNoUrl(text: String, tokens: List[String]): String = {
-    var renderedText = text
+    var span = List[(Int, Int)]()
     tokens.foreach(token => {
-      renderedText = renderHit(renderedText, token)
+      span = renderHit(text, token, 0) ++ span
     })
-    renderedText
+
+    val coloredSpan = span.filter(s => s._2 > s._1)
+      .sortBy(_._2)
+      .foldRight(List[(Int, Int, Boolean)]((text.length, text.length, true))) {
+        (item, coll) => {
+          if (item._2 >= coll.head._1) {
+            (item._1, coll.head._2, true) +: coll.tail
+          } else {
+            List((item._1, item._2, true), (item._2 + 1, coll.head._1 - 1, false)) ++ coll
+          }
+        }
+      }
+
+    val fullColoredSpan = (0, coloredSpan.head._1 - 1, false) +: coloredSpan
+    fullColoredSpan.filter(s => !(s._1 >= text.length || s._2 <= 0)).map(it => {
+      val sub = text.substring(it._1, it._2 + 1)
+      if (it._3) {
+        Node(Some("strong"), sub).className("text-danger").toString()
+      } else {
+        sub
+      }
+    }).mkString("")
   }
 
   /**
     * render hit with strong by default, sub class can render hit their style
     **/
-  protected def renderHit(text: String, token: String): String = {
+  protected def renderHit(text: String, token: String, begin: Int): List[(Int, Int)] = {
     val _token = token.map(c => {
       if (c.isLetter) {
         s"[${c.toUpper}|${c.toLower}]"
@@ -65,10 +86,10 @@ trait Render {
     val extractor = s"(.*?)(${_token})(.*)" r
 
     text match {
-      case extractor(head, t, tail) => {
-        head + Node(Some("strong"), t).className("text-danger") + renderHit(tail, token)
+      case extractor(head, _, tail) => {
+        (begin + head.length, begin + text.length - tail.length - 1) +: renderHit(tail, token, text.length - tail.length)
       }
-      case _ => text
+      case _ => List()
     }
   }
 }
