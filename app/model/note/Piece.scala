@@ -298,7 +298,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     /**
       * item 有可能被某些条件过滤掉了
       **/
-    if (lines.isEmpty) {
+
+    var okLines = lines
+    if (okLines.isEmpty) {
       return None
     }
 
@@ -308,7 +310,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     if (tokens.isEmpty) {
       if (renderOnly) {
-        return Some(HitScore(renderHtml(tokens, lines), 10))
+        return Some(HitScore(renderHtml(tokens, okLines), 10))
       } else {
         return Some(HitScore(renderHtml(tokens), 10))
       }
@@ -323,11 +325,9 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     val outToken = tokens.filter(_.startsWith("-")).map(_.tail)
 
     if (renderOnly) {
-      for (token <- outToken; line <- lines; if !line.isEmpty) {
-        if (line.hit(token).nonEmpty) {
-          return None
-        }
-      }
+      okLines = lines.filter(l => {
+        outToken.flatMap(t => l.hit(t)).isEmpty
+      })
     } else {
       if (bodyContain(outToken)) {
         return None
@@ -344,7 +344,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
 
     //如果仅仅在元素(url,memo,code)内搜索，则token需要在元素内全出现
     if (withinItem) {
-      for (line <- lines; if !line.isEmpty) {
+      for (line <- okLines; if !line.isEmpty) {
         val allInHits = inToken.map(t => (t, line.hit(t)))
         val fullMatch = allInHits.forall(t => t._2.nonEmpty)
         if (fullMatch) {
@@ -357,7 +357,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         }
       }
     } else {
-      for (token <- inToken; line <- lines; if !line.isEmpty) {
+      for (token <- inToken; line <- okLines; if !line.isEmpty) {
         val hitList = line.hit(token)
         if (hitList.nonEmpty) {
           hasHit = hasHit.updated(token, true)
