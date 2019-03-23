@@ -30,10 +30,14 @@ trait Render {
   protected def renderHits(text: String, tokens: List[String]): String = {
     if (text.trim.isEmpty || tokens.isEmpty) return text
 
-    val pattern = """(.*?)\<a(.*?)\>(.*)</a>(.*)""" r;
+    val urlPattern = """(.*?)\<a(.*?)\>(.*)</a>(.*)""" r;
+    val framePattern = """(.*?)\<iframe(.*?)\>(.*)</iframe>(.*)""" r;
     text match {
-      case pattern(head, href, body, tail) => {
+      case urlPattern(head, href, body, tail) => {
         renderHitsNoUrl(head, tokens) + s"<a $href>" + renderHitsNoUrl(body, tokens) + "</a>" + renderHits(tail, tokens)
+      }
+      case framePattern(head, href, body, tail) => {
+        renderHitsNoUrl(head, tokens) + s"<iframe $href>" + renderHitsNoUrl(body, tokens) + "</iframe>" + renderHits(tail, tokens)
       }
       case _ => renderHitsNoUrl(text, tokens)
     }
