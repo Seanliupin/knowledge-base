@@ -184,3 +184,12 @@ body {
 .input-box {
     min-width: 400px;
 }
+
+.text-strong-one {
+    color: #bb7ed7;
+    font-style: italic;
+}
+
+.text-strong-two {
+    color: #a0c181;
+}

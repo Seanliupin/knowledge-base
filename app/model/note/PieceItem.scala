@@ -32,21 +32,31 @@ trait Render {
 
     val urlPattern = """(.*?)\<a(.*?)\>(.*)</a>(.*)""" r;
     val framePattern = """(.*?)\<iframe(.*?)\>(.*)</iframe>(.*)""" r;
+    val strongPattern1 = """(.*?)\*(.*?)\*(.*)""" r;
+    val strongPattern2 = """(.*?)`(.*?)`(.*)""" r;
     text match {
       case urlPattern(head, href, body, tail) => {
-        renderHitsNoUrl(head, tokens) + s"<a $href>" + renderHitsNoUrl(body, tokens) + "</a>" + renderHits(tail, tokens)
+        renderHits(head, tokens) + s"<a $href>" + renderHits(body, tokens) + "</a>" + renderHits(tail, tokens)
       }
       case framePattern(head, href, body, tail) => {
-        renderHitsNoUrl(head, tokens) + s"<iframe $href>" + renderHitsNoUrl(body, tokens) + "</iframe>" + renderHits(tail, tokens)
+        renderHits(head, tokens) + s"<iframe $href>" + renderHits(body, tokens) + "</iframe>" + renderHits(tail, tokens)
       }
-      case _ => renderHitsNoUrl(text, tokens)
+      case strongPattern1(head, strong, tail) => {
+        val strongStr = Node(Some("strong"), renderHits(strong, tokens)).className("text-strong-one").toString()
+        renderHits(head, tokens) + strongStr + renderHits(tail, tokens)
+      }
+      case strongPattern2(head, strong, tail) => {
+        val strongStr = Node(Some("strong"), renderHits(strong, tokens)).className("text-strong-two").toString()
+        renderHits(head, tokens) + strongStr + renderHits(tail, tokens)
+      }
+      case _ => renderHitsWithPlainStr(text, tokens)
     }
   }
 
   /**
     * 渲染不带url的文本
     **/
-  private def renderHitsNoUrl(text: String, tokens: List[String]): String = {
+  private def renderHitsWithPlainStr(text: String, tokens: List[String]): String = {
     var span = List[(Int, Int)]()
     tokens.foreach(token => {
       span = renderHit(text, token, 0) ++ span
