@@ -269,7 +269,8 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     }
 
     var allList: List[(Boolean, Boolean, Int, Symbol)] = List()
-    for (token <- inToken; line <- lines; if !line.isEmpty) {
+    val body = lines.filter(_.paragraphType != 'Id)
+    for (token <- inToken; line <- body; if !line.isEmpty) {
       val hitList = line.hit(token)
       if (hitList.nonEmpty) {
         hasHit = hasHit.updated(token, true)
@@ -288,6 +289,21 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     }
   }
 
+  def searchById(id: String): Option[HitScore] = {
+    val exist = lines.flatMap(p => {
+      if (p.paragraphType == 'Id) {
+        p.hit(id)
+      } else {
+        List()
+      }
+    })
+
+    if (exist.isEmpty) {
+      return None
+    }
+    Some(HitScore(renderHtml(List()), Algorithm.computeScore(exist.map(x => (x._1, x._2, x._3)), 'Id)))
+  }
+
   /**
     * renderOnly: 是不是仅仅渲染该元素
     *
@@ -297,9 +313,11 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
   private def search(tokens: List[String], lines: List[Paragraph], renderOnly: Boolean = false, withinItem: Boolean = false): Option[HitScore] = {
     /**
       * item 有可能被某些条件过滤掉了
+      *
+      * id 用于标记一篇笔记，不参与搜索。
       **/
 
-    var okLines = lines
+    var okLines = lines.filter(_.paragraphType != 'Id)
     if (okLines.isEmpty) {
       return None
     }

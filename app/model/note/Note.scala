@@ -117,6 +117,7 @@ case class Note(fileName: String) {
             .map(KeyWord(_))
             .foreach(piece.addLine)
         case Extractor.timeExtractor(time) if piece.isValid => piece.setTime(Time(time))
+        case Extractor.idExtractor(id) if piece.isValid => piece.addLine(Id(id.trim))
         case Extractor.WebExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
         case Extractor.WebItemExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
         case Extractor.bookExtractor(title, url, comment) if piece.isValid => piece.addLine(Book(title, url, comment))

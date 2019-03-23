@@ -24,6 +24,7 @@ object Score {
       ("line", 'Line, 100),
       ("tip", 'Tip, 140),
       ("script", 'Script, 120),
+      ("id", 'id, 10),
       ("time", 'Time, 50)
     )
   }

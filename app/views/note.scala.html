@@ -1,0 +1,28 @@
+@(query: String, contextList: List[model.note.ContextOption], category: String, result: String)
+
+@main(query) {
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Knowledge-base</a>
+            </div>
+
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="col-xs-12 col-sm-7">
+            <div class="lead" id="result">@Html(result)</div>
+        </div>
+
+        <div class="col-xs-12 col-sm-offset-1 col-sm-2 sidebar" role="navigation">
+            <div class="row">
+                <div class="col-xs-6 col-sm-12">
+                    <ol>
+                        @Html(category)
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+}

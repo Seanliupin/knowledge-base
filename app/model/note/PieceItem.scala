@@ -28,7 +28,7 @@ trait Render {
     * 需要把url单独出来，否则经渲染后url格式会被破坏掉，从而在网页上不能点击
     **/
   protected def renderHits(text: String, tokens: List[String]): String = {
-    if (text.trim.isEmpty) return text
+    if (text.trim.isEmpty || tokens.isEmpty) return text
 
     val pattern = """(.*?)\<a(.*?)\>(.*)</a>(.*)""" r;
     text match {
@@ -253,6 +253,15 @@ case class Time(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'Time
 }
 
+case class Id(line: String) extends Paragraph(line) {
+  /**
+    * 不渲染ID，其只用来查找
+    **/
+  override def toHtml(tokens: List[String]): String = ""
+
+  override def paragraphType: Symbol = 'Id
+}
+
 case class Line(line: String) extends Paragraph(line) {
   private val itemExtractor = """\s+\*\s+(.*)""" r;
 
@@ -400,6 +409,7 @@ object Extractor {
   val WebItemExtractor = """\s*[*]?\s*\[(.*?)\]\((.*?)\)[,，。.]?(.*)""" r
 
   val timeExtractor = """time:\s+(.*)""" r
+  val idExtractor = """id:\s+(.*)""" r
 
   val scriptExtractor = """\<script\s+src=(.*?)\>(.*?)\<\/script\>""" r
 

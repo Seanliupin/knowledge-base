@@ -30,5 +30,10 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
     Ok(views.html.index(query, contextList.map(c => ContextOption(c.value, c.value == context)), category, body))
   }
 
+  def getById(id: String) = Action { implicit request: Request[AnyContent] =>
+    val (category, body) = NoteService.searchById(id)
+    Ok(views.html.note("", List(), category, body))
+  }
+
   def test = TODO
 }

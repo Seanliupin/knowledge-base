@@ -36,7 +36,34 @@ object NoteService {
           case None =>
         }
         body.append(hitPair._1.hit)
-        //body.append(hitPair._1.hit + " score = " + hitPair._1.score)
+      })
+
+    (category.toString(), body.toString())
+  }
+
+
+  def searchById(id: String): (String, String) = {
+    val body = new StringBuilder
+    val category = new StringBuilder
+
+    val pieces = Future.sequence(NoteBook.getPiece.map {
+      piece =>
+        Future {
+          (piece.searchById(id), piece)
+        }
+    })
+
+    Await.result(pieces, FiniteDuration(10, TimeUnit.SECONDS))
+      .filter(_._1 != None).map {
+      case (Some(x), y) => (x, y)
+    }.distinct
+      .sortWith((x, y) => x._1.score > y._1.score)
+      .foreach(hitPair => {
+        hitPair._2.urlRef match {
+          case Some(ref) => category.append(ref)
+          case None =>
+        }
+        body.append(hitPair._1.hit)
       })
 
     (category.toString(), body.toString())

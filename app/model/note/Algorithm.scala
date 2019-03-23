@@ -12,7 +12,7 @@ object Algorithm {
     * 命中文本的类型
     **/
   def computeScore(matchList: List[(Boolean, Boolean, Int)], targetType: Symbol): Int = {
-    if (matchList.size == 0) return 0
+    if (matchList.isEmpty) return 0
 
     val list: List[(Boolean, Int, Int)] = matchList.map(x => (x._1, Score.getMatchScore(x._1, x._2), x._3))
 
