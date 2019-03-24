@@ -385,11 +385,15 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
 /**
   * 将代码按行原样输出，浏览器里有插件自动对其渲染。
   **/
-case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan, title) {
+case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(lanOp, titleOp) {
   override def paragraphType: Symbol = 'Code
 
   override
   protected def renderedBody(tokens: List[String], divClass: List[String]): String = {
+    ""
+  }
+
+  override def toHtml(tokens: List[String]): String = {
     val block = lines.map(line => {
       val node = HtmlNode(Some("p"), renderHits(line, tokens)).className("code-line")
       if (line.startsWith("# ")) {
@@ -398,17 +402,40 @@ case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan,
       node.toString()
     }).mkString("")
 
-    val lanStr = lan.getOrElse("none")
+    val lanStr = lanOp.getOrElse("none")
 
     val codeBlock = HtmlNode(Some("code"), block)
-      .className(s"code-block-$lanStr")
+
       .className(s"language-$lanStr")
       .toString()
 
-    HtmlNode(Some("pre"), codeBlock)
+    val bodyNode = HtmlNode(Some("pre"), codeBlock)
+      .className(s"code-block-$lanStr")
       .className("prettyprint")
-      .className("code-block")
       .toString()
+
+    val titleNode = titleOp match {
+      case Some(title) if title.trim.nonEmpty => {
+        val metaNode = lanOp match {
+          case Some(lan) if lan.nonEmpty => "" + HtmlNode(Some("div"), s"${lan.capitalize}: ")
+            .className("block-meta")
+            .className(s"$chapterType-meta")
+            .className(s"$lan-meta")
+          case _ => ""
+        }
+
+        HtmlNode(Some("div"), metaNode + title)
+          .className(s"$chapterType-title")
+          .className(s"code-title-$lanStr")
+          .toString()
+      }
+      case _ => ""
+    }
+
+
+    HtmlNode(Some("div"), titleNode + bodyNode)
+      .className("code-block")
+      .className(s"$chapterType")
   }
 }
 

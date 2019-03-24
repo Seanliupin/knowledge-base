@@ -115,13 +115,15 @@ body {
 
 
 .memo, .code {
-    border-radius: 4px;
-    border: 1px solid #eee;
     margin-bottom: 15px;
 }
 
+.memo {
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
 .code-block {
-    padding: 10px;
     /*backgroung-image: url("/public/images/code_bg.jpeg");*/
     background: #eae1d2;;
 }
@@ -319,6 +321,24 @@ body {
     margin: 0px;
 }
 
+.language-sh > .code-line > .com {
+    color: #d4d4d4;
+    padding-left: 15px;
+}
+
+.language-sh > .sharp-start > .com {
+    color: #6a9955;
+    padding-left: 15px;
+}
+
+.code-block-sh {
+    background: #1e1e1e;
+}
+
+.searched-text > * {
+    color: #ca4031;
+}
+
 .searched-text {
-    color: red;
+    color: #ca4031;
 }

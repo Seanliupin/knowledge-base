@@ -49,22 +49,22 @@ case class HtmlNode(tag: Option[String], value: String) {
   }
 
   override def toString(): String = {
-    if (tag == None) {
+    if (tag.isEmpty) {
       return ""
     }
     var className = ""
-    if (names.size > 0) {
+    if (names.nonEmpty) {
       className = names.mkString(" ")
       className = "class =" + "\"" + className + "\""
     }
 
     var myTitle = ""
-    if (title.trim.size > 0) {
+    if (title.trim.length > 0) {
       myTitle = "title= " + "\"" + title + "\""
     }
 
     var myHref = ""
-    if (href.trim.size > 0) {
+    if (href.trim.length > 0) {
       myHref = "href= " + "\"" + href + "\""
     }
 
