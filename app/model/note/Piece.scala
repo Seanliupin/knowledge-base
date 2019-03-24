@@ -1,6 +1,6 @@
 package model.note
 
-import model.html.Node
+import model.html.HtmlNode
 
 /**
   * Author: Sean
@@ -198,10 +198,10 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
         append = "-(" + keywords.mkString("/") + ")"
       }
 
-      Node(Some("a"), s"${innerTitle.line}${append}")
+      HtmlNode(Some("a"), s"${innerTitle.line}${append}")
         .className("category-item")
         .addProperty("href", s"#${innerTitle.hrefId.getOrElse("")}")
-        .setOuterNode(Node(Some("li"), ""))
+        .setOuterNode(HtmlNode(Some("li"), ""))
     })
   }
 
@@ -424,7 +424,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     title match {
       case Some(realTitle) => {
         //title 是可以直接看到的，fileName是鼠标悬停的时候显示
-        html.append(Node(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
+        html.append(HtmlNode(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
       }
       case None => return "This is not a valid piece"
     }
@@ -433,7 +433,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
     val other = lines.filter(_.paragraphType != 'KeyWord)
 
     if (keywords.nonEmpty) {
-      html.append(Node(Some("div"), keywords.map(_.toHtml(List())).mkString("  "))
+      html.append(HtmlNode(Some("div"), keywords.map(_.toHtml(List())).mkString("  "))
         .className("piece-keyword-container"))
     }
 
@@ -441,7 +441,7 @@ case class Piece(title: Option[Title], fileName: Option[String]) extends Render 
       html.append(line.toHtml(tokens))
     })
 
-    Node(Some("div"), html.toString).className("piece-container").toString()
+    HtmlNode(Some("div"), html.toString).className("piece-container").toString()
   }
 
   override def toHtml(tokens: List[String]): String = {

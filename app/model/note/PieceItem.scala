@@ -1,7 +1,7 @@
 package model.note
 
 import helper.StringUtil
-import model.html.Node
+import model.html.HtmlNode
 
 /**
   * Author: Sean
@@ -43,7 +43,7 @@ trait Render {
           case _ => "normal"
         }
 
-        val strongStr = Node(Some("strong"), renderHits(strong, tokens)).className(s"text-strong-$tc").toString()
+        val strongStr = HtmlNode(Some("strong"), renderHits(strong, tokens)).className(s"text-strong-$tc").toString()
         renderHits(head, tokens) + strongStr + renderHits(tail, tokens)
       }
       case _ => renderHitsWithPlainStr(text, tokens)
@@ -75,7 +75,7 @@ trait Render {
     fullColoredSpan.filter(s => !(s._1 >= text.length || s._2 <= 0)).map(it => {
       val sub = text.substring(it._1, it._2)
       if (it._3) {
-        Node(Some("strong"), sub).className("text-danger").toString()
+        HtmlNode(Some("strong"), sub).className("text-danger").toString()
       } else {
         sub
       }
@@ -116,15 +116,15 @@ abstract class Link(title: String, href: String, comment: String) extends Paragr
   }
 
   override def toHtml(tokens: List[String]): String = {
-    val url = Node(Some("a"), renderHits(title, tokens))
+    val url = HtmlNode(Some("a"), renderHits(title, tokens))
       .href(href)
       .className(linkClassName)
       .addProperty("target", "_blank")
     var comm = ""
     if (StringUtil.isNotBlank(comment)) {
-      comm = Node(Some("div"), renderHits(comment, tokens)).className("piece-url-comment")
+      comm = HtmlNode(Some("div"), renderHits(comment, tokens)).className("piece-url-comment")
     }
-    Node(Some("div"), url + comm).className("piece-url-container")
+    HtmlNode(Some("div"), url + comm).className("piece-url-container")
   }
 
   override def toPlain: String = s"[$title]($href)($comment)"
@@ -199,7 +199,7 @@ abstract class Paragraph(line: String) extends Hit with Render {
 
   def constrain(only: String): Boolean = true
 
-  override def toHtml(tokens: List[String]): String = Node(Some("p"), renderHits(tokens)).className("piece-content")
+  override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(tokens)).className("piece-content")
 }
 
 case class Title(line: String, hrefId: Option[String] = None) extends Paragraph(line) {
@@ -208,9 +208,9 @@ case class Title(line: String, hrefId: Option[String] = None) extends Paragraph(
   }
 
   def toHtml(tokens: List[String], fileName: String): String = {
-    val titleNode = Node(Some("a"), renderHits(line, tokens)).className("piece-title").title(fileName)
+    val titleNode = HtmlNode(Some("a"), renderHits(line, tokens)).className("piece-title").title(fileName)
     hrefId match {
-      case Some(href) => Node(Some("div"), titleNode).addProperty("id", href)
+      case Some(href) => HtmlNode(Some("div"), titleNode).addProperty("id", href)
       case None => titleNode
     }
   }
@@ -219,7 +219,7 @@ case class Title(line: String, hrefId: Option[String] = None) extends Paragraph(
 }
 
 case class SubTitle(line: String) extends Paragraph(line) {
-  override def toHtml(tokens: List[String]): String = Node(Some("p"), renderHits(tokens)).className("piece-h3")
+  override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(tokens)).className("piece-h3")
 
   override def paragraphType: Symbol = 'SubTitle
 }
@@ -227,7 +227,7 @@ case class SubTitle(line: String) extends Paragraph(line) {
 case class KeyWord(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'KeyWord
 
-  override def toHtml(tokens: List[String]): String = Node(Some("code"), line).className("piece-keyword").toString()
+  override def toHtml(tokens: List[String]): String = HtmlNode(Some("code"), line).className("piece-keyword").toString()
 }
 
 /**
@@ -251,15 +251,15 @@ case class Script(src: String, des: String) extends Paragraph(des) {
     val scriptDes = if (des.trim().isEmpty) {
       ""
     } else {
-      Node(Some("div"), renderHits(des, tokens)).className("script-des").toString()
+      HtmlNode(Some("div"), renderHits(des, tokens)).className("script-des").toString()
     }
-    Node(Some("div"), scriptDes + s"<script src=$src></script> ").className("script-body").toString()
+    HtmlNode(Some("div"), scriptDes + s"<script src=$src></script> ").className("script-body").toString()
   }
 
 }
 
 case class Time(line: String) extends Paragraph(line) {
-  override def toHtml(tokens: List[String]): String = Node(Some("text"), line).className("piece-time")
+  override def toHtml(tokens: List[String]): String = HtmlNode(Some("text"), line).className("piece-time")
 
   override def paragraphType: Symbol = 'Time
 }
@@ -281,9 +281,9 @@ case class Line(line: String) extends Paragraph(line) {
   override def toHtml(tokens: List[String]): String = {
     line match {
       case itemExtractor(item) => {
-        Node(Some("li"), renderHits(item, tokens))
+        HtmlNode(Some("li"), renderHits(item, tokens))
           .className("un-order-list")
-          .setOuterNode(Node(Some("ul"), ""))
+          .setOuterNode(HtmlNode(Some("ul"), ""))
       }
       case _ => super.toHtml(tokens)
     }
@@ -302,7 +302,7 @@ case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
 
   override def constrain(only: String): Boolean = tipType == Some(only)
 
-  override def toHtml(tokens: List[String]): String = Node(Some("p"), renderHits(tokens)).className("piece-tip").className(colorClass)
+  override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(tokens)).className("piece-tip").className(colorClass)
 }
 
 /**
@@ -336,7 +336,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   protected def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node(Some("div"), renderHits(code, tokens)).className(s"$chapterType-line"))
+      base.append(HtmlNode(Some("div"), renderHits(code, tokens)).className(s"$chapterType-line"))
     })
 
     base.toString()
@@ -352,7 +352,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
     title match {
       case Some(t) => {
         val metaNode = cType match {
-          case Some(subType) if subType.nonEmpty => "" + Node(Some("div"), s"${subType.capitalize}: ")
+          case Some(subType) if subType.nonEmpty => "" + HtmlNode(Some("div"), s"${subType.capitalize}: ")
             .className("block-meta")
             .className(s"$chapterType-meta")
             .className(s"$subType-meta")
@@ -360,7 +360,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
         }
 
         if (t.trim.length > 0) {
-          titleNode = Node(Some("div"), metaNode + t)
+          titleNode = HtmlNode(Some("div"), metaNode + t)
             .className(s"$chapterType-title")
             .className(s"$typeName-title")
         }
@@ -368,11 +368,11 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
       case None =>
     }
 
-    val bodyNode = Node(Some("div"), renderedBody(tokens))
+    val bodyNode = HtmlNode(Some("div"), renderedBody(tokens))
       .className(s"$chapterType-block")
       .className(s"$typeName-block")
 
-    Node(Some("div"), titleNode + bodyNode).className(s"$chapterType")
+    HtmlNode(Some("div"), titleNode + bodyNode).className(s"$chapterType")
   }
 
 }
@@ -384,7 +384,7 @@ case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan,
   override def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node(Some("div"), renderHits(code, tokens)).className("code-line"))
+      base.append(HtmlNode(Some("div"), renderHits(code, tokens)).className("code-line"))
     })
     base.toString
   }
@@ -397,7 +397,7 @@ case class Memo(ctype: Option[String], title: Option[String]) extends Chapter(ct
   override def renderedBody(tokens: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(Node(Some("div"), renderHits(code, tokens)).className("comment-line"))
+      base.append(HtmlNode(Some("div"), renderHits(code, tokens)).className("comment-line"))
     })
     base.toString
   }

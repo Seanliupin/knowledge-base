@@ -5,40 +5,40 @@ package model.html
   * Date: 4/10/2017
   * Time: 11:45 PM
   */
-case class Node(tag: Option[String], value: String) {
+case class HtmlNode(tag: Option[String], value: String) {
   var names: List[String] = List()
   private var properties: List[(String, String)] = List()
   private var title = ""
   private var href = ""
   private var nodeText: String = value
-  private var outerNode: Option[Node] = None
+  private var outerNode: Option[HtmlNode] = None
 
-  def className(name: String): Node = {
+  def className(name: String): HtmlNode = {
     names = name :: names
     this
   }
 
-  def addProperty(name: String, value: String): Node = {
+  def addProperty(name: String, value: String): HtmlNode = {
     properties = (name, value) +: properties
     this
   }
 
-  def setOuterNode(node: Node): Node = {
+  def setOuterNode(node: HtmlNode): HtmlNode = {
     outerNode = Some(node)
     this
   }
 
-  def setText(text: String): Node = {
+  def setText(text: String): HtmlNode = {
     nodeText = text
     this
   }
 
-  def title(title: String): Node = {
+  def title(title: String): HtmlNode = {
     this.title = title
     this
   }
 
-  def href(href: String): Node = {
+  def href(href: String): HtmlNode = {
     this.href = href
     this
   }
@@ -80,10 +80,10 @@ case class Node(tag: Option[String], value: String) {
   }
 }
 
-object Node {
-  implicit def nodeToString(node: Node): String = node.toString()
+object HtmlNode {
+  implicit def nodeToString(node: HtmlNode): String = node.toString()
 
-  def emptyNode: Node = {
-    Node(None, "")
+  def emptyNode: HtmlNode = {
+    HtmlNode(None, "")
   }
 }
