@@ -75,7 +75,7 @@ trait Render {
     fullColoredSpan.filter(s => !(s._1 >= text.length || s._2 <= 0)).map(it => {
       val sub = text.substring(it._1, it._2)
       if (it._3) {
-        HtmlNode(Some("strong"), sub).className("text-danger").toString()
+        HtmlNode(Some("strong"), sub).className("searched-text").toString()
       } else {
         sub
       }

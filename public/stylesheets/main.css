@@ -319,9 +319,6 @@ body {
     margin: 0px;
 }
 
-.code-block > .note {
-    padding: 10px;
-    border-radius: 0px;
-    background-color: transparent;
-    margin: 0px;
+.searched-text {
+    color: red;
 }
