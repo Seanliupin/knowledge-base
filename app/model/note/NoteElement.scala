@@ -428,8 +428,8 @@ object Extractor {
   val typedTipExtractor = """>(.*?):\s*(.*)""" r
 
   val codeHeaderExtractor = """```(\w*)[:]?\b*(.*)""" r
-  val commentHeaderExtractor = """'''(\w*)[:]?\b*(.*)""" r
+  val memoHeaderExtractor = """'''(\w*)[:]?\b*(.*)""" r
 
   val codeFooterExtractor = """```""" r
-  val commentFooterExtractor = """'''""" r
+  val memoFooterExtractor = """'''""" r
 }

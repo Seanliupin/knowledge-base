@@ -77,7 +77,7 @@ case class NoteFile(fileName: String) {
             codeBlock = Code(Some(""), Some(""))
           }
         }
-        case Extractor.commentFooterExtractor() => {
+        case Extractor.memoFooterExtractor() => {
           if (commentBlock.isValid) {
             note.addLine(commentBlock)
             commentBlock = Memo(None, None)
@@ -91,7 +91,7 @@ case class NoteFile(fileName: String) {
           }
           codeBlock = Code(Some(lan), Some(title.trim))
         }
-        case Extractor.commentHeaderExtractor(ctype, title) => {
+        case Extractor.memoHeaderExtractor(ctype, title) => {
           if (!commentBlock.isEmpty) {
             note.addLine(commentBlock)
           }
@@ -109,11 +109,11 @@ case class NoteFile(fileName: String) {
         }
         case Extractor.tagsExtractor(tags) if note.isValid =>
           tags.split(StringUtil.whiteSpaceSegmenter)
-            .map(KeyWord(_))
+            .map(KeyWord)
             .foreach(note.addLine)
         case Extractor.keysExtractor(keys) if note.isValid =>
           keys.split(StringUtil.whiteSpaceSegmenter)
-            .map(KeyWord(_))
+            .map(KeyWord)
             .foreach(note.addLine)
         case Extractor.timeExtractor(time) if note.isValid => note.setTime(Time(time))
         case Extractor.idExtractor(id) if note.isValid => note.addLine(Id(id.trim))
