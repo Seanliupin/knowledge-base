@@ -18,7 +18,7 @@ object NoteService {
     val body = new StringBuilder
     val category = new StringBuilder
 
-    val pieces = Future.sequence(NoteBook.getPiece.map {
+    val pieces = Future.sequence(NoteBook.getNotes.map {
       piece =>
         Future {
           (piece.search(tokens, context), piece)
@@ -46,7 +46,7 @@ object NoteService {
     val body = new StringBuilder
     val category = new StringBuilder
 
-    val pieces = Future.sequence(NoteBook.getPiece.map {
+    val pieces = Future.sequence(NoteBook.getNotes.map {
       piece =>
         Future {
           (piece.searchById(id), piece)

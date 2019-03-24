@@ -13,9 +13,9 @@ case class NoteFile(fileName: String) {
   /**
     * parse piece of information
     **/
-  def pieces: List[Note] = {
+  def notes: List[Note] = {
     var pieces: List[Note] = List()
-    var piece = Note(None, None)
+    var note = Note(None, None)
     var codeBlock = Code(None, None)
     var commentBlock = Memo(None, None)
     var globalTags: List[KeyWord] = List()
@@ -34,28 +34,28 @@ case class NoteFile(fileName: String) {
       s"${str.hashCode}"
     }
 
-    def addPiece(piece: Note): List[Note] = {
-      globalTags.foreach(piece.addLine)
-      var fixPiece = piece
+    def addNote(note: Note): List[Note] = {
+      globalTags.foreach(note.addLine)
+      var fixNote = note
 
-      if (piece.hasNotTime) {
+      if (note.hasNotTime) {
         for {
           titleFromFile <- globalTitle
           year <- globalYear
-          oldTitle <- piece.title
+          oldTitle <- note.title
         } {
           oldTitle.line match {
             case Extractor.dayMonthExtractor(month, day) => {
-              fixPiece = Note(Some(Title(titleFromFile, Some(getHashCode(s"$fileName$oldTitle")))), piece.fileName)
-              fixPiece.setTime(Time(s"$year/$month/$day"))
-              fixPiece.setLines(piece.getLines)
+              fixNote = Note(Some(Title(titleFromFile, Some(getHashCode(s"$fileName$oldTitle")))), note.fileName)
+              fixNote.setTime(Time(s"$year/$month/$day"))
+              fixNote.setLines(note.getLines)
             }
             case _ =>
           }
         }
       }
 
-      pieces = fixPiece +: pieces
+      pieces = fixNote +: pieces
       pieces
     }
 
@@ -64,14 +64,14 @@ case class NoteFile(fileName: String) {
       line <- source.getLines
     } {
       line match {
-        case Extractor.globalTagsExtractor(tags) if !piece.isValid => {
+        case Extractor.globalTagsExtractor(tags) if !note.isValid => {
           globalTags = tags.split(StringUtil.whiteSpaceSegmenter)
             .toList.map(KeyWord(_))
         }
 
         case Extractor.codeFooterExtractor() => {
           if (codeBlock.isValid) {
-            piece.addLine(codeBlock)
+            note.addLine(codeBlock)
             codeBlock = Code(None, None)
           } else {
             codeBlock = Code(Some(""), Some(""))
@@ -79,7 +79,7 @@ case class NoteFile(fileName: String) {
         }
         case Extractor.commentFooterExtractor() => {
           if (commentBlock.isValid) {
-            piece.addLine(commentBlock)
+            note.addLine(commentBlock)
             commentBlock = Memo(None, None)
           } else {
             commentBlock = Memo(Some(""), Some(""))
@@ -87,13 +87,13 @@ case class NoteFile(fileName: String) {
         }
         case Extractor.codeHeaderExtractor(lan, title) => {
           if (!codeBlock.isEmpty) {
-            piece.addLine(codeBlock)
+            note.addLine(codeBlock)
           }
           codeBlock = Code(Some(lan), Some(title.trim))
         }
         case Extractor.commentHeaderExtractor(ctype, title) => {
           if (!commentBlock.isEmpty) {
-            piece.addLine(commentBlock)
+            note.addLine(commentBlock)
           }
 
           commentBlock = Memo(Some(ctype), Some(title))
@@ -102,41 +102,41 @@ case class NoteFile(fileName: String) {
         case comment if commentBlock.isValid => commentBlock.addLine(comment)
 
         case Extractor.titleExtractor(title) => {
-          if (piece.isValid) {
-            addPiece(piece)
+          if (note.isValid) {
+            addNote(note)
           }
-          piece = Note(Some(Title(title, Some(getHashCode(s"$fileName$title")))), Option(fileName))
+          note = Note(Some(Title(title, Some(getHashCode(s"$fileName$title")))), Option(fileName))
         }
-        case Extractor.tagsExtractor(tags) if piece.isValid =>
+        case Extractor.tagsExtractor(tags) if note.isValid =>
           tags.split(StringUtil.whiteSpaceSegmenter)
             .map(KeyWord(_))
-            .foreach(piece.addLine)
-        case Extractor.keysExtractor(keys) if piece.isValid =>
+            .foreach(note.addLine)
+        case Extractor.keysExtractor(keys) if note.isValid =>
           keys.split(StringUtil.whiteSpaceSegmenter)
             .map(KeyWord(_))
-            .foreach(piece.addLine)
-        case Extractor.timeExtractor(time) if piece.isValid => piece.setTime(Time(time))
-        case Extractor.idExtractor(id) if piece.isValid => piece.addLine(Id(id.trim))
-        case Extractor.WebExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
-        case Extractor.WebItemExtractor(title, url, comment) if piece.isValid => piece.addLine(Web(title, url, comment))
-        case Extractor.bookExtractor(title, url, comment) if piece.isValid => piece.addLine(Book(title, url, comment))
-        case Extractor.subTitleExtractor(subTitle) if piece.isValid => piece.addLine(SubTitle(subTitle))
-        case Extractor.scriptExtractor(src, des) if piece.isValid => piece.addLine(Script(src, des))
-        case Extractor.typedTipExtractor(tipType, tip) if piece.isValid => {
+            .foreach(note.addLine)
+        case Extractor.timeExtractor(time) if note.isValid => note.setTime(Time(time))
+        case Extractor.idExtractor(id) if note.isValid => note.addLine(Id(id.trim))
+        case Extractor.WebExtractor(title, url, comment) if note.isValid => note.addLine(Web(title, url, comment))
+        case Extractor.WebItemExtractor(title, url, comment) if note.isValid => note.addLine(Web(title, url, comment))
+        case Extractor.bookExtractor(title, url, comment) if note.isValid => note.addLine(Book(title, url, comment))
+        case Extractor.subTitleExtractor(subTitle) if note.isValid => note.addLine(SubTitle(subTitle))
+        case Extractor.scriptExtractor(src, des) if note.isValid => note.addLine(Script(src, des))
+        case Extractor.typedTipExtractor(tipType, tip) if note.isValid => {
           if (tipType.trim.length == 0) {
-            piece.addLine(Tip(tip, None))
+            note.addLine(Tip(tip, None))
           } else {
-            piece.addLine(Tip(tip, Some(tipType)))
+            note.addLine(Tip(tip, Some(tipType)))
           }
         }
-        case Extractor.typeLessTipExtractor(tip) if piece.isValid => piece.addLine(Tip(tip, None))
-        case _ if piece.isValid => piece.addLine(Line(line))
+        case Extractor.typeLessTipExtractor(tip) if note.isValid => note.addLine(Tip(tip, None))
+        case _ if note.isValid => note.addLine(Line(line))
         case _ =>
       }
     }
 
-    if (piece.isValid) {
-      addPiece(piece)
+    if (note.isValid) {
+      addNote(note)
     }
 
     pieces

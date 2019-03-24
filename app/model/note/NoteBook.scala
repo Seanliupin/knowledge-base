@@ -18,23 +18,23 @@ object NoteBook {
   val root = "/Users/seanliu/Note/"
   //   val root = "/Users/seanliu/Note/ztodo"  // for test
 
-  private var pieces: List[Note] = List()
+  private var allNotes: List[Note] = List()
   private var inWatch = false;
 
-  def getPiece: List[Note] = {
+  def getNotes: List[Note] = {
 
     if (!inWatch) {
       Future {
         inWatch = true
         WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
-          pieces = NoteBook.notes.flatMap(note => note.pieces)
+          allNotes = NoteBook.notes.flatMap(note => note.notes)
         })
       }
 
-      pieces = NoteBook.notes.flatMap(note => note.pieces)
+      allNotes = NoteBook.notes.flatMap(note => note.notes)
     }
 
-    pieces
+    allNotes
   }
 
   private def notes: List[NoteFile] = {
