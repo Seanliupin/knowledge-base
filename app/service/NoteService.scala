@@ -2,7 +2,7 @@ package service
 
 import java.util.concurrent.TimeUnit
 
-import model.note.NoteBook
+import model.note.NoteRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
@@ -18,7 +18,7 @@ object NoteService {
     val body = new StringBuilder
     val category = new StringBuilder
 
-    val pieces = Future.sequence(NoteBook.getNotes.map {
+    val pieces = Future.sequence(NoteRepository.getNotes.map {
       piece =>
         Future {
           (piece.search(tokens, context), piece)
@@ -46,7 +46,7 @@ object NoteService {
     val body = new StringBuilder
     val category = new StringBuilder
 
-    val pieces = Future.sequence(NoteBook.getNotes.map {
+    val pieces = Future.sequence(NoteRepository.getNotes.map {
       piece =>
         Future {
           (piece.searchById(id), piece)

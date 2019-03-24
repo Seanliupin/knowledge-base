@@ -2,7 +2,7 @@ package helper
 
 import java.util.Observable
 
-import model.note.NoteBook
+import model.note.NoteRepository
 
 /**
   * Author: Sean

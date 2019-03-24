@@ -12,9 +12,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * Author: Sean
   * Date: 4/10/2017
   * Time: 10:46 PM
-  * 这个类表示这个笔记本
   */
-object NoteBook {
+object NoteRepository {
   val root = "/Users/seanliu/Note/"
   //   val root = "/Users/seanliu/Note/ztodo"  // for test
 
@@ -26,12 +25,12 @@ object NoteBook {
     if (!inWatch) {
       Future {
         inWatch = true
-        WatchDir.watch(NoteBook.root, true, (_: Observable, notice: Any) => {
-          allNotes = NoteBook.notes.flatMap(note => note.notes)
+        WatchDir.watch(NoteRepository.root, true, (_: Observable, notice: Any) => {
+          allNotes = NoteRepository.notes.flatMap(note => note.notes)
         })
       }
 
-      allNotes = NoteBook.notes.flatMap(note => note.notes)
+      allNotes = NoteRepository.notes.flatMap(note => note.notes)
     }
 
     allNotes
