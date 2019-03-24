@@ -1,0 +1,84 @@
+.piece-url-comment {
+    color: #999;
+    font-size:17px;
+    background: #00eff4;
+    border: 0px solid #e0e;
+}
+.chapter-body {
+    background: #292c34;
+    color: white;
+}
+.chapter-title {
+    border-bottom: 0px solid #eee;
+    background: #509e50;
+    color: white;
+}
+.text-danger {
+    color: #ca4031;
+}
+.piece-keyword {
+    color: #da7735;
+}
+.piece-title {
+    color: #4b4245;
+}
+.piece-title-box {
+    border-bottom: 1px solid #ddd;
+}
+.tip-todo {
+    border-left: 4px solid green;
+}
+.tip-idea {
+    border-left: 4px solid goldenrod;
+    background: #397656;
+    color: white;
+}
+.tip-quote {
+    border-left: 4px solid goldenrod;
+    background: #3f82d1;
+    color: white;
+}
+.tip-note {
+    border-left: 4px solid goldenrod;
+    background: #f8cb87;
+    color: #222222;
+}
+.tip-bug {
+    border-left: 4px solid red;
+    color: #cc0000;
+}
+.memo-spark-block {
+    background: #dc7661;
+    color: white;
+}
+.tip-ask {
+    border-left: 4px solid goldenrod;
+    background: #5890c9;
+    color: #000000;
+    font-size: 22px;
+}
+.input-box {
+    min-width: 494px;
+}
+.script-des {
+    color: gray;
+    font-size: 18px;
+}
+.piece-web::before {
+    content:"♥";
+    padding-right: 7px;
+    color: #97241c;
+}
+.text-strong-one {
+    color: #bb7ed7;
+    font-style:italic;
+}
+.text-strong-two {
+    color: #a0c181;
+}
+.piece-container {
+    padding: 15px;
+    border-radius: 10px;
+    background-color: #EEF0FC;
+    margin: 10px;
+}
