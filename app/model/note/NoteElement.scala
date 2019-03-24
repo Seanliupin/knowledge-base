@@ -160,25 +160,31 @@ abstract class Paragraph(line: String) extends Hit with Render {
   /**
     * List[(是否全字符匹配, 是否大小写匹配，单词位置)]
     **/
-  private def getMatchList(word: String, target: String): List[(Boolean, Boolean, Int)] = {
-    val trimWord = word.trim
-    val ignoreCase = trimWord.map(c => {
-      if (c.isLetter) {
+  private def getMatchList(word: String, target: String, offset: Int = 0): List[(Boolean, Boolean, Int)] = {
+    if (target.trim.isEmpty) return List()
+    val letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    val ignoreCase = word.map(c => {
+      if (letters.contains(c)) {
         s"[${c.toLower}|${c.toUpper}]"
-      } else if ("()[]{}+.*?".contains(c)) {
+      } else if ("\\/|()[]{}+.*?".contains(c)) {
         s"\\$c"
       } else {
         c
       }
     }).mkString("")
 
-    val ignoreCaseR = s"${ignoreCase}" r
-    val paddingTarget = s" ${target} " //保证了获取字符的时候不越界
-    ignoreCaseR
-      .findAllMatchIn(paddingTarget)
-      .map(w => (w, paddingTarget.charAt(w.start - 1), paddingTarget.charAt(w.end), w.start - 1))
-      .map(tu => (!(tu._2.isLetterOrDigit || tu._3.isLetterOrDigit), tu._1.toString == trimWord, tu._4))
-      .toList
+    val ignoreCaseNotWhole = s"(.*?)(${ignoreCase})(.*)".r
+    val ignoreCaseWhole = s"(.*?)\\b(${ignoreCase})\\b(.*)".r
+
+    target match {
+      case ignoreCaseWhole(head, matched, tail) => {
+        (true, matched == word, offset + head.length) +: getMatchList(word, tail, offset + head.length + matched.length)
+      }
+      case ignoreCaseNotWhole(head, matched, tail) => {
+        (false, matched == word, offset + head.length) +: getMatchList(word, tail, offset + head.length + matched.length)
+      }
+      case _ => List()
+    }
   }
 
   final protected def hitWord: Int = weight * 5
