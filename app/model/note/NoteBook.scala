@@ -37,9 +37,9 @@ object NoteBook {
     pieces
   }
 
-  private def notes: List[Note] = {
+  private def notes: List[NoteFile] = {
     files.map(file => {
-      Note(file.getAbsolutePath)
+      NoteFile(file.getAbsolutePath)
     })
   }
 
