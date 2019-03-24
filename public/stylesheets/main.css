@@ -201,89 +201,110 @@ body {
 
 .piece-url-comment {
     color: #999;
-    font-size:17px;
+    font-size: 17px;
     background: #00eff4;
     opacity: 0.8;
     border: 0px solid #e0e;
 }
+
 .sidebar {
     margin-left: 1%;
 }
+
 .col-sm-7 {
     width: 80%;
 }
+
 .chapter-body {
     background: #292c34;
     color: white;
 }
+
 .chapter-title {
     border-bottom: 0px solid #eee;
     background: #509e50;
     color: white;
 }
+
 .text-danger {
     color: #ca4031;
 }
+
 .piece-keyword {
     color: #da7735;
 }
+
 .piece-title {
     color: #4b4245;
 }
+
 .piece-title-box {
     border-bottom: 1px solid #ddd;
 }
+
 .tip-todo {
     border-left: 4px solid green;
 }
+
 .tip-idea {
     border-left: 4px solid goldenrod;
     background: #397656;
     color: white;
 }
+
 .tip-quote {
     border-left: 4px solid goldenrod;
     background: #3f82d1;
     color: white;
 }
+
 .tip-note {
     border-left: 4px solid goldenrod;
     background: #f8cb87;
     color: #222222;
 }
+
 .tip-bug {
     border-left: 4px solid red;
     color: #cc0000;
 }
+
 .memo-spark-block {
     background: #dc7661;
     color: white;
 }
+
 .tip-ask {
     border-left: 4px solid goldenrod;
     background: #5890c9;
     color: #000000;
     font-size: 22px;
 }
+
 .input-box {
     min-width: 494px;
 }
+
 .script-des {
     color: gray;
     font-size: 18px;
 }
+
 .piece-web::before {
-    content:"♥";
+    content: "♥";
     padding-right: 7px;
     color: #97241c;
 }
+
 .text-strong-one {
     color: #bb7ed7;
-    font-style:italic;
+    font-style: italic;
 }
+
 .text-strong-two {
     color: #a0c181;
 }
+
 .note {
     padding: 15px;
     border-radius: 10px;
@@ -292,6 +313,13 @@ body {
 }
 
 .memo-block > .note {
+    padding: 10px;
+    border-radius: 0px;
+    background-color: transparent;
+    margin: 0px;
+}
+
+.code-block > .note {
     padding: 10px;
     border-radius: 0px;
     background-color: transparent;
