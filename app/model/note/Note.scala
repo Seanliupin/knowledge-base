@@ -6,9 +6,9 @@ import model.html.HtmlNode
   * Author: Sean
   * Date: 4/10/2017
   * Time: 10:53 PM
-  * 代表一则笔记，多篇笔记可以被组织在一个文件下面。
+  * 代表一则笔记
   */
-case class Piece(title: Option[Title], fileName: Option[String]) extends Render {
+case class Note(title: Option[Title], fileName: Option[String]) extends Render {
   protected var lines: List[Paragraph] = List()
   private var time: Option[Time] = None
 

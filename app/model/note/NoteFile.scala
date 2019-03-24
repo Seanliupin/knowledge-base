@@ -13,9 +13,9 @@ case class NoteFile(fileName: String) {
   /**
     * parse piece of information
     **/
-  def pieces: List[Piece] = {
-    var pieces: List[Piece] = List()
-    var piece = Piece(None, None)
+  def pieces: List[Note] = {
+    var pieces: List[Note] = List()
+    var piece = Note(None, None)
     var codeBlock = Code(None, None)
     var commentBlock = Memo(None, None)
     var globalTags: List[KeyWord] = List()
@@ -34,7 +34,7 @@ case class NoteFile(fileName: String) {
       s"${str.hashCode}"
     }
 
-    def addPiece(piece: Piece): List[Piece] = {
+    def addPiece(piece: Note): List[Note] = {
       globalTags.foreach(piece.addLine)
       var fixPiece = piece
 
@@ -46,7 +46,7 @@ case class NoteFile(fileName: String) {
         } {
           oldTitle.line match {
             case Extractor.dayMonthExtractor(month, day) => {
-              fixPiece = Piece(Some(Title(titleFromFile, Some(getHashCode(s"$fileName$oldTitle")))), piece.fileName)
+              fixPiece = Note(Some(Title(titleFromFile, Some(getHashCode(s"$fileName$oldTitle")))), piece.fileName)
               fixPiece.setTime(Time(s"$year/$month/$day"))
               fixPiece.setLines(piece.getLines)
             }
@@ -105,7 +105,7 @@ case class NoteFile(fileName: String) {
           if (piece.isValid) {
             addPiece(piece)
           }
-          piece = Piece(Some(Title(title, Some(getHashCode(s"$fileName$title")))), Option(fileName))
+          piece = Note(Some(Title(title, Some(getHashCode(s"$fileName$title")))), Option(fileName))
         }
         case Extractor.tagsExtractor(tags) if piece.isValid =>
           tags.split(StringUtil.whiteSpaceSegmenter)

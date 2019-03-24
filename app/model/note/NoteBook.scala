@@ -18,10 +18,10 @@ object NoteBook {
   val root = "/Users/seanliu/Note/"
   //   val root = "/Users/seanliu/Note/ztodo"  // for test
 
-  private var pieces: List[Piece] = List()
+  private var pieces: List[Note] = List()
   private var inWatch = false;
 
-  def getPiece: List[Piece] = {
+  def getPiece: List[Note] = {
 
     if (!inWatch) {
       Future {
