@@ -198,7 +198,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
         append = "-(" + keywords.mkString("/") + ")"
       }
 
-      HtmlNode(Some("a"), s"${innerTitle.title}${append}")
+      HtmlNode(Some("a"), s"${innerTitle.title.getOrElse("no-title")}${append}")
         .className("category-item")
         .addProperty("href", s"#${innerTitle.hrefId.getOrElse("")}")
         .setOuterNode(HtmlNode(Some("li"), ""))

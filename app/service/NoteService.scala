@@ -26,7 +26,7 @@ object NoteService {
     })
 
     Await.result(pieces, FiniteDuration(10, TimeUnit.SECONDS))
-      .filter(_._1 != None).map {
+      .filter(_._1.isDefined).map {
       case (Some(x), y) => (x, y)
     }.distinct
       .sortWith((x, y) => x._1.score > y._1.score)
