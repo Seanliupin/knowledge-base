@@ -193,3 +193,7 @@ body {
 .text-strong-two {
     color: #a0c181;
 }
+
+.text-strong-normal {
+    font-weight: 500;
+}

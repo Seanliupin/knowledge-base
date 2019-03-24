@@ -29,24 +29,21 @@ trait Render {
     **/
   protected def renderHits(text: String, tokens: List[String]): String = {
     if (text.trim.isEmpty || tokens.isEmpty) return text
-
-    val urlPattern = """(.*?)\<a(.*?)\>(.*)</a>(.*)""" r;
-    val framePattern = """(.*?)\<iframe(.*?)\>(.*)</iframe>(.*)""" r;
-    val strongPattern1 = """(.*?)\*(.*?)\*(.*)""" r;
-    val strongPattern2 = """(.*?)`(.*?)`(.*)""" r;
+    //所有形如<tx attribute>yyy</tx>的html元素都只渲染其中yyy部分，同时还要保留tx和其attribute值
+    val urlPattern = """(.*?)\<[\s]*(\w+?)(.*)\>(.*?)\<\/[\s]*(\2)[\s]*\>(.*)""" r;
+    val strongPattern = """(.*?)([`*_]+)(.+?)(\2)(.*)""" r;
     text match {
-      case urlPattern(head, href, body, tail) => {
-        renderHits(head, tokens) + s"<a $href>" + renderHits(body, tokens) + "</a>" + renderHits(tail, tokens)
+      case urlPattern(head, marker, attribute, body, _, tail) => {
+        renderHits(head, tokens) + s"<$marker $attribute>" + renderHits(body, tokens) + s"</$marker>" + renderHits(tail, tokens)
       }
-      case framePattern(head, href, body, tail) => {
-        renderHits(head, tokens) + s"<iframe $href>" + renderHits(body, tokens) + "</iframe>" + renderHits(tail, tokens)
-      }
-      case strongPattern1(head, strong, tail) => {
-        val strongStr = Node(Some("strong"), renderHits(strong, tokens)).className("text-strong-one").toString()
-        renderHits(head, tokens) + strongStr + renderHits(tail, tokens)
-      }
-      case strongPattern2(head, strong, tail) => {
-        val strongStr = Node(Some("strong"), renderHits(strong, tokens)).className("text-strong-two").toString()
+      case strongPattern(head, marker, strong, _, tail) => {
+        val tc = marker match {
+          case "*" => "one"
+          case "`" => "two"
+          case _ => "normal"
+        }
+
+        val strongStr = Node(Some("strong"), renderHits(strong, tokens)).className(s"text-strong-$tc").toString()
         renderHits(head, tokens) + strongStr + renderHits(tail, tokens)
       }
       case _ => renderHitsWithPlainStr(text, tokens)
