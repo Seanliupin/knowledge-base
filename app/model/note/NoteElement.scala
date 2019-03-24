@@ -349,14 +349,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   /**
     * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
     **/
-  private def renderedBody(tokens: List[String], divClass: List[String]): String = {
-
-    val subNotes = NoteFile("").linesToNotes(lines, "", None, None, Some(Title(None, None)))
-    val body = subNotes.reverse.map(_.toHtml(tokens)).mkString("")
-    HtmlNode(Some("div"), body)
-      .classNames(divClass)
-      .className(s"$chapterType-body").toString()
-  }
+  protected def renderedBody(tokens: List[String], divClass: List[String]): String
 
   override def toHtml(tokens: List[String]): String = {
     val typeName = cType match {
@@ -389,12 +382,49 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
 
 }
 
+/**
+  * 将代码按行原样输出，浏览器里有插件自动对其渲染。
+  **/
 case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan, title) {
   override def paragraphType: Symbol = 'Code
+
+  override
+  protected def renderedBody(tokens: List[String], divClass: List[String]): String = {
+    val block = lines.map(line => {
+      val node = HtmlNode(Some("p"), renderHits(line, tokens)).className("code-line")
+      if (line.startsWith("# ")) {
+        node.className("sharp-start")
+      }
+      node.toString()
+    }).mkString("")
+
+    val lanStr = lan.getOrElse("none")
+
+    val codeBlock = HtmlNode(Some("code"), block)
+      .className(s"code-block-$lanStr")
+      .className(s"language-$lanStr")
+      .toString()
+
+    HtmlNode(Some("pre"), codeBlock)
+      .className("prettyprint")
+      .className("code-block")
+      .toString()
+  }
 }
 
 case class Memo(ctype: Option[String], title: Option[String]) extends Chapter(ctype, title) {
   override def paragraphType: Symbol = 'Memo
+
+  /**
+    * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
+    **/
+  override protected def renderedBody(tokens: List[String], divClass: List[String]): String = {
+    val subNotes = NoteFile("").linesToNotes(lines, "", None, None, Some(Title(None, None)))
+    val body = subNotes.reverse.map(_.toHtml(tokens)).mkString("")
+    HtmlNode(Some("div"), body)
+      .classNames(divClass)
+      .className(s"$chapterType-body").toString()
+  }
 }
 
 object Extractor {
