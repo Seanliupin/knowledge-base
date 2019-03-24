@@ -311,7 +311,7 @@ case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
 abstract class Chapter(cType: Option[String], title: Option[String]) extends Paragraph(title.getOrElse("")) {
   protected var lines: List[String] = List()
 
-  def isValid: Boolean = cType != None
+  def isValid: Boolean = cType.isDefined
 
   def addLine(line: String) = {
     lines = lines ++ List(line)
@@ -321,7 +321,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
     lines.flatMap(hitScore(_, token)) ++ hitScore(title.getOrElse(""), token)
   }
 
-  override def constrain(only: String): Boolean = cType == Some(only)
+  override def constrain(only: String): Boolean = cType.contains(only)
 
   override def isEmpty: Boolean = {
     title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
@@ -395,11 +395,10 @@ case class Memo(ctype: Option[String], title: Option[String]) extends Chapter(ct
   override def paragraphType: Symbol = 'Memo
 
   override def renderedBody(tokens: List[String]): String = {
-    val base = new StringBuilder
-    lines.foreach(code => {
-      base.append(HtmlNode(Some("div"), renderHits(code, tokens)).className("comment-line"))
-    })
-    base.toString
+    val allLines = s"## sub title ${title}" +: lines
+    val subNotes = NoteFile("").linesToNotes(allLines, "", None, None)
+    val body = subNotes.map(_.toHtml(tokens)).mkString("")
+    HtmlNode(Some("div"), body).className("comment-body").toString()
   }
 }
 

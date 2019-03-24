@@ -33,7 +33,7 @@ case class NoteFile(fileName: String) {
         } {
           oldTitle.line match {
             case Extractor.dayMonthExtractor(month, day) => {
-              fixNote = Note(Some(Title(titleFromFile, Some(getHashCode(s"$fN$oldTitle")))), note.fileName)
+              fixNote = Note(Some(Title(titleFromFile, Some(getHashCode(s"hash-$fN$oldTitle")))), note.fileName)
               fixNote.setTime(Time(s"$year/$month/$day"))
               fixNote.setLines(note.getLines)
             }
@@ -49,7 +49,7 @@ case class NoteFile(fileName: String) {
     lines.foreach {
       case Extractor.globalTagsExtractor(tags) if !note.isValid => {
         globalTags = tags.split(StringUtil.whiteSpaceSegmenter)
-          .toList.map(KeyWord(_))
+          .toList.map(KeyWord)
       }
 
       case Extractor.codeFooterExtractor() => {
