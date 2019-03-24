@@ -202,13 +202,12 @@ abstract class Paragraph(line: String) extends Hit with Render {
   override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(tokens)).className("piece-content")
 }
 
-case class Title(line: String, hrefId: Option[String] = None) extends Paragraph(line) {
-  def exist: Boolean = {
-    line.trim.length > 0
-  }
+case class Title(title: Option[String], hrefId: Option[String] = None) extends Paragraph(title.getOrElse("")) {
 
   def toHtml(tokens: List[String], fileName: String): String = {
-    val titleNode = HtmlNode(Some("a"), renderHits(line, tokens)).className("piece-title").title(fileName)
+    if (title.isEmpty) return ""
+
+    val titleNode = HtmlNode(Some("a"), renderHits(title.get, tokens)).className("piece-title").title(fileName)
     hrefId match {
       case Some(href) => HtmlNode(Some("div"), titleNode).addProperty("id", href)
       case None => titleNode
@@ -333,10 +332,12 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   /**
     * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
     **/
-  protected def renderedBody(tokens: List[String]): String = {
+  protected def renderedBody(tokens: List[String], divClass: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(HtmlNode(Some("div"), renderHits(code, tokens)).className(s"$chapterType-line"))
+      base.append(HtmlNode(Some("div"), renderHits(code, tokens))
+        .classNames(divClass)
+        .className(s"$chapterType-line"))
     })
 
     base.toString()
@@ -368,11 +369,7 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
       case None =>
     }
 
-    val bodyNode = HtmlNode(Some("div"), renderedBody(tokens))
-      .className(s"$chapterType-block")
-      .className(s"$typeName-block")
-
-    HtmlNode(Some("div"), titleNode + bodyNode).className(s"$chapterType")
+    HtmlNode(Some("div"), titleNode + renderedBody(tokens, List(s"$chapterType-block", s"$typeName-block"))).className(s"$chapterType")
   }
 
 }
@@ -381,10 +378,12 @@ case class Code(lan: Option[String], title: Option[String]) extends Chapter(lan,
 
   override def paragraphType: Symbol = 'Code
 
-  override def renderedBody(tokens: List[String]): String = {
+  override def renderedBody(tokens: List[String], divClass: List[String]): String = {
     val base = new StringBuilder
     lines.foreach(code => {
-      base.append(HtmlNode(Some("div"), renderHits(code, tokens)).className("code-line"))
+      base.append(HtmlNode(Some("div"), renderHits(code, tokens))
+        .classNames(divClass)
+        .className("code-line"))
     })
     base.toString
   }
@@ -394,11 +393,12 @@ case class Memo(ctype: Option[String], title: Option[String]) extends Chapter(ct
 
   override def paragraphType: Symbol = 'Memo
 
-  override def renderedBody(tokens: List[String]): String = {
-    val allLines = s"## sub title ${title}" +: lines
-    val subNotes = NoteFile("").linesToNotes(allLines, "", None, None)
-    val body = subNotes.map(_.toHtml(tokens)).mkString("")
-    HtmlNode(Some("div"), body).className("comment-body").toString()
+  override def renderedBody(tokens: List[String], divClass: List[String]): String = {
+    val subNotes = NoteFile("").linesToNotes(lines, "", None, None, Some(Title(None, None)))
+    val body = subNotes.reverse.map(_.toHtml(tokens)).mkString("")
+    HtmlNode(Some("div"), body)
+      .classNames(divClass)
+      .className("memo-body").toString()
   }
 }
 

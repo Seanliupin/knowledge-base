@@ -10,9 +10,9 @@ import resource.managed
   */
 case class NoteFile(fileName: String) {
 
-  def linesToNotes(lines: List[String], fN: String, globalTitle: Option[String], globalYear: Option[String]): List[Note] = {
+  def linesToNotes(lines: List[String], fN: String, globalTitle: Option[String], globalYear: Option[String], firstTitle: Option[Title]): List[Note] = {
     var pieces: List[Note] = List()
-    var note = Note(None, None)
+    var note = Note(firstTitle, None)
     var codeBlock = Code(None, None)
     var memoBlock = Memo(None, None)
     var globalTags: List[KeyWord] = List()
@@ -31,9 +31,9 @@ case class NoteFile(fileName: String) {
           year <- globalYear
           oldTitle <- note.title
         } {
-          oldTitle.line match {
+          oldTitle.title.getOrElse("") match {
             case Extractor.dayMonthExtractor(month, day) => {
-              fixNote = Note(Some(Title(titleFromFile, Some(getHashCode(s"hash-$fN$oldTitle")))), note.fileName)
+              fixNote = Note(Some(Title(Some(titleFromFile), Some(getHashCode(s"hash-$fN$oldTitle")))), note.fileName)
               fixNote.setTime(Time(s"$year/$month/$day"))
               fixNote.setLines(note.getLines)
             }
@@ -88,7 +88,7 @@ case class NoteFile(fileName: String) {
         if (note.isValid) {
           addNote(note)
         }
-        note = Note(Some(Title(title, Some(getHashCode(s"$fileName$title")))), Option(fileName))
+        note = Note(Some(Title(Some(title), Some(getHashCode(s"$fileName$title")))), Option(fileName))
       }
       case Extractor.tagsExtractor(tags) if note.isValid =>
         tags.split(StringUtil.whiteSpaceSegmenter)
@@ -143,7 +143,7 @@ case class NoteFile(fileName: String) {
     }
 
     for {source <- managed(scala.io.Source.fromFile(fileName, "UTF-8"))} {
-      return linesToNotes(source.getLines().toList, fileName, globalTitle, globalYear)
+      return linesToNotes(source.getLines().toList, fileName, globalTitle, globalYear, None)
     }
     List()
   }

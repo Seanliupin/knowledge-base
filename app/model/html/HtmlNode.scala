@@ -18,6 +18,11 @@ case class HtmlNode(tag: Option[String], value: String) {
     this
   }
 
+  def classNames(name: List[String]): HtmlNode = {
+    names = name ++ names
+    this
+  }
+
   def addProperty(name: String, value: String): HtmlNode = {
     properties = (name, value) +: properties
     this

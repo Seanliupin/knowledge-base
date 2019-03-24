@@ -198,7 +198,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
         append = "-(" + keywords.mkString("/") + ")"
       }
 
-      HtmlNode(Some("a"), s"${innerTitle.line}${append}")
+      HtmlNode(Some("a"), s"${innerTitle.title}${append}")
         .className("category-item")
         .addProperty("href", s"#${innerTitle.hrefId.getOrElse("")}")
         .setOuterNode(HtmlNode(Some("li"), ""))
@@ -420,11 +420,12 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
 
   private def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
-
     title match {
       case Some(realTitle) => {
         //title 是可以直接看到的，fileName是鼠标悬停的时候显示
-        html.append(HtmlNode(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
+        if (realTitle.title.isDefined) {
+          html.append(HtmlNode(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
+        }
       }
       case None => return "This is not a valid piece"
     }
@@ -441,7 +442,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
       html.append(line.toHtml(tokens))
     })
 
-    HtmlNode(Some("div"), html.toString).className("piece-container").toString()
+    HtmlNode(Some("div"), html.toString).className("note").toString()
   }
 
   override def toHtml(tokens: List[String]): String = {

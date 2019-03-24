@@ -76,7 +76,7 @@
 .text-strong-two {
     color: #a0c181;
 }
-.piece-container {
+.note {
     padding: 15px;
     border-radius: 10px;
     background-color: #EEF0FC;
