@@ -25,8 +25,10 @@ trait Render {
     * 该函数主要是将搜索关键词高亮显示出来，不同的元素可以有不同的高亮方案。
     *
     * 需要把url单独出来，否则经渲染后url格式会被破坏掉，从而在网页上不能点击
+    *
+    * 因为代码段中，可能会有/* comment */ 的注释块。此时，需要用renderStrong关闭对强调的渲染
     **/
-  protected def renderHits(text: String, tokens: List[String]): String = {
+  protected def renderHits(text: String, tokens: List[String], renderStrong: Boolean = true): String = {
     if (text.trim.isEmpty || tokens.isEmpty) return text
     //所有形如<tx attribute>yyy</tx>的html元素都只渲染其中yyy部分，同时还要保留tx和其attribute值
     val urlPattern = """(.*?)\<[\s]*(\w+?)(.*)\>(.*?)\<\/[\s]*(\2)[\s]*\>(.*)""" r;
@@ -35,7 +37,7 @@ trait Render {
       case urlPattern(head, marker, attribute, body, _, tail) => {
         renderHits(head, tokens) + s"<$marker $attribute>" + renderHits(body, tokens) + s"</$marker>" + renderHits(tail, tokens)
       }
-      case strongPattern(head, marker, strong, _, tail) => {
+      case strongPattern(head, marker, strong, _, tail) if renderStrong => {
         val tc = marker match {
           case "*" => "one"
           case "`" => "two"
@@ -360,7 +362,7 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
 
   override def toHtml(tokens: List[String]): String = {
     val block = lines.map(line => {
-      val node = HtmlNode(Some("p"), renderHits(line, tokens)).className("code-line")
+      val node = HtmlNode(Some("p"), renderHits(line, tokens, false)).className("code-line")
       if (line.startsWith("# ")) {
         node.className("sharp-start")
       }
