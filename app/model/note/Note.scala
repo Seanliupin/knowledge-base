@@ -76,7 +76,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
               case "tip" => search(leftTokens, lines.filter(line => line.paragraphType == 'Tip), withinItem = true)
               case "url" => search(leftTokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), withinItem = true)
               case "title" => search(leftTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
-              case "tag" => search(leftTokens, lines.filter(line => line.paragraphType == 'KeyWord))
+              case "tag" => search(leftTokens, lines.filter(line => line.paragraphType == 'Tag))
               case "script" => search(leftTokens, lines.filter(line => line.paragraphType == 'Script), withinItem = true)
               case _ => searchContent(leftTokens)
             }
@@ -121,7 +121,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
 
         search(filteredTokens, lines.filter(line => line.paragraphType == 'Script), renderOnly = true, withinItem = true)
       }
-      case Some('KeyWord) => {
+      case Some('Tag) => {
         val filteredTokens = selectors.filter(s => {
           s._1 match {
             case Some((p1, p2)) if p1 == 'In && p2 == "keyword" => false
@@ -129,7 +129,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
           }
         }).map(it => it._2)
 
-        search(filteredTokens, lines.filter(line => line.paragraphType == 'KeyWord))
+        search(filteredTokens, lines.filter(line => line.paragraphType == 'Tag))
       }
       case Some('Memo) => {
         if (tokens.isEmpty) return search(tokens, lines.filter(line => line.paragraphType == 'Memo), renderOnly = true, withinItem = true)
@@ -192,7 +192,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
 
   def urlRef: Option[String] = {
     title.map(innerTitle => {
-      val keywords = lines.filter(_.paragraphType == 'KeyWord)
+      val keywords = lines.filter(_.paragraphType == 'Tag)
       var append = ""
       if (keywords.nonEmpty) {
         append = "-(" + keywords.mkString("/") + ")"
@@ -430,8 +430,8 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
       case None => return "This is not a valid piece"
     }
 
-    val keywords = lines.filter(_.paragraphType == 'KeyWord)
-    val other = lines.filter(_.paragraphType != 'KeyWord)
+    val keywords = lines.filter(_.paragraphType == 'Tag)
+    val other = lines.filter(_.paragraphType != 'Tag)
 
     if (keywords.nonEmpty) {
       html.append(HtmlNode(Some("div"), keywords.map(_.toHtml(List())).mkString("  "))

@@ -236,8 +236,8 @@ case class SubTitle(line: String) extends Paragraph(line) {
   override def paragraphType: Symbol = 'SubTitle
 }
 
-case class KeyWord(line: String) extends Paragraph(line) {
-  override def paragraphType: Symbol = 'KeyWord
+case class Tag(line: String) extends Paragraph(line) {
+  override def paragraphType: Symbol = 'Tag
 
   override def toHtml(tokens: List[String]): String = HtmlNode(Some("code"), line).className("piece-keyword").toString()
 }

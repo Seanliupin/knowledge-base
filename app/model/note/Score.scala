@@ -14,7 +14,7 @@ object Score {
     List(
       ("all", 'All, 0),
       ("title", 'Title, 350),
-      ("keyword", 'KeyWord, 400),
+      ("tag", 'Tag, 400),
       ("memo", 'Memo, 150),
       ("code", 'Code, 50),
       ("url", 'Url, 100),

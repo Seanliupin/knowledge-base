@@ -17,7 +17,7 @@ case class NoteFile(noteFilePath: String) {
     var note = Note(firstTitle, None)
     var codeBlock = Code(None, None)
     var memoBlock = Memo(None, None)
-    var globalTags: List[KeyWord] = List()
+    var globalTags: List[Tag] = List()
 
     def getHashCode(str: String): String = {
       s"${str.hashCode}"
@@ -51,7 +51,7 @@ case class NoteFile(noteFilePath: String) {
     lines.foreach {
       case Extractor.globalTagsExtractor(tags) if !note.isValid => {
         globalTags = tags.split(StringUtil.whiteSpaceSegmenter)
-          .toList.map(KeyWord)
+          .toList.map(Tag)
       }
 
       case Extractor.codeFooterExtractor() => {
@@ -95,11 +95,11 @@ case class NoteFile(noteFilePath: String) {
       }
       case Extractor.tagsExtractor(tags) if note.isValid =>
         tags.split(StringUtil.whiteSpaceSegmenter)
-          .map(KeyWord)
+          .map(Tag)
           .foreach(note.addLine)
       case Extractor.keysExtractor(keys) if note.isValid =>
         keys.split(StringUtil.whiteSpaceSegmenter)
-          .map(KeyWord)
+          .map(Tag)
           .foreach(note.addLine)
       case Extractor.timeExtractor(time) if note.isValid => note.setTime(Time(time))
       case Extractor.idExtractor(id) if note.isValid => note.addLine(Id(id.trim))
