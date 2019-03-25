@@ -3,14 +3,16 @@ package model.note
 import helper.StringUtil
 import resource.managed
 
+import scala.reflect.io.File
+
 /**
   * Author: Sean
   * Date: 4/10/2017
   * Time: 10:48 PM
   */
-case class NoteFile(fileName: String) {
+case class NoteFile(noteFilePath: String) {
 
-  def linesToNotes(lines: List[String], fN: String, globalTitle: Option[String], globalYear: Option[String], firstTitle: Option[Title]): List[Note] = {
+  def linesToNotes(lines: List[String], filePath: String, globalTitle: Option[String], globalYear: Option[String], firstTitle: Option[Title]): List[Note] = {
     var pieces: List[Note] = List()
     var note = Note(firstTitle, None)
     var codeBlock = Code(None, None)
@@ -33,7 +35,7 @@ case class NoteFile(fileName: String) {
         } {
           oldTitle.title.getOrElse("") match {
             case Extractor.dayMonthExtractor(month, day) => {
-              fixNote = Note(Some(Title(Some(titleFromFile), Some(getHashCode(s"hash-$fN$oldTitle")))), note.fileName)
+              fixNote = Note(Some(Title(Some(titleFromFile), Some(getHashCode(s"hash-$filePath$oldTitle")))), note.fileName)
               fixNote.setTime(Time(s"$year/$month/$day"))
               fixNote.setLines(note.getLines)
             }
@@ -88,7 +90,8 @@ case class NoteFile(fileName: String) {
         if (note.isValid) {
           addNote(note)
         }
-        note = Note(Some(Title(Some(title), Some(getHashCode(s"$fileName$title")))), Option(fileName))
+        note = Note(Some(Title(Some(title), Some(getHashCode(s"$filePath$title")))), Option(filePath))
+        note.addLine(FileName(File(filePath).name))
       }
       case Extractor.tagsExtractor(tags) if note.isValid =>
         tags.split(StringUtil.whiteSpaceSegmenter)
@@ -127,14 +130,14 @@ case class NoteFile(fileName: String) {
     * parse piece of information
     **/
   def notes: List[Note] = {
-    if (fileName.trim.isEmpty) {
+    if (noteFilePath.trim.isEmpty) {
       return List()
     }
 
     var globalTitle: Option[String] = None
     var globalYear: Option[String] = None
 
-    fileName match {
+    noteFilePath match {
       case Extractor.titleYearExtractor(_, title, year, _) => {
         globalTitle = Some(title)
         globalYear = Some(year)
@@ -142,8 +145,8 @@ case class NoteFile(fileName: String) {
       case _ =>
     }
 
-    for {source <- managed(scala.io.Source.fromFile(fileName, "UTF-8"))} {
-      return linesToNotes(source.getLines().toList, fileName, globalTitle, globalYear, None)
+    for {source <- managed(scala.io.Source.fromFile(noteFilePath, "UTF-8"))} {
+      return linesToNotes(source.getLines().toList, noteFilePath, globalTitle, globalYear, None)
     }
     List()
   }

@@ -16,15 +16,14 @@ trait Hit {
 }
 
 trait Render {
+  /**
+    * 将该元素渲染成html节点元素。
+    **/
   def toHtml(tokens: List[String]): String
 
-  def toPlain: String
-
-  final def renderHits(tokens: List[String]): String = {
-    renderHits(toPlain, tokens)
-  }
-
   /**
+    * 该函数主要是将搜索关键词高亮显示出来，不同的元素可以有不同的高亮方案。
+    *
     * 需要把url单独出来，否则经渲染后url格式会被破坏掉，从而在网页上不能点击
     **/
   protected def renderHits(text: String, tokens: List[String]): String = {
@@ -85,7 +84,7 @@ trait Render {
   /**
     * render hit with strong by default, sub class can render hit their style
     **/
-  protected def renderHit(text: String, token: String, offset: Int): List[(Int, Int)] = {
+  private def renderHit(text: String, token: String, offset: Int): List[(Int, Int)] = {
     val _token = token.map(c => {
       if (c.isLetter) {
         s"[${c.toUpper}|${c.toLower}]"
@@ -126,8 +125,6 @@ abstract class Link(title: String, href: String, comment: String) extends Paragr
     }
     HtmlNode(Some("div"), url + comm).className("piece-url-container")
   }
-
-  override def toPlain: String = s"[$title]($href)($comment)"
 }
 
 case class Web(title: String, href: String, comment: String) extends Link(title, href, comment) {
@@ -197,8 +194,6 @@ abstract class Paragraph(line: String) extends Hit with Render {
 
   protected def weight: Int = Score.getScore(paragraphType)
 
-  override def toPlain: String = line
-
   override def toString: String = line
 
   def paragraphType: Symbol
@@ -206,7 +201,7 @@ abstract class Paragraph(line: String) extends Hit with Render {
   def constrain(only: String): Boolean = true
 
   override def toHtml(tokens: List[String]): String = {
-    val node = HtmlNode(Some("p"), renderHits(tokens)).className("piece-content")
+    val node = HtmlNode(Some("p"), renderHits(line, tokens)).className("piece-content")
     node.toString()
   }
 }
@@ -226,8 +221,17 @@ case class Title(title: Option[String], hrefId: Option[String] = None) extends P
   override def paragraphType: Symbol = 'Title
 }
 
+/**
+  * 新增FileName元素，使得笔记所在的文件名也可以被搜索。这是一个隐形元素，不参与渲染，但参与搜索
+  **/
+case class FileName(name: String, hrefId: Option[String] = None) extends Paragraph(name) {
+  override def paragraphType: Symbol = 'FileName
+
+  override def toHtml(tokens: List[String]): String = ""
+}
+
 case class SubTitle(line: String) extends Paragraph(line) {
-  override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(tokens)).className("piece-h3")
+  override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(line, tokens)).className("piece-h3")
 
   override def paragraphType: Symbol = 'SubTitle
 }
@@ -316,9 +320,9 @@ case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
     }
   }
 
-  override def constrain(only: String): Boolean = tipType == Some(only)
+  override def constrain(only: String): Boolean = tipType.contains(only)
 
-  override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(tokens)).className("piece-tip").className(colorClass)
+  override def toHtml(tokens: List[String]): String = HtmlNode(Some("p"), renderHits(line, tokens)).className("piece-tip").className(colorClass)
 }
 
 /**

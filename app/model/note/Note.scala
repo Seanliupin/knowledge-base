@@ -448,8 +448,4 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
   override def toHtml(tokens: List[String]): String = {
     renderHtml(tokens)
   }
-
-  override def toPlain: String = {
-    ""
-  }
 }
