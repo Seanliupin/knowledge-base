@@ -346,40 +346,6 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   // memo or code
   final def chapterType: String = paragraphType.toString().toLowerCase.filter((i: Char) => i != '\'')
 
-  /**
-    * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
-    **/
-  protected def renderedBody(tokens: List[String], divClass: List[String]): String
-
-  override def toHtml(tokens: List[String]): String = {
-    val typeName = cType match {
-      case Some(t) => s"$chapterType-$t"
-      case None => s"$chapterType-blank"
-    }
-
-    var titleNode = ""
-    title match {
-      case Some(t) => {
-        val metaNode = cType match {
-          case Some(subType) if subType.nonEmpty => "" + HtmlNode(Some("div"), s"${subType.capitalize}: ")
-            .className("block-meta")
-            .className(s"$chapterType-meta")
-            .className(s"$subType-meta")
-          case _ => ""
-        }
-
-        if (t.trim.length > 0) {
-          titleNode = HtmlNode(Some("div"), metaNode + t)
-            .className(s"$chapterType-title")
-            .className(s"$typeName-title")
-        }
-      }
-      case None =>
-    }
-
-    HtmlNode(Some("div"), titleNode + renderedBody(tokens, List(s"$chapterType-block", s"$typeName-block"))).className(s"$chapterType")
-  }
-
 }
 
 /**
@@ -387,11 +353,6 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   **/
 case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(lanOp, titleOp) {
   override def paragraphType: Symbol = 'Code
-
-  override
-  protected def renderedBody(tokens: List[String], divClass: List[String]): String = {
-    ""
-  }
 
   override def toHtml(tokens: List[String]): String = {
     val block = lines.map(line => {
@@ -439,18 +400,45 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
   }
 }
 
-case class Memo(ctype: Option[String], title: Option[String]) extends Chapter(ctype, title) {
+case class Memo(cType: Option[String], title: Option[String]) extends Chapter(cType, title) {
   override def paragraphType: Symbol = 'Memo
 
-  /**
-    * 子类可以自己渲染其内容，比如代码段可以自行根据语言类型进行渲染
-    **/
-  override protected def renderedBody(tokens: List[String], divClass: List[String]): String = {
+  private def renderedBody(tokens: List[String], divClass: List[String]): String = {
     val subNotes = NoteFile("").linesToNotes(lines, "", None, None, Some(Title(None, None)))
     val body = subNotes.reverse.map(_.toHtml(tokens)).mkString("")
     HtmlNode(Some("div"), body)
       .classNames(divClass)
       .className(s"$chapterType-body").toString()
+  }
+
+  override def toHtml(tokens: List[String]): String = {
+    val typeName = cType match {
+      case Some(t) => s"$chapterType-$t"
+      case None => s"$chapterType-blank"
+    }
+
+    var titleNode = ""
+    title match {
+      case Some(t) => {
+        val metaNode = cType match {
+          case Some(subType) if subType.nonEmpty => "" + HtmlNode(Some("div"), s"${subType.capitalize}: ")
+            .className("block-meta")
+            .className(s"$chapterType-meta")
+            .className(s"$subType-meta")
+          case _ => ""
+        }
+
+        if (t.trim.length > 0) {
+          titleNode = HtmlNode(Some("div"), metaNode + t)
+            .className(s"$chapterType-title")
+            .className(s"$typeName-title")
+        }
+      }
+      case None =>
+    }
+
+    HtmlNode(Some("div"), titleNode + renderedBody(tokens, List(s"$chapterType-block", s"$typeName-block"))).className(s"$chapterType")
+
   }
 }
 
