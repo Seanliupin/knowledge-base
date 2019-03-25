@@ -10,44 +10,48 @@ object Score {
   /**
     * keyword symbol weight
     **/
-  val contexts: List[(String, Symbol, Int)] = {
+  private val searchableContexts: List[(String, Symbol, Int)] = {
     List(
       ("all", 'All, 0),
       ("title", 'Title, 350),
       ("keyword", 'KeyWord, 400),
-      ("subtitle", 'SubTitle, 250),
       ("memo", 'Memo, 150),
-      ("web", 'Web, 80),
-      ("book", 'Book, 80),
       ("code", 'Code, 50),
       ("url", 'Url, 100),
       ("line", 'Line, 100),
-      ("tip", 'Tip, 140),
+      ("tip", 'Tip, 140)
+    )
+  }
+
+  private val notSearchableContexts: List[(String, Symbol, Int)] = {
+    List(
+      ("subtitle", 'SubTitle, 250),
+      ("web", 'Web, 80),
+      ("book", 'Book, 80),
+      ("time", 'Time, 50),
       ("script", 'Script, 120),
       ("id", 'id, 10),
-      ("time", 'Time, 50)
+      ("fileName", 'FileName, 50)
     )
   }
 
   def availableContext: List[String] = {
-    val filterOut = List("book", "web", "time", "subtitle")
-    val re = contexts.map(_._1).filter(item => !filterOut.exists(item == _))
-    re
+    searchableContexts.map(_._1)
   }
 
   def getScore(symbol: Symbol): Int = {
-    contexts.foreach(context => {
+    (notSearchableContexts ++ notSearchableContexts).foreach(context => {
       if (context._2 == symbol) {
         return context._3
       }
     })
-    return 0
+    10
   }
 
   def keyWordToSymbol(keyword: Option[String]): Option[Symbol] = {
     keyword match {
       case Some(key) => {
-        contexts.foreach {
+        searchableContexts.foreach {
           case (searchKey, symbol, _) if searchKey == key => return Some(symbol)
           case _ =>
         }
