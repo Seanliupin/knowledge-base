@@ -468,7 +468,7 @@ object Extractor {
   val scriptExtractor = """\<script\s+src=(.*?)\>(.*?)\<\/script\>""" r
 
   val typeLessTipExtractor = """>(.*)""" r
-  val typedTipExtractor = """>(.*?):\s*(.*)""" r
+  val typedTipExtractor = """>(\w+?):\s*(.*)""" r
 
   val codeHeaderExtractor = """```(\w*)[:]?\b*(.*)""" r
   val memoHeaderExtractor = """'''(\w*)[:]?\b*(.*)""" r
