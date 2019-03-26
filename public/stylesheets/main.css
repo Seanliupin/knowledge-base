@@ -287,11 +287,6 @@ body {
     min-width: 494px;
 }
 
-.script-des {
-    color: gray;
-    font-size: 18px;
-}
-
 .piece-web::before {
     content: "♥";
     padding-right: 7px;
@@ -321,24 +316,25 @@ body {
     margin: 0px;
 }
 
-.language-sh > .code-line > .com {
-    color: #d4d4d4;
-    padding-left: 15px;
-}
-
-.language-sh > .sharp-start > .com {
-    color: #6a9955;
-    padding-left: 15px;
-}
-
-.code-block-sh {
-    background: #1e1e1e;
+.searched-text {
+    color: #ca4031;
 }
 
 .searched-text > * {
     color: #ca4031;
 }
 
-.searched-text {
-    color: #ca4031;
+.piece-url-comment {
+    background: #cccccc;
+    color: #323232;
+}
+
+.tip-default {
+    background: #bebebe;
+}
+
+pre {
+    padding: 0px;
+    margin: 0px;
+    border: 1px solid transparent;
 }

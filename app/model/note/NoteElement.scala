@@ -362,24 +362,16 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
 
   override def toHtml(tokens: List[String]): String = {
     val block = lines.map(line => {
-      val node = HtmlNode(Some("p"), renderHits(line, tokens, false)).className("code-line")
-      if (line.startsWith("# ")) {
-        node.className("sharp-start")
-      }
-      node.toString()
-    }).mkString("")
+      renderHits(line, tokens, renderStrong = false)
+    }).mkString("\n")
 
     val lanStr = lanOp.getOrElse("none")
 
     val codeBlock = HtmlNode(Some("code"), block)
-
       .className(s"language-$lanStr")
       .toString()
 
-    val bodyNode = HtmlNode(Some("pre"), codeBlock)
-      .className(s"code-block-$lanStr")
-      .className("prettyprint")
-      .toString()
+    val bodyNode = HtmlNode(Some("pre"), codeBlock).toString()
 
     val titleNode = titleOp match {
       case Some(title) if title.trim.nonEmpty => {
@@ -401,8 +393,6 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
 
 
     HtmlNode(Some("div"), titleNode + bodyNode)
-      .className("code-block")
-      .className(s"$chapterType")
   }
 }
 
