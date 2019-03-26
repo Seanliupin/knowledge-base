@@ -368,7 +368,7 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
     val lanStr = lanOp.getOrElse("none")
 
     val codeBlock = HtmlNode(Some("code"), block)
-      .className(s"language-$lanStr")
+      .className(lanStr)
       .toString()
 
     val bodyNode = HtmlNode(Some("pre"), codeBlock).toString()
