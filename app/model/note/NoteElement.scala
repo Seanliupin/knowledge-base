@@ -362,6 +362,13 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
 
   override def toHtml(tokens: List[String]): String = {
     val block = lines.map(line => {
+      lanOp match {
+        case Some(lan) if lan == "xml" || lan == "html" => {
+          line.replace("<", "&lt;").replace(">", "&gt;")
+        }
+        case _ => line
+      }
+    }).map(line => {
       renderHits(line, tokens, renderStrong = false)
     }).mkString("\n")
 
