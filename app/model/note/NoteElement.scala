@@ -247,7 +247,7 @@ case class Tag(line: String) extends Paragraph(line) {
 /**
   * 对于script来讲，src没有太多意义，只有对它的描述有点意义。
   **/
-case class Frame(attribute: String, des: String) extends Paragraph(des) {
+case class Frame(attribute: String, des: String, srcOp: Option[String] = None) extends Paragraph(des) {
 
   override def paragraphType: Symbol = 'Frame
 
@@ -256,9 +256,14 @@ case class Frame(attribute: String, des: String) extends Paragraph(des) {
     **/
   override def isEmpty: Boolean = false
 
-
+  /**
+    * 让网址参与搜索，使得可以通过网址过滤frame
+    **/
   override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
-    hitScore(des, token)
+    srcOp match {
+      case Some(src) => List(des, src).flatMap(item => hitScore(item, token))
+      case _ => hitScore(des, token)
+    }
   }
 
   override def toHtml(tokens: List[String]): String = {
@@ -465,6 +470,7 @@ object Extractor {
   val idExtractor = """id:\s+(.*)""" r
 
   val frameExtractor = """\<iframe\s+(.*?)\>(.*?)\<\/iframe\>""" r
+  val srcExtractor = """(.*?)src=\"(.*?)\"(.*)""" r
 
   val typeLessTipExtractor = """>(.*)""" r
   val typedTipExtractor = """>(\w+?):\s*(.*)""" r
