@@ -10,7 +10,7 @@ import model.html.HtmlNode
   */
 trait Hit {
   /**
-    * todo: 不仅可以返回分数，还可以返回命中的个数，因此，更好的做法是返回一个tuple
+    * 返回命中结果
     **/
   def hit(token: String): List[(Boolean, Boolean, Int, Symbol)]
 }
@@ -113,7 +113,7 @@ abstract class Link(title: String, href: String, comment: String) extends Paragr
   protected def linkClassName: String = "piece-url"
 
   override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
-    List(title, href, comment).flatMap(item => hitScore(item, token))
+    List(title, href, comment).flatMap(item => hitScore(item, token, paragraphType))
   }
 
   override def toHtml(tokens: List[String]): String = {
@@ -143,7 +143,7 @@ case class Book(title: String, href: String, comment: String) extends Link(title
 
 abstract class Paragraph(line: String) extends Hit with Render {
   override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
-    hitScore(line, token)
+    hitScore(line, token, paragraphType)
   }
 
   def isEmpty: Boolean = line.trim.length == 0
@@ -151,8 +151,10 @@ abstract class Paragraph(line: String) extends Hit with Render {
   /**
     * 计算命中分数，全字符命中得分最高
     * todo: 是否可以不用正则表达式来实现该算法
+    * paragraphType通常是本paragraph的type。加入该参数，是为了可以更好地控制分值的计算。
+    * 比如，一则memo有title和正文。则搜索memo的时候，可以将title和正文分开计算分值
     **/
-  final protected def hitScore(text: String, token: String): List[(Boolean, Boolean, Int, Symbol)] = {
+  final protected def hitScore(text: String, token: String, paragraphType: Symbol): List[(Boolean, Boolean, Int, Symbol)] = {
     getMatchList(token, text).map(x => (x._1, x._2, x._3, paragraphType))
   }
 
@@ -261,8 +263,8 @@ case class Frame(attribute: String, des: String, srcOp: Option[String] = None) e
     **/
   override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
     srcOp match {
-      case Some(src) => List(des, src).flatMap(item => hitScore(item, token))
-      case _ => hitScore(des, token)
+      case Some(src) => List(des, src).flatMap(item => hitScore(item, token, paragraphType))
+      case _ => hitScore(des, token, paragraphType)
     }
   }
 
@@ -335,23 +337,28 @@ case class Tip(line: String, tipType: Option[String]) extends Paragraph(line) {
 /**
   * 多行组成的一个块，比如一段代码，一段评注等。用某一个
   **/
-abstract class Chapter(cType: Option[String], title: Option[String]) extends Paragraph(title.getOrElse("")) {
+abstract class Chapter(cType: Option[String], titleOp: Option[String]) extends Paragraph(titleOp.getOrElse("")) {
   protected var lines: List[String] = List()
 
   def isValid: Boolean = cType.isDefined
+
+  protected def titleType: Symbol
 
   def addLine(line: String) = {
     lines = lines ++ List(line)
   }
 
   override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
-    lines.flatMap(hitScore(_, token)) ++ hitScore(title.getOrElse(""), token)
+    titleOp match {
+      case Some(title) => lines.flatMap(hitScore(_, token, paragraphType)) ++ hitScore(title, token, titleType)
+      case _ => lines.flatMap(hitScore(_, token, paragraphType))
+    }
   }
 
   override def constrain(only: String): Boolean = cType.contains(only)
 
   override def isEmpty: Boolean = {
-    title.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
+    titleOp.getOrElse("").length == 0 && lines.forall(_.trim.length == 0)
   }
 
   // memo or code
@@ -364,6 +371,8 @@ abstract class Chapter(cType: Option[String], title: Option[String]) extends Par
   **/
 case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(lanOp, titleOp) {
   override def paragraphType: Symbol = 'Code
+
+  protected def titleType: Symbol = 'CodeTitle
 
   override def toHtml(tokens: List[String]): String = {
     val block = lines.map(line => {
@@ -395,7 +404,7 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
           case _ => ""
         }
 
-        HtmlNode(Some("div"), metaNode + title)
+        HtmlNode(Some("div"), metaNode + renderHits(title, tokens))
           .className(s"$chapterType-title")
           .className(s"code-title-$lanStr")
           .toString()
@@ -408,8 +417,10 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
   }
 }
 
-case class Memo(cType: Option[String], title: Option[String]) extends Chapter(cType, title) {
+case class Memo(cType: Option[String], titleOp: Option[String]) extends Chapter(cType, titleOp) {
   override def paragraphType: Symbol = 'Memo
+
+  protected def titleType: Symbol = 'MemoTitle
 
   private def renderedBody(tokens: List[String], divClass: List[String]): String = {
     val subNotes = NoteFile("").linesToNotes(lines, "", None, None, Some(Title(None, None)))
@@ -426,8 +437,8 @@ case class Memo(cType: Option[String], title: Option[String]) extends Chapter(cT
     }
 
     var titleNode = ""
-    title match {
-      case Some(t) => {
+    titleOp match {
+      case Some(title) => {
         val metaNode = cType match {
           case Some(subType) if subType.nonEmpty => "" + HtmlNode(Some("div"), s"${subType.capitalize}: ")
             .className("block-meta")
@@ -436,8 +447,8 @@ case class Memo(cType: Option[String], title: Option[String]) extends Chapter(cT
           case _ => ""
         }
 
-        if (t.trim.length > 0) {
-          titleNode = HtmlNode(Some("div"), metaNode + t)
+        if (title.trim.nonEmpty) {
+          titleNode = HtmlNode(Some("div"), metaNode + renderHits(title, tokens))
             .className(s"$chapterType-title")
             .className(s"$typeName-title")
         }

@@ -19,7 +19,7 @@ object Score {
       ("code", 'Code, 50),
       ("url", 'Url, 100),
       ("line", 'Line, 100),
-      ("frame", 'Frame, 120),
+      ("frame", 'Frame, 100),
       ("tip", 'Tip, 140)
     )
   }
@@ -27,6 +27,8 @@ object Score {
   private val notSearchableContexts: List[(String, Symbol, Int)] = {
     List(
       ("subtitle", 'SubTitle, 250),
+      ("memoTitle", 'MemoTitle, 200),
+      ("codeTitle", 'CodeTitle, 200),
       ("web", 'Web, 80),
       ("book", 'Book, 80),
       ("time", 'Time, 50),
