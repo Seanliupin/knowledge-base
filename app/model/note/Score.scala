@@ -19,6 +19,7 @@ object Score {
       ("code", 'Code, 50),
       ("url", 'Url, 100),
       ("line", 'Line, 100),
+      ("frame", 'Frame, 120),
       ("tip", 'Tip, 140)
     )
   }
@@ -29,7 +30,6 @@ object Score {
       ("web", 'Web, 80),
       ("book", 'Book, 80),
       ("time", 'Time, 50),
-      ("script", 'Script, 120),
       ("id", 'id, 10),
       ("fileName", 'FileName, 50)
     )

@@ -107,7 +107,7 @@ case class NoteFile(noteFilePath: String) {
       case Extractor.WebItemExtractor(title, url, comment) if note.isValid => note.addLine(Web(title, url, comment))
       case Extractor.bookExtractor(title, url, comment) if note.isValid => note.addLine(Book(title, url, comment))
       case Extractor.subTitleExtractor(subTitle) if note.isValid => note.addLine(SubTitle(subTitle))
-      case Extractor.scriptExtractor(src, des) if note.isValid => note.addLine(Script(src, des))
+      case Extractor.frameExtractor(attribute, des) if note.isValid => note.addLine(Frame(attribute, des))
       case Extractor.typedTipExtractor(tipType, tip) if note.isValid => {
         if (tipType.trim.length == 0) {
           note.addLine(Tip(tip, None))

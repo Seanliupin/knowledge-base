@@ -247,9 +247,9 @@ case class Tag(line: String) extends Paragraph(line) {
 /**
   * 对于script来讲，src没有太多意义，只有对它的描述有点意义。
   **/
-case class Script(src: String, des: String) extends Paragraph(des) {
+case class Frame(attribute: String, des: String) extends Paragraph(des) {
 
-  override def paragraphType: Symbol = 'Script
+  override def paragraphType: Symbol = 'Frame
 
   /**
     * 其始终都不应该是空
@@ -262,12 +262,12 @@ case class Script(src: String, des: String) extends Paragraph(des) {
   }
 
   override def toHtml(tokens: List[String]): String = {
-    val scriptDes = if (des.trim().isEmpty) {
+    val content = if (des.trim().isEmpty) {
       ""
     } else {
-      HtmlNode(Some("div"), renderHits(des, tokens)).className("script-des").toString()
+      HtmlNode(Some("div"), renderHits(des, tokens)).className("frame-title").toString()
     }
-    HtmlNode(Some("div"), scriptDes + s"<script src=$src></script> ").className("script-body").toString()
+    HtmlNode(Some("div"), content + s"<iframe $attribute></iframe> ").className("frame-body").toString()
   }
 
 }
@@ -464,7 +464,7 @@ object Extractor {
   val timeExtractor = """time:\s+(.*)""" r
   val idExtractor = """id:\s+(.*)""" r
 
-  val scriptExtractor = """\<script\s+src=(.*?)\>(.*?)\<\/script\>""" r
+  val frameExtractor = """\<iframe\s+(.*?)\>(.*?)\<\/iframe\>""" r
 
   val typeLessTipExtractor = """>(.*)""" r
   val typedTipExtractor = """>(\w+?):\s*(.*)""" r

@@ -66,7 +66,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
       case Some('All) => {
         if (tokens.isEmpty) return None
         val leftTokens = selectors.filter(it => it._1.isEmpty).map(it => it._2)
-        val validInItems = List("memo", "code", "tip", "url", "title", "tag", "line", "*")
+        val validInItems = List("memo", "code", "tip", "url", "title", "tag", "line", "frame", "*")
 
         firstSelector match {
           case Some((s, sType)) if s == 'In && validInItems.contains(sType) => {
@@ -77,7 +77,8 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
               case "url" => search(leftTokens, lines.filter(line => line.paragraphType == 'Web || line.paragraphType == 'Book), withinItem = true)
               case "title" => search(leftTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
               case "tag" => search(leftTokens, lines.filter(line => line.paragraphType == 'Tag))
-              case "script" => search(leftTokens, lines.filter(line => line.paragraphType == 'Script), withinItem = true)
+              case "line" => search(leftTokens, lines.filter(line => line.paragraphType == 'Line))
+              case "frame" => search(leftTokens, lines.filter(line => line.paragraphType == 'Frame), withinItem = true)
               case _ => searchContent(leftTokens)
             }
           }
@@ -111,7 +112,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
 
         search(filteredTokens, lines.filter(line => line.paragraphType == 'Title || line.paragraphType == 'SubTitle), withinItem = true)
       }
-      case Some('Script) => {
+      case Some('Frame) => {
         val filteredTokens = selectors.filter(s => {
           s._1 match {
             case Some((p1, p2)) if p1 == 'In && p2 == "script" => false
@@ -119,7 +120,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
           }
         }).map(it => it._2)
 
-        search(filteredTokens, lines.filter(line => line.paragraphType == 'Script), renderOnly = true, withinItem = true)
+        search(filteredTokens, lines.filter(line => line.paragraphType == 'Frame), renderOnly = true, withinItem = true)
       }
       case Some('Tag) => {
         val filteredTokens = selectors.filter(s => {
