@@ -2,7 +2,7 @@ package service
 
 import java.util.concurrent.TimeUnit
 
-import model.note.NoteRepository
+import model.note.{HitScore, Note, NoteRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.FiniteDuration
@@ -18,27 +18,31 @@ object NoteService {
     val body = new StringBuilder
     val category = new StringBuilder
 
-    val pieces = Future.sequence(NoteRepository.getNotes.map {
-      piece =>
-        Future {
-          (piece.search(tokens, context), piece)
-        }
-    })
+    val pieces = searchTarget(tokens, context, NoteRepository.getNotes)
 
-    Await.result(pieces, FiniteDuration(10, TimeUnit.SECONDS))
-      .filter(_._1.isDefined).map {
-      case (Some(x), y) => (x, y)
-    }.distinct
-      .sortWith((x, y) => x._1.score > y._1.score)
+    pieces.sortWith((x, y) => x.score > y.score)
       .foreach(hitPair => {
-        hitPair._2.urlRef match {
+        hitPair.note.urlRef
+        hitPair.note.urlRef match {
           case Some(ref) => category.append(ref)
           case None =>
         }
-        body.append(hitPair._1.hit)
+        body.append(hitPair.hit)
       })
 
     (category.toString(), body.toString())
+  }
+
+  private def searchTarget(tokens: List[String], context: Option[String], notes: List[Note]): List[HitScore] = {
+    val targetNotes = Future.sequence(notes.map {
+      note =>
+        Future {
+          (note.search(tokens, context), note)
+        }
+    })
+
+    val firstRound = Await.result(targetNotes, FiniteDuration(10, TimeUnit.SECONDS))
+    firstRound.filter(_._1.isDefined).map(_._1.get).distinct
   }
 
 

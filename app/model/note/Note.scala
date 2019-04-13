@@ -284,7 +284,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
     }.sum
 
     if (hasHit.toList.forall(_._2)) {
-      Some(HitScore(renderHtml(inToken), titleScore + bodyScore))
+      Some(HitScore(renderHtml(inToken), titleScore + bodyScore, this))
     } else {
       None
     }
@@ -302,7 +302,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
     if (exist.isEmpty) {
       return None
     }
-    Some(HitScore(renderHtml(List()), Algorithm.computeScore(exist.map(x => (x._1, x._2, x._3)), 'Id)))
+    Some(HitScore(renderHtml(List()), Algorithm.computeScore(exist.map(x => (x._1, x._2, x._3)), 'Id), this))
   }
 
   /**
@@ -329,9 +329,9 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
 
     if (tokens.isEmpty) {
       if (renderOnly) {
-        return Some(HitScore(renderHtml(tokens, okLines), 10))
+        return Some(HitScore(renderHtml(tokens, okLines), 10, this))
       } else {
-        return Some(HitScore(renderHtml(tokens), 10))
+        return Some(HitScore(renderHtml(tokens), 10, this))
       }
     }
 
@@ -402,9 +402,9 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
           (hit._2, Algorithm.computeScore(tmp, hit._2.paragraphType))
         }).sortBy(_._2).reverse.map(_._1)
 
-        Some(HitScore(renderHtml(inToken, hitItems), bodyScore))
+        Some(HitScore(renderHtml(inToken, hitItems), bodyScore, this))
       } else {
-        Some(HitScore(renderHtml(inToken), bodyScore))
+        Some(HitScore(renderHtml(inToken), bodyScore, this))
       }
     } else {
       None
