@@ -14,11 +14,37 @@ import scala.concurrent.{Await, Future}
   * Time: 10:31 PM
   */
 object NoteService {
+
+  def parseTail(tokens: List[String], list: List[List[String]]): List[List[String]] = {
+    val pre = tokens.takeWhile(_ != "&&")
+    val rawTail = tokens.dropWhile(_ != "&&")
+    val appendHead = list ++ List(pre)
+
+    rawTail.length match {
+      case 0 => appendHead
+      case 1 => appendHead ++ List(List(rawTail.head))
+      case _ => parseTail(rawTail.tail, appendHead)
+    }
+  }
+
   def search(tokens: List[String], context: Option[String]): (String, String) = {
+    val conditions = parseTail(tokens, List()).filter(_.nonEmpty)
+    if (conditions.isEmpty) {
+      return ("", "")
+    }
+
+    val baseTargets = searchTarget(conditions.head, context, NoteRepository.getNotes)
+
+    conditions.tail.foreach(out => {
+      searchTarget(out, context, baseTargets.map(_.note))
+    })
+
+    val pieces = conditions.tail.foldLeft(baseTargets)((target, out) => {
+      searchTarget(out, context, target.map(_.note))
+    })
+
     val body = new StringBuilder
     val category = new StringBuilder
-
-    val pieces = searchTarget(tokens, context, NoteRepository.getNotes)
 
     pieces.sortWith((x, y) => x.score > y.score)
       .foreach(hitPair => {

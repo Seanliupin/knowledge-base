@@ -24,7 +24,7 @@ class HomeController @Inject()(cc: ControllerComponents, db: Database) extends A
     val tokens = query.split(StringUtil.whiteSpaceSegmenter)
       .map(_.trim)
       .filter(_.length > 0)
-      .toSet
+      .distinct
       .toList
     val (category, body) = NoteService.search(tokens, Option(context))
     Ok(views.html.index(query, contextList.map(c => ContextOption(c.value, c.value == context)), category, body))
