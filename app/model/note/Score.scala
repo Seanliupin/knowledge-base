@@ -42,7 +42,7 @@ object Score {
   }
 
   def getScore(symbol: Symbol): Int = {
-    (notSearchableContexts ++ notSearchableContexts).foreach(context => {
+    (searchableContexts ++ notSearchableContexts).foreach(context => {
       if (context._2 == symbol) {
         return context._3
       }
