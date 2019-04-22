@@ -248,7 +248,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
         inToken.foreach(token => {
           val hitList = realTitle.hit(token)
           if (hitList.nonEmpty) {
-            titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Title)
+            titleScore += Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Title)
             hasHit = hasHit.updated(token, true)
           }
         })
@@ -261,7 +261,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
         inToken.foreach(token => {
           val hitList = realTime.hit(token)
           if (hitList.nonEmpty) {
-            titleScore = Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Time)
+            titleScore += Algorithm.computeScore(hitList.map(x => (x._1, x._2, x._3)), 'Time)
             hasHit = hasHit.updated(token, true)
           }
         })
