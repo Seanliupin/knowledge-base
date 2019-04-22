@@ -415,6 +415,8 @@ case class Code(lanOp: Option[String], titleOp: Option[String]) extends Chapter(
 
     HtmlNode(Some("div"), titleNode + bodyNode)
   }
+
+  override def equals(obj: Any): Boolean = super.equals(obj)
 }
 
 case class Memo(cType: Option[String], titleOp: Option[String]) extends Chapter(cType, titleOp) {
