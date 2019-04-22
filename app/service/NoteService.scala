@@ -27,7 +27,9 @@ object NoteService {
     }
   }
 
-  def search(tokens: List[String], context: Option[String]): (String, String) = {
+  def search(rawTokens: List[String], context: Option[String]): (String, String) = {
+    val tokens = rawTokens.filter(_ != "with:score")
+    val withScore = rawTokens.contains("with:score")
     val conditions = parseTail(tokens, List()).filter(_.nonEmpty)
     if (conditions.isEmpty) {
       return ("", "")
@@ -53,7 +55,13 @@ object NoteService {
           case Some(ref) => category.append(ref)
           case None =>
         }
-        body.append(hitPair.hit)
+
+        val itemContent = if (withScore) {
+          s"${hitPair.hit} <div> score = ${hitPair.score} </div>"
+        } else {
+          hitPair.hit
+        }
+        body.append(itemContent)
       })
 
     (category.toString(), body.toString())
