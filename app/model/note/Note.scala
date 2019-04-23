@@ -347,7 +347,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
 
     if (tokens.isEmpty) {
       if (renderOnly) {
-        return Some(HitScore(renderHtml(tokens, okLines), 10, this))
+        return Some(HitScore(renderHtml(tokens, okLines, renderedTitle(tokens)), 10, this))
       } else {
         return Some(HitScore(renderHtml(tokens), 10, this))
       }
@@ -420,7 +420,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
           (hit._2, Algorithm.computeScore(tmp, hit._2.paragraphType))
         }).sortBy(_._2).reverse.map(_._1)
 
-        Some(HitScore(renderHtml(inToken, hitItems), bodyScore, this))
+        Some(HitScore(renderHtml(inToken, hitItems, renderedTitle(inToken)), bodyScore, this))
       } else {
         Some(HitScore(renderHtml(inToken), bodyScore, this))
       }
@@ -429,25 +429,29 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
     }
   }
 
-  private def renderHtml(tokens: List[String], item: List[Render]): String = {
+  private def renderHtml(tokens: List[String], item: List[Render], header: String = ""): String = {
     val html = new StringBuilder
+    html.append(header)
+
     item.distinct.foreach(line => {
       html.append(line.toHtml(tokens))
     })
     html.toString
   }
 
+  private def renderedTitle(tokens: List[String]): String = {
+    return title match {
+      case Some(realTitle) if (realTitle.title.isDefined) => {
+        //title 是可以直接看到的，fileName是鼠标悬停的时候显示
+        HtmlNode(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box").toString()
+      }
+      case None => ""
+    }
+  }
+
   private def renderHtml(tokens: List[String]): String = {
     val html = new StringBuilder
-    title match {
-      case Some(realTitle) => {
-        //title 是可以直接看到的，fileName是鼠标悬停的时候显示
-        if (realTitle.title.isDefined) {
-          html.append(HtmlNode(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box"))
-        }
-      }
-      case None => return "This is not a valid piece"
-    }
+    html.append(renderedTitle(tokens))
 
     val keywords = lines.filter(_.paragraphType == 'Tag)
     val other = lines.filter(_.paragraphType != 'Tag)
