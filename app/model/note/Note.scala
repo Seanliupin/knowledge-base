@@ -35,6 +35,24 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
     * idea: 不同的命中词在搜索文本中的位置信息也可以用于计算命中分数，命中token之间相隔越近，则分数越高
     **/
   def search(tokens: List[String], context: Option[String]): Option[HitScore] = {
+    val onlyToken = """only:(\w*)""" r;
+    val selectors = tokens.map {
+      case token@onlyToken(blockType) => (Some(blockType), token)
+      case token => (None, token)
+    }
+    val validBlocks = List("code", "memo", "tip")
+    val onlySelectors = selectors.filter(selector => {
+      selector._1.isDefined && validBlocks.contains(selector._1.get)
+    })
+
+    if (onlySelectors.nonEmpty) {
+      realSearch(tokens.filter(it => !it.startsWith("only:")), onlySelectors.head._1)
+    } else {
+      realSearch(tokens, context)
+    }
+  }
+
+  private def realSearch(tokens: List[String], context: Option[String]): Option[HitScore] = {
     val tipExtractor = """tip:([\w|\*]*)""" r;
     val codeExtractor = """code:([\w|\*]*)""" r;
     val memoExtractor = """memo:([\w|\*]*)""" r;
@@ -449,4 +467,6 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
   override def toHtml(tokens: List[String]): String = {
     renderHtml(tokens)
   }
+
+
 }
