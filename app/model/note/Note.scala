@@ -445,7 +445,7 @@ case class Note(title: Option[Title], fileName: Option[String]) extends Render {
         //title 是可以直接看到的，fileName是鼠标悬停的时候显示
         HtmlNode(Some("div"), "" + realTitle.toHtml(tokens, fileName.getOrElse("")) + time.getOrElse(Time("")).toHtml(tokens)).className("piece-title-box").toString()
       }
-      case None => ""
+      case _ => ""
     }
   }
 
