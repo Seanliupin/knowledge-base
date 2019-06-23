@@ -276,7 +276,35 @@ case class Frame(attribute: String, des: String, srcOp: Option[String] = None) e
     }
     HtmlNode(Some("div"), content + s"<iframe $attribute></iframe> ").className("frame-body").toString()
   }
+}
 
+case class AsciinemaPlayer(attribute: String, des: String, srcOp: Option[String] = None) extends Paragraph(des) {
+
+  override def paragraphType: Symbol = 'Frame
+
+  /**
+    * 其始终都不应该是空
+    **/
+  override def isEmpty: Boolean = false
+
+  /**
+    * 让网址参与搜索，使得可以通过网址过滤frame
+    **/
+  override def hit(token: String): List[(Boolean, Boolean, Int, Symbol)] = {
+    srcOp match {
+      case Some(src) => List(des, src).flatMap(item => hitScore(item, token, paragraphType))
+      case _ => hitScore(des, token, paragraphType)
+    }
+  }
+
+  override def toHtml(tokens: List[String]): String = {
+    val content = if (des.trim().isEmpty) {
+      ""
+    } else {
+      HtmlNode(Some("div"), renderHits(des, tokens)).className("player-title").toString()
+    }
+    HtmlNode(Some("div"), content + s"<asciinema-player $attribute></asciinema-player> ").className("player-body").toString()
+  }
 }
 
 case class Time(line: String) extends Paragraph(line) {
@@ -483,6 +511,7 @@ object Extractor {
   val idExtractor = """id:\s+(.*)""" r
 
   val frameExtractor = """\<iframe\s+(.*?)\>(.*?)\<\/iframe\>""" r
+  val asciinemaPlayerExtractor = """\<asciinema-player\s+(.*?)\>(.*?)\<\/asciinema-player\>""" r
   val srcExtractor = """(.*?)src=\"(.*?)\"(.*)""" r
 
   val typeLessTipExtractor = """>(.*)""" r

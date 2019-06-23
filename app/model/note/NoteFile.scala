@@ -113,6 +113,12 @@ case class NoteFile(noteFilePath: String) {
           case _ => note.addLine(Frame(attribute, des))
         }
       }
+      case Extractor.asciinemaPlayerExtractor(attribute, des) if note.isValid => {
+        attribute match {
+          case Extractor.srcExtractor(_, src, _) => note.addLine(AsciinemaPlayer(attribute, des, Some(src)))
+          case _ => note.addLine(Frame(attribute, des))
+        }
+      }
       case Extractor.typedTipExtractor(tipType, tip) if note.isValid => {
         if (tipType.trim.length == 0) {
           note.addLine(Tip(tip, None))

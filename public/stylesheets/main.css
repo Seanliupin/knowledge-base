@@ -333,6 +333,16 @@ body {
     background: #bebebe;
 }
 
+.player-body {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.player-title {
+
+}
+
 pre {
     padding: 0px;
     margin: 0px;
