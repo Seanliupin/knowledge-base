@@ -134,7 +134,7 @@ case class NoteFile(noteFilePath: String) {
     if (note.isValid) {
       addNote(note)
     }
-    pieces
+    pieces.reverse
   }
 
   /**
