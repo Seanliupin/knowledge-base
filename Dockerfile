@@ -1,5 +1,5 @@
 FROM centos:centos8
-ENV SCALA_VERSION 2.13.1
+ENV SCALA_VERSION 2.12.3
 ENV SBT_VERSION 0.13.17
 
 RUN yum install -y epel-release
@@ -19,5 +19,4 @@ RUN wget -O /usr/local/bin/sbt-launch.jar http://repo.typesafe.com/typesafe/ivy-
 WORKDIR /home/working
 COPY target/universal/life-1.0-SNAPSHOT.zip ./
 RUN unzip life-1.0-SNAPSHOT.zip
-COPY start ./
-CMD ./start
+CMD ./life-1.0-SNAPSHOT/bin/life  -Dplay.http.secret.key=aboigtfrfghijk -Dhttp.port=9000
