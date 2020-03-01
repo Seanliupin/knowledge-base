@@ -1,8 +1,11 @@
 package model.note
 
+import java.nio.charset.CodingErrorAction
+
 import helper.StringUtil
 import resource.managed
 
+import scala.io.Codec
 import scala.reflect.io.File
 
 /**
@@ -156,7 +159,11 @@ case class NoteFile(noteFilePath: String) {
       case _ =>
     }
 
-    for {source <- managed(scala.io.Source.fromFile(noteFilePath, "UTF-8"))} {
+    implicit val codec = Codec("UTF-8")
+    codec.onMalformedInput(CodingErrorAction.REPLACE)
+    codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
+
+    for {source <- managed(scala.io.Source.fromFile(noteFilePath))} {
       return linesToNotes(source.getLines().toList, noteFilePath, globalTitle, globalYear, None)
     }
     List()
