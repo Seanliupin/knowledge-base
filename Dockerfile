@@ -18,5 +18,6 @@ RUN wget -O /usr/local/bin/sbt-launch.jar http://repo.typesafe.com/typesafe/ivy-
 
 WORKDIR /home/working
 COPY target/universal/life-1.0-SNAPSHOT.zip ./
-COPY target/universal/life-1.0-SNAPSHOT.zip ./
-RUN start ./start
+RUN unzip life-1.0-SNAPSHOT.zip
+COPY start ./
+CMD ./start
