@@ -1,0 +1,2 @@
+#!/bin/bash
+nohup ./life-1.0-SNAPSHOT/bin/life  -Dplay.http.secret.key=aboigtfrfghijk -Dhttp.port=9000 > log.md 2>&1 &
