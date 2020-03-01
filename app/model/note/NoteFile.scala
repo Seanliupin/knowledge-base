@@ -160,8 +160,8 @@ case class NoteFile(noteFilePath: String) {
     }
 
     implicit val codec = Codec.UTF8
-    codec.onMalformedInput(CodingErrorAction.REPLACE)
-    codec.onUnmappableCharacter(CodingErrorAction.REPLACE)
+    codec.onMalformedInput(CodingErrorAction.IGNORE)
+    codec.onUnmappableCharacter(CodingErrorAction.IGNORE)
 
     for {source <- managed(scala.io.Source.fromFile(noteFilePath))} {
       return linesToNotes(source.getLines().toList, noteFilePath, globalTitle, globalYear, None)

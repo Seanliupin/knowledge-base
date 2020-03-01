@@ -19,4 +19,7 @@ RUN wget -O /usr/local/bin/sbt-launch.jar http://repo.typesafe.com/typesafe/ivy-
 WORKDIR /home/working
 COPY target/universal/life-1.0-SNAPSHOT.zip ./
 RUN unzip life-1.0-SNAPSHOT.zip
+ENV JAVA_OPTS "-Dfile.encoding=UTF-8"
+ENV LANG "en_US.UTF-8"
+ENV LC_ALL "en_US.UTF-8"
 CMD ./life-1.0-SNAPSHOT/bin/life  -Dplay.http.secret.key=aboigtfrfghijk -Dhttp.port=9000
