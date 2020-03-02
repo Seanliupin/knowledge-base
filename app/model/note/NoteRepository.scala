@@ -5,8 +5,8 @@ import java.util.Observable
 
 import helper.WatchDir
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 /**
   * Author: Sean
@@ -14,7 +14,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
   * Time: 10:46 PM
   */
 object NoteRepository {
-  val root = "/Users/seanliu/Note/"
+  val root = "/home/note/"
   //   val root = "/Users/seanliu/Note/ztodo"  // for test
 
   private var allNotes: List[Note] = List()
@@ -62,8 +62,7 @@ object NoteRepository {
       }
     }
 
-    sc(List(), List(new File(root)))
+    val files = sc(List(), List(new File(root)))
+    files.filter(f => f.getName.endsWith(".md"))
   }
-
-
 }
